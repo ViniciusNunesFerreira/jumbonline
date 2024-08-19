@@ -1,0 +1,38 @@
+@import "tailwindcss/base.css";
+
+@import "tailwindcss/components.css";
+@import "./components/button.css";
+@import "./components/nouislider.css";
+
+@import "tailwindcss/utilities.css";
+@import "./components/utilities.css";
+
+@import url('https://fonts.googleapis.com/css?family=Urbanist%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic%7CDM+Sans%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic&amp;display=swap&amp;ver=6.6');
+@config "./../../tailwind.guest.config.js";
+
+html{
+  scroll-behavior: smooth;
+}
+
+:target {
+  scroll-margin-top: .8em;
+}
+
+
+.bg-mask{
+    background-image: url('../../img/Shape.png');
+}
+
+.input-number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.input-number{
+  -moz-appearance: textfield;
+}
+
+@layer components {
+    .btn-primary {
+      @apply hover:text-primary hover:bg-accent;
+    }
+}
