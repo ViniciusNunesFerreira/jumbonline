@@ -43,5 +43,10 @@ class PrisonUnit extends Model
         return $this->belongsToMany(Collection::class);
     }
 
+    public function detentos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return  $this->hasMany(Detento::class);
+    }
+
 
 }

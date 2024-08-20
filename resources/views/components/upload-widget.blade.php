@@ -33,8 +33,8 @@
             <x-heroicon-m-arrow-up-tray class="mx-auto h-10 w-10 text-slate-400" />
             <div class="flex text-sm">
                 <p>
-                    <span class="font-medium text-sky-500 group-hover:text-sky-600 dark:group-hover:text-sky-400">{{ __('Upload a file') }}</span>
-                    <span class="text-slate-500 dark:text-slate-400"> {{ __('or drag and drop') }}</span>
+                    <span class="font-medium text-sky-500 group-hover:text-sky-600 dark:group-hover:text-sky-400">{{ __('Carregar um arquivo') }}</span>
+                    <span class="text-slate-500 dark:text-slate-400"> {{ __('ou arraste e solte') }}</span>
                 </p>
                 <x-input
                     {{ $attributes }}

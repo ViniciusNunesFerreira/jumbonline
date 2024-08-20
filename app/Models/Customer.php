@@ -79,4 +79,9 @@ class Customer extends Authenticatable implements HasMedia
     {
         return $this->hasManyThrough(OrderItem::class, Order::class);
     }
+
+    public function detentos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return  $this->hasMany(Detento::class);
+    }
 }

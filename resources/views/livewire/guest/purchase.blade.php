@@ -66,7 +66,9 @@
                 <div class="mx-auto max-w-7xl py-8 space-y-4">
                     <x-card>
                         <x-slot:content class="!py-8 sm:!px-10">
-                            Entregar na Unidade
+                            <h2 class="text-lg font-semibold text-purple tracking-tight flex items-center">
+                                 <x-heroicon-s-check-circle class="h-5 w-5 flex-shrink-0 text-accent" />  &nbsp; Entregar na Unidade
+                            </h2>
                         </x-slot:content>
                     </x-card>
 
@@ -91,9 +93,7 @@
                     Informe os dados do detento que irá receber o jumbo. 
                 </div>
 
-                <div class="mx-auto max-w-7xl">
-                    
-                </div>
+                <livewire:guest.purchase-components.detento />
 
             </div>
 
@@ -109,7 +109,15 @@
                     Falta pouco para concluir e finalizar seu pedido.
                 </div>
 
-                <div class="mx-auto max-w-7xl">
+                <div class="mx-auto max-w-7xl py-8 space-y-4">
+
+                    <x-card>
+                        <x-slot:content class="!py-8 sm:!px-10">
+                            <h2 class="text-lg font-semibold text-purple tracking-tight flex items-center"> 
+                               <x-heroicon-s-check-circle class="h-5 w-5 flex-shrink-0 text-accent" /> &nbsp; Selecione a forma de pagamento
+                            </h2>
+                        </x-slot:content>
+                    </x-card>
                     
                 </div>
 
