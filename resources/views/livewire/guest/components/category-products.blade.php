@@ -1,9 +1,9 @@
-<div class="flex flex-rows-2 items-start">
-    <details class="group group-2 py-2 text-lg grow" @if($showProducts) open @endif >
+<div>
+    <details close class="group group-2 py-2 text-lg" @if($showProducts) open @endif >
 
-        <summary wire:click.prevent="selectCategory"  class="relative flex cursor-pointer flex-row items-center space-x-4 p-1 font-semibold text-gray-800 marker:[font-size:0px]">
+        <summary class="relative flex cursor-pointer flex-row items-center space-x-2 p-1 font-semibold text-gray-800 marker:[font-size:0px]">
             
-            <div   class="flex flex-row items-center space-x-4">
+            <div   class="flex flex-row items-center grow"  wire:click.prevent="selectCategory" >
                 @if($category->hasMedia('cover'))
                     <img
                         class="h-14 w-14 rounded-md object-center m-2"
@@ -18,6 +18,27 @@
                     {{ $category->title }}
                 </span>  
             </div>
+
+            <div class="flex-col flex  {{$quantity > 0 ? '' : 'hidden' }} py-2">
+
+                <div class="relative flex items-center max-w-[8rem]">
+                    <button type="button" @if( $quantity <= 0 ) disabled @endif id="decrement-button" wire:click.prevent="decrementQuantity" class="bg-gray-100  hover:bg-gray-200 border border-gray-300 rounded-s-lg p-2 h-8 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none">
+                        <svg class="w-2 h-2 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
+                        </svg>
+                    </button>
+                    
+                    <input type="number" id="quantity-input" min="1" max="{{$category->quantity}}" wire:model.live="quantity" class="input-number bg-gray-50 border-x-0 border-gray-300 h-8 text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+                    
+                    <button type="button" wire:click.prevent="incrementQuantity" id="increment-button"  class="bg-accent   hover:bg-primary border border-gray-300 rounded-e-lg p-2 h-8 focus:ring-accent-100 focus:ring-2 focus:outline-none">
+                        <svg class="w-2 h-2 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <p id="helper-text-explanation" class="text-xs text-gray-500 ">máx. {{$category->quantity}} unid</p>
+
+            </div>
             
             
         </summary>
@@ -25,9 +46,7 @@
           
         <div x-data="{ current: 0 }" class="relative overflow-auto">
 
-            <ul x-ref="slider"
-
-                class="scroll-smooth scroll-no-bar snap-mandatory snap-x overflow-x-auto overflow-y-hidden space-x-4 flex flex-nowrap">
+            <ul x-ref="slider" class="scroll-smooth scroll-no-bar snap-mandatory snap-x overflow-x-auto overflow-y-hidden space-x-4 flex flex-nowrap">
                 @forelse( $category->products as $product)
                 
                         <li wire:key="product-{{ $product->slug }}" class=" snap-center shrink-0 w-44 group relative flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-complement-400 hover:border-sky-300 hover:shadow-lg hover:shadow-sky-300/50 transition duration-150">
@@ -83,25 +102,6 @@
             </ul>
         </div>                                        
 
+    
     </details>
-
-    <div class="grid-rows-2 gap-2  {{$quantity > 0 ? 'grid' : 'hidden' }} py-2">
-
-        <div class="relative flex items-center max-w-[8rem]">
-            <button type="button" @if( $quantity <= 0 ) disabled @endif id="decrement-button" wire:click.prevent="decrementQuantity" class="bg-gray-100  hover:bg-gray-200 border border-gray-300 rounded-s-lg p-2 h-8 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none">
-                <svg class="w-2 h-2 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
-                </svg>
-            </button>
-            
-            <input type="number" id="quantity-input" min="1" max="{{$category->quantity}}" wire:model.live="quantity" class="input-number bg-gray-50 border-x-0 border-gray-300 h-8 text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
-            
-            <button type="button" wire:click.prevent="incrementQuantity" id="increment-button"  class="bg-accent   hover:bg-primary border border-gray-300 rounded-e-lg p-2 h-8 focus:ring-accent-100 focus:ring-2 focus:outline-none">
-                <svg class="w-2 h-2 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
-                </svg>
-            </button>
-        </div>
-        <p id="helper-text-explanation" class="text-xs text-gray-500 ">máx. {{$category->quantity}} unid</p>
-    </div>
 </div>
