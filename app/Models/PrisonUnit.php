@@ -9,6 +9,7 @@ use Spatie\Sluggable\SlugOptions;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 
 class PrisonUnit extends Model
 {
@@ -16,7 +17,11 @@ class PrisonUnit extends Model
     use HasSlug;
 
     protected $fillable = [
-       'name', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'cep', 'slug'
+       'name', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'cep', 'slug', 'phone'
+    ];
+
+    protected $casts = [
+        'phone' => E164PhoneNumberCast::class . ':BR',
     ];
 
     public function getSlugOptions(): SlugOptions

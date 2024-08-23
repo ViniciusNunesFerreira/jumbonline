@@ -8,6 +8,7 @@ use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use App\Models\PrisonCategory;
 use App\Models\Prison;
+use Illuminate\Http\Request;
 
 
 class Welcome extends Component
@@ -17,6 +18,7 @@ class Welcome extends Component
 
     public $prison_categories = [];
 
+    
     public $prison = "";
 
     public function mount()
@@ -94,9 +96,13 @@ class Welcome extends Component
         }
     }
 
-    public function getPrisonProducts()
+    public function getPrisonProducts(Request $request)
     {
         $this->validate();
+
+        
+        $request->session()->put('prison', $this->prison);
+
         $prison_unit_url = route('guest.products.list', $this->prison); 
         return redirect()->to($prison_unit_url);
         

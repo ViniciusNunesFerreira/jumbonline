@@ -28,7 +28,7 @@
                         </svg>
                     </button>
                     
-                    <input type="number" id="quantity-input" min="1" max="{{$category->quantity}}" wire:model.live="quantity" class="input-number bg-gray-50 border-x-0 border-gray-300 h-8 text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+                    <input type="number"  min="1" max="{{$category->quantity}}" wire:model.live="quantity" class="input-number bg-gray-50 border-x-0 border-gray-300 h-8 text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
                     
                     <button type="button" wire:click.prevent="incrementQuantity" id="increment-button"  class="bg-accent   hover:bg-primary border border-gray-300 rounded-e-lg p-2 h-8 focus:ring-accent-100 focus:ring-2 focus:outline-none">
                         <svg class="w-2 h-2 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
@@ -45,18 +45,22 @@
 
           
         <div x-data="{ current: 0 }" class="relative overflow-auto">
-
-            <ul x-ref="slider" class="scroll-smooth scroll-no-bar snap-mandatory snap-x overflow-x-auto overflow-y-hidden space-x-4 flex flex-nowrap">
-                @forelse( $category->products as $product)
                 
-                        <li wire:key="product-{{ $product->slug }}" class=" snap-center shrink-0 w-44 group relative flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-complement-400 hover:border-sky-300 hover:shadow-lg hover:shadow-sky-300/50 transition duration-150">
+            <ul x-ref="slider" class="scroll-smooth scroll-no-bar snap-mandatory snap-x overflow-x-auto overflow-y-hidden space-x-4 flex flex-nowrap">
+                
+            
+                @forelse( $category->products as $prod)
+
+                    
+
+                        <li wire:key="{{ $prod->id }}" class="  @if(isset($selectedOptionValues) && sizeof($selectedOptionValues) > 0 && in_array($prod->id, $selectedOptionValues)  ) border-primary @else border-slate-200 @endif snap-center z-0 shrink-0 w-44 group relative flex flex-col overflow-hidden rounded-lg border  hover:border-sky-300 hover:shadow-lg hover:shadow-sky-300/50 transition duration-150">
                             <div class="aspect-w-3 aspect-h-4 group-hover:opacity-75 sm:aspect-none">
-                                @if($product->hasMedia('gallery'))
-                                    {{ $product->getFirstMedia('gallery')('responsive')->attributes(['alt' => $product->name, 'class' => 'h-full w-full object-cover object-center sm:h-full sm:w-full p-2']) }}
+                                @if($prod->hasMedia('gallery'))
+                                    {{ $prod->getFirstMedia('gallery')('responsive')->attributes(['alt' => $prod->name, 'class' => 'h-full w-full object-cover object-center sm:h-full sm:w-full p-2']) }}
                                 @else
                                     <img
-                                        src="{{ $product->getFirstMediaUrl('gallery') }}"
-                                        alt="{{ $product->name }}"
+                                        src="{{ $prod->getFirstMediaUrl('gallery') }}"
+                                        alt="{{ $prod->name }}"
                                         class="h-full w-full object-cover object-center sm:h-full sm:w-full"
                                     >
                                 @endif
@@ -68,38 +72,49 @@
                                             aria-hidden="true"
                                             class="absolute inset-0"
                                         ></span>
-                                        {{ $product->name }}
+                                        {{ $prod->name }}
                                     
                                 </h3>
                                 
                                 <div class="pt-1 flex flex-1 flex-col justify-end">
                                     <p class="text-base font-semibold text-slate-900">
                                         <x-money
-                                            :amount="$product->price"
+                                            :amount="$prod->price"
                                             :currency="config('app.currency')"
                                         />
                                     </p>
                                 </div>
 
                                 <div class="flex w-full">
-                                    <button
-                                        wire:loading.delay.attr="disabled"
-                                        class="btn btn-primary btn-xl w-full"
+                                    
+                                
+                                    <button 
+                                        wire:click.prevent="addToCart({{$prod->id}})" 
+                                        class="z-10 btn btn-primary btn-xl w-full" 
+                                        @disabled( isset($selectedOptionValues) && sizeof($selectedOptionValues) > 0 && in_array($prod->id, $selectedOptionValues) )>
                                         
-                                    >
-                                        {{ __('escolher')  }}
+                                        @if(isset($selectedOptionValues) && sizeof($selectedOptionValues) > 0 && in_array($prod->id, $selectedOptionValues)  )
+                                             <x-heroicon-m-check class="h-5 w-5 text-white font-semibold" /> 
+                                        @else
+                                             {{ __('escolher') }}
+                                        @endif
+
                                     </button>
+                                
                                 </div>
 
                             </div>
                         </li>
-
-                    </li>
+                    
 
                 @empty
                     sem produtos
                 @endforelse
+
+
             </ul>
+       
+
         </div>                                        
 
     

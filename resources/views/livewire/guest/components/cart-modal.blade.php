@@ -1,7 +1,7 @@
 <div>
     <x-modal-dialog wire:model="isShown">
         <x-slot:title>
-            {{ __('Shopping cart') }}
+           Pacote Jumbo
         </x-slot:title>
         <x-slot:content>
             @unless($cartItems->count())
@@ -9,11 +9,11 @@
                     <x-heroicon-o-shopping-cart class="mx-auto h-24 w-24 text-slate-400" />
 
                     <h3 class="mt-2 text-lg font-medium text-slate-900 dark:text-slate-200">
-                        {{ __('Your shopping cart is currently empty') }}
+                        {{ __('Seu carrinho de compras está vazio no momento') }}
                     </h3>
 
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        {{ __('Before proceed to checkout you must add some products to your shopping cart.') }}
+                        {{ __('Antes de prosseguir para a finalização da compra você deve adicionar alguns produtos ao seu carrinho de compras.') }}
                     </p>
 
                     <div class="mt-6">
@@ -22,7 +22,7 @@
                             type="button"
                             class="btn btn-primary"
                         >
-                            {{ __('Continue shopping') }}
+                            {{ __('Continuar comprando') }}
                         </button>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                         id="cart-heading"
                         class="sr-only"
                     >
-                        {{ __('Items in your shopping cart') }}
+                        {{ __('Itens em seu carrinho de compras') }}
                     </h3>
 
                     <ul
@@ -76,7 +76,7 @@
                                         @endif
                                     </div>
                                     <div class="flex flex-1 items-end justify-between text-sm">
-                                        <p class="text-slate-500">{{ __('Quantity: :count', ['count' => $item->quantity]) }}</p>
+                                        <p class="text-slate-500">{{ __('Quantidade: :count', ['count' => $item->quantity]) }}</p>
 
                                         <div class="flex">
                                             <button
@@ -84,7 +84,7 @@
                                                 type="button"
                                                 class="btn btn-link"
                                             >
-                                                {{ __('Remove') }}
+                                                {{ __('Remover') }}
                                             </button>
                                         </div>
                                     </div>
@@ -101,7 +101,7 @@
                         id="summary-heading"
                         class="sr-only"
                     >
-                        {{ __('Order summary') }}
+                        {{ __('Resumo do pedido') }}
                     </h2>
 
                     <div>
@@ -119,7 +119,7 @@
                             </div>
                         </dl>
                         <p class="mt-1 text-sm text-slate-500">
-                            {{ __('Shipping and taxes will be calculated at checkout.') }}
+                            {{ __('Frete e impostos serão calculados na finalização da compra.') }}
                         </p>
                     </div>
 
@@ -128,25 +128,25 @@
                             href="{{ route('guest.cart') }}"
                             class="btn btn-default btn-lg w-full"
                         >
-                            {{ __('View cart') }}
+                            {{ __('Ver Carrinho') }}
                         </a>
                         <a
                             href="{{ route('guest.checkout') }}"
                             class="btn btn-primary btn-lg w-full"
                         >
-                            {{ __('Proceed to checkout') }}
+                            {{ __('Prosseguir para Pagamento') }}
                         </a>
                     </div>
 
                     <div class="mt-6 text-center text-sm">
                         <p>
-                            {{ __('or') }}
+                            {{ __('ou') }}
                             <button
                                 x-on:click="show = false"
                                 type="button"
                                 class="btn btn-link"
                             >
-                                {{ __('Continue Shopping') }}
+                                {{ __('Continuar Comprando') }}
                                 <span aria-hidden="true"> &rarr;</span>
                             </button>
                         </p>

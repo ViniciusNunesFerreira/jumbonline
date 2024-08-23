@@ -9,7 +9,7 @@ class CartItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['product_id', 'variant_id', 'quantity'];
+    protected $fillable = ['product_id', 'variant_id', 'category_id', 'quantity'];
 
     protected $casts = [
         'quantity' => 'integer',
@@ -25,6 +25,11 @@ class CartItem extends Model
     public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function variant(): \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -1,7 +1,7 @@
 <div>
     <x-slide-over wire:model="isShown">
         <x-slot:title>
-            {{ __('Shopping cart') }}
+            Pacote Jumbo
         </x-slot:title>
         <x-slot:content>
             <div class="flow-root">
@@ -50,7 +50,7 @@
                                     @endif
                                 </div>
                                 <div class="flex flex-1 items-end justify-between text-sm">
-                                    <p class="text-slate-500">{{ __('Quantity: :count', ['count' => $item->quantity]) }}</p>
+                                    <p class="text-slate-500">{{ __('Quantidade: :count', ['count' => $item->quantity]) }}</p>
 
                                     <div class="flex">
                                         <button
@@ -58,7 +58,7 @@
                                             type="button"
                                             class="btn btn-link"
                                         >
-                                            {{ __('Remove') }}
+                                            {{ __('Remover') }}
                                         </button>
                                     </div>
                                 </div>
@@ -69,7 +69,7 @@
                             <x-heroicon-o-shopping-cart class="mx-auto h-24 w-24 text-slate-400" />
 
                             <h3 class="mt-2 text-lg font-medium text-slate-900 dark:text-slate-200">
-                                {{ __('Your shopping cart is currently empty') }}
+                                {{ __('Seu carrinho de compras está vazio no momento') }}
                             </h3>
 
                             <div class="mt-6">
@@ -78,7 +78,7 @@
                                     type="button"
                                     class="btn btn-primary"
                                 >
-                                    {{ __('Continue shopping') }}
+                                    {{ __('Continuar comprando') }}
                                 </button>
                             </div>
                         </li>
@@ -100,25 +100,25 @@
                     </p>
                 </div>
                 <p class="mt-0.5 text-sm text-gray-500">
-                    {{ __('Shipping and taxes will be calculated at checkout.') }}
+                    {{ __('Frete e impostos serão calculados na finalização da compra.') }}
                 </p>
                 <div class="mt-6">
                     <a
                         href="{{ route('guest.checkout') }}"
                         class="btn btn-xl btn-primary w-full"
                     >
-                        {{ __('Checkout') }}
+                        {{ __('Finalizar') }}
                     </a>
                 </div>
                 <div class="mt-6 flex justify-center text-center text-sm text-gray-500">
                     <p>
-                        {{ __('or') }}
+                        {{ __('ou') }}
                         <button
                             x-on:click="show = false"
                             type="button"
                             class="btn btn-link"
                         >
-                            {{ __('Continue Shopping') }}
+                            {{ __('Continuar escolhendo') }}
                             <span aria-hidden="true"> &rarr;</span>
                         </button>
                     </p>

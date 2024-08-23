@@ -362,7 +362,7 @@
 
                         {{-- Spotlight --}}
 
-
+                       
                         <!-- Cart -->
                         <div class="ml-4 flow-root lg:ml-6">
                             <a
@@ -374,6 +374,7 @@
                                 <span class="sr-only">{{ __('ver carrinho') }}</span>
                             </a>
                         </div>
+                       
                     </div>
                 </div>
             </nav>

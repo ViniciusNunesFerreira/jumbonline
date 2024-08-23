@@ -62,6 +62,7 @@ class CartModal extends Component
         $this->cartItems = $this->loadCartItems();
 
         $this->emit('refresh')->to('guest.components.header');
+        $this->emit('refreshCart')->to('guest.components.category-products');
     }
 
     public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null

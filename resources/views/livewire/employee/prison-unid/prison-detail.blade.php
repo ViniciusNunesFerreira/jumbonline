@@ -149,7 +149,7 @@
                                     />
                                 </div>
 
-                                <div class="col-span-6 sm:col-span-4">
+                                <div class="col-span-6 sm:col-span-3">
                                     <x-input-label
                                         for="cep"
                                         value="CEP"
@@ -162,6 +162,23 @@
                                     />
                                     <x-input-error
                                         for="prison.cep"
+                                        class="mt-2"
+                                    />
+                                </div>
+
+                                <div class="col-span-6 sm:col-span-3">
+                                    <x-input-label
+                                        for="phone"
+                                        value="Telefone"
+                                    />
+                                    <x-input
+                                         wire:model.defer="prison.phone"
+                                        type="text"
+                                        id="phone"
+                                        class="mt-1 block w-full sm:text-sm"
+                                    />
+                                    <x-input-error
+                                        for="prison.phone"
                                         class="mt-2"
                                     />
                                 </div>

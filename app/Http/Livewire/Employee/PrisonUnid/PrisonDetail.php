@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\PrisonUnit;
 use App\Models\PrisonCategory;
 use App\Http\Livewire\Traits\WithBulkActions;
+use Propaganistas\LaravelPhone\Rules\Phone;
 
 class PrisonDetail extends Component
 {
@@ -26,6 +27,7 @@ class PrisonDetail extends Component
         'prison.cidade' => 'required', 
         'prison.uf' => 'required', 
         'prison.cep' => 'required',
+        'prison.phone' => 'required|phone:BR',
         'prison.prison_category_id' => 'required'
     ];
 
@@ -44,6 +46,7 @@ class PrisonDetail extends Component
             'prison.cidade' => 'required', 
             'prison.uf' => 'required', 
             'prison.cep' => 'required',
+            'prison.phone' => 'required|phone:BR',
             'prison.prison_category_id' => 'required'
         ]);
 

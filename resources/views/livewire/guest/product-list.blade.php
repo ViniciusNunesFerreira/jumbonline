@@ -21,7 +21,7 @@
                     </li>
                     <li class=" flex items-center leading-5">
                         <x-heroicon-s-phone class="h-5 w-5 flex-shrink-0 text-accent m-2" /> 
-                        Tel:(14) 3484-1252
+                        Tel:{{ phone( optional($prison)->phone, 'BR' ); }}
                     </li>
                     <li class="flex items-center leading-5">
                         <x-heroicon-s-truck class="h-5 w-5 flex-shrink-0 text-accent m-2" /> 
