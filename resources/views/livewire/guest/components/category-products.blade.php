@@ -53,7 +53,7 @@
 
                     
 
-                        <li wire:key="{{ $prod->id }}" class="  @if(isset($selectedOptionValues) && sizeof($selectedOptionValues) > 0 && in_array($prod->id, $selectedOptionValues)  ) border-primary @else border-slate-200 @endif snap-center z-0 shrink-0 w-44 group relative flex flex-col overflow-hidden rounded-lg border  hover:border-sky-300 hover:shadow-lg hover:shadow-sky-300/50 transition duration-150">
+                        <li  wire:key="{{time().$prod->id}}" class="  @if(isset($selectedOptionValues) && sizeof($selectedOptionValues) > 0 && in_array($prod->id, $selectedOptionValues)  ) border-primary @else border-slate-200 @endif snap-center z-0 shrink-0 w-44 group relative flex flex-col overflow-hidden rounded-lg border  hover:border-sky-300 hover:shadow-lg hover:shadow-sky-300/50 transition duration-150">
                             <div class="aspect-w-3 aspect-h-4 group-hover:opacity-75 sm:aspect-none">
                                 @if($prod->hasMedia('gallery'))
                                     {{ $prod->getFirstMedia('gallery')('responsive')->attributes(['alt' => $prod->name, 'class' => 'h-full w-full object-cover object-center sm:h-full sm:w-full p-2']) }}

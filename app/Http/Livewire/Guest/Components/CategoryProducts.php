@@ -7,8 +7,6 @@ use App\Models\Category;
 use App\Models\Variant;
 use App\Models\Product;
 
-use App\Models\Cart;
-
 class CategoryProducts extends Component
 {
 
@@ -22,15 +20,14 @@ class CategoryProducts extends Component
 
     public $showProducts = false;
 
-    public array $selectedOptionValues;
+    public array $selectedOptionValues ;
 
-    protected $listeners = ['refreshCart'];
-
-    public array $addToCart = [
+    public array $add = [
         'product' => null,
         'variant' => null,
-        'catetory' => null,
+        'category' => null,
         'quantity' => 0,
+        'weight' => 0
     ];
 
     public string $variantQuery = '';
@@ -40,16 +37,10 @@ class CategoryProducts extends Component
     public function mount()
     {
         $this->maxQuantity = $this->category->quantity;
-        $this->refreshCart();
+        
     }
 
-    public function refreshCart()
-    {
-        $this->selectedOptionValues = $this->cart->items()->pluck('product_id')->toArray();
 
-    }
-
-   
     public function selectCategory()
     {
         $this->showProducts = !$this->showProducts;
@@ -81,47 +72,23 @@ class CategoryProducts extends Component
 
 
 
-    public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null
-    {
-        return \Auth::user();
-    }
-
-    public function getCartProperty(): \App\Models\Cart|\Illuminate\Database\Eloquent\Model
-    {
-        return $this->customer
-            ? Cart::query()->firstOrCreate(['customer_id' => $this->customer->id])
-            : Cart::query()->firstOrCreate(['session_id' => session()->getId()]);
-    }
-
     public function addToCart($product)
     {
        if( $this->quantity > $this->maxQuantity) {
             abort(403);
        }
 
-       $this->addCart($product);
+       $this->product = $this->category->products()->with('variants')->find($product);
+       $variant = $this->product->variants()->first();
+       
+       $this->add['product'] =  $this->product->id;
+       $this->add['variant'] =  $variant->id;
+       $this->add['quantity'] = $this->quantity;
+       $this->add['category'] = $this->category->id;
+       $this->add['weight'] =   $variant->weight_unit == 'g' ? ($variant->weight_value / 1000) : $variant->weight_value;
 
-    }
+       $this->emit('addCart', $this->add)->to('guest.product-list');
 
-    protected function addCart($id)
-    {
-        $this->product = $this->category->products()->with('variants')->find($id);
-
-
-        $this->cart->items()->updateOrCreate([
-            'category_id' => $this->category->id,
-        ], [
-            'product_id' => $this->product->id,
-            'variant_id' => $this->product->variants()->first()->id,
-            'quantity' => $this->quantity,
-        ]);
-
-        $this->emit('refresh')->to('guest.components.header');
-
-        $this->emit('show')->to('guest.components.cart-slide');
-
-        $this->emitSelf('refreshCart');
-        
     }
 
     public function render()

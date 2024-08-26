@@ -2,7 +2,7 @@
     
     <livewire:guest.components.guest-carousel />
 
-    <div class="bg-white">
+    <div class="bg-white relative">
         <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
 
             <div class="max-w-7xl">
@@ -57,7 +57,7 @@
                     <section class="grid grid-cols-1 gap-y-3 divide-y">
 
                         @forelse( $collection->categoriesPublished as $cat)
-                            <livewire:guest.components.category-products :category="$cat" />
+                            <livewire:guest.components.category-products :category="$cat" :wire:key="time().$cat->id" :selectedOptionValues="$selectedOptions" />
                         @empty
                             sem categorias
                         @endforelse
@@ -73,6 +73,13 @@
             </section>
 
         </div>
+
+        <div class="fixed bottom-0 right-0">
+            <x:card >           
+                <x-slot:content>{{ $weight_max - $weight }}Kg restantes</x-slot:content>
+            </x:card>
+        </div>
+
     </div>
 
     

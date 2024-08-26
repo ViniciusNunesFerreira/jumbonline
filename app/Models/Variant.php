@@ -103,4 +103,15 @@ class Variant extends Model implements HasMedia
             get: fn($value, $attributes) => $attributes['compare_price'] > $attributes['price']
         );
     }
+
+    public function calcWeight()
+    {
+        $weight = $this->weight_value;
+
+        if($this->weight_unit == 'g'){
+            $weight = $this->weight_value / 100;
+        }
+
+        return $weight;
+    }
 }

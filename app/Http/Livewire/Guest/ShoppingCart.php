@@ -57,7 +57,7 @@ class ShoppingCart extends Component
         $this->emit('refresh')->self();
 
         $this->emit('refresh')->to('guest.components.header');
-        $this->emit('refreshCart')->to('guest.components.category-products');
+        $this->emit('refreshCart')->to('guest.product-list');
     }
 
     public function getCustomerProperty()

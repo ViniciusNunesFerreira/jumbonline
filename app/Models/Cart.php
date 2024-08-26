@@ -28,6 +28,8 @@ class Cart extends Model
         'isDigitalOnly' => 'boolean',
     ];
 
+    protected $with = ['items'];
+
     public function customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Customer::class);
@@ -69,7 +71,7 @@ class Cart extends Model
     {
         return new Attribute(
             get: fn() => $this->items->reduce(function ($value, $item) {
-                $itemWeight = $item->variant->weight_unit == 'g' ? $item->variant->weight_value * 1000 : $item->variant->weight_value;
+                $itemWeight = $item->variant->weight_unit == 'g' ? $item->variant->weight_value / 1000 : $item->variant->weight_value;
 
                 return $value + $itemWeight;
             }, 0)

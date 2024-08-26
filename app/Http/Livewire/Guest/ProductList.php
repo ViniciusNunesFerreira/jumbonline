@@ -6,14 +6,75 @@ use Livewire\Component;
 
 use App\Models\PrisonUnit;
 use Artesaos\SEOTools\Traits\SEOTools;
+use App\Models\Cart;
+use App\Models\Product;
+
 
 class ProductList extends Component
 {
     use SEOTools;
 
     public PrisonUnit $prison;
+    public Product $product;
 
     public $perPage = 10;
+
+    protected $listeners = ['refreshCart', 'addCart'];
+
+    public array $selectedOptions = [];
+
+    public $weight_max = 12;
+    public $weight = 0;
+
+    public function mount()
+    {
+        $this->selectedOptions = $this->cart->items()->pluck('product_id')->toArray();
+        $this->weight = $this->cart->weight;
+    }
+
+    public function refreshCart()
+    {
+        $this->selectedOptions = $this->cart->items()->pluck('product_id')->toArray();
+        $this->cart->load('items');
+        $this->weight = $this->cart->weight;
+
+        $this->emit('refresh')->to('guest.components.header');
+        $this->emit('show')->to('guest.components.cart-slide');
+    }
+
+    public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null
+    {
+        return \Auth::user();
+    }
+
+    public function getCartProperty(): \App\Models\Cart|\Illuminate\Database\Eloquent\Model
+    {
+        return $this->customer
+            ? Cart::query()->firstOrCreate(['customer_id' => $this->customer->id])
+            : Cart::query()->firstOrCreate(['session_id' => session()->getId()]);
+    }
+
+    public function addCart(Array $items)
+    {
+        if( ($this->cart->weight+$items['weight']) <= $this->weight_max){
+
+            $this->cart->items()->updateOrCreate([
+                'category_id' => $items['category'],
+            ], [
+                'product_id' => $items['product'],
+                'variant_id' => $items['variant'],
+                'quantity' => $items['quantity'],
+            ]);
+
+            $this->cart->load('items');
+            $this->refreshCart();
+
+        }else{
+            $this->notify(trans('Peso máximo do Jumbo: '.$this->weight_max.' kg!'));
+        }
+
+        
+    }
 
 
     public function getRowsQueryProperty()
@@ -26,8 +87,10 @@ class ProductList extends Component
         return $this->rowsQuery->paginate($this->perPage);
     }
 
+    
+
     public function render()
     {
-        return view('livewire.guest.product-list', ['collections' => $this->rows ])->layout('layouts.guest');
+        return view('livewire.guest.product-list', ['collections' => $this->rows, 'selectedOptions' => $this->selectedOptions ])->layout('layouts.guest');
     }
 }
