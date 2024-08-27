@@ -110,6 +110,10 @@ class Welcome extends Component
 
     public function render()
     {
+        if(env('APP_MAINTENANCE')){
+            return view('livewire.guest.maintenance')->layout('layouts.maintenance');
+        }
+        
         return view('livewire.guest.welcome', [ 'prison_categories' => $this->prison_categories ])->layout('layouts.guest');
     }
 }
