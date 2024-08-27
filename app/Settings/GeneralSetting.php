@@ -35,11 +35,5 @@ class GeneralSetting extends Settings
         return 'general';
     }
 
-    public static function encrypted(): array
-    {
-        return [
-            'license_key',
-            'license_user',
-        ];
-    }
+
 }
