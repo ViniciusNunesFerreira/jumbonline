@@ -22,6 +22,8 @@ class CategoryProducts extends Component
 
     public array $selectedOptionValues ;
 
+    public $product_id = null;
+
     public array $add = [
         'product' => null,
         'variant' => null,
@@ -37,7 +39,6 @@ class CategoryProducts extends Component
     public function mount()
     {
         $this->maxQuantity = $this->category->quantity;
-        
     }
 
 
@@ -51,9 +52,11 @@ class CategoryProducts extends Component
     public function incrementQuantity()
     {
         if( $this->quantity < $this->category->quantity ){
-            return $this->quantity++;
+             $this->quantity++;   
         }
     }
+
+
 
     public function decrementQuantity()
     {
@@ -61,8 +64,6 @@ class CategoryProducts extends Component
 
             if($this->quantity == 1){
                 $this->showProducts = !$this->showProducts; 
-
-
             }
 
             return $this->quantity--;

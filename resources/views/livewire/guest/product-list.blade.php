@@ -74,11 +74,45 @@
 
         </div>
 
-        <div class="fixed bottom-0 right-0">
-            <x:card >           
-                <x-slot:content>{{ $weight_max - $weight }}Kg restantes</x-slot:content>
+        @if($weight > 0)
+        <div class="fixed bottom-2 right-2">
+            <x:card class="!bg-secondary !ring-secondary !text-primary font-semibold text-center">
+
+                <x-slot:content class="!flex !items-center justify-center">
+
+                    <x-heroicon-s-shopping-bag class="h-5 w-5 flex-shrink-0 text-accent " /> 
+
+                    <div class="text-sm text-center text-balance">
+                        <span class="text-2xl font-bold p-2 rounded-full">{{ number_format( $weight_max - $weight, 2) }}kg</span> <br>
+                        restantes
+                    </div>
+
+                </x-slot:content>
+
+                <x-slot:footer>
+                    
+                    <div>
+                        <dl class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <dt class="text-sm font-medium text-slate-900">
+                                    {{ __('Subtotal') }}
+                                </dt>
+                                <dd class="ml-2 text-xl font-semibold text-slate-900">
+                                    <x-money
+                                        :amount="$subTotal"
+                                        :currency="config('app.currency')"
+                                    />
+                                </dd>
+                            </div>
+                        </dl>
+                        
+                    </div>
+
+                </x-slot:footer>
+
             </x:card>
         </div>
+        @endif
 
     </div>
 

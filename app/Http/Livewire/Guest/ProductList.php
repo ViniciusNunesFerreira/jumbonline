@@ -19,10 +19,11 @@ class ProductList extends Component
 
     public $perPage = 10;
 
-    protected $listeners = ['refreshCart', 'addCart'];
+    protected $listeners = ['refreshCart', 'addCart', 'updateCartItemQuantity'];
 
     public array $selectedOptions = [];
 
+    public $subTotal = 0;
     public $weight_max = 12;
     public $weight = 0;
 
@@ -30,6 +31,7 @@ class ProductList extends Component
     {
         $this->selectedOptions = $this->cart->items()->pluck('product_id')->toArray();
         $this->weight = $this->cart->weight;
+        $this->subTotal = $this->cart->subTotal;
     }
 
     public function refreshCart()
@@ -37,6 +39,7 @@ class ProductList extends Component
         $this->selectedOptions = $this->cart->items()->pluck('product_id')->toArray();
         $this->cart->load('items');
         $this->weight = $this->cart->weight;
+        $this->subTotal = $this->cart->subTotal;
 
         $this->emit('refresh')->to('guest.components.header');
         $this->emit('show')->to('guest.components.cart-slide');
@@ -74,6 +77,35 @@ class ProductList extends Component
         }
 
         
+    }
+
+
+    public function updateCartItemQuantity($categoryId, $quantity)
+    {
+        
+        $item =  $this->cartItems->where('category_id', $categoryId)->firstOrFail();
+        $item->load('category');
+       
+        $max_quantity = $item->category->quantity;
+
+        if ($quantity < 1) {
+            $this->cartItems->find($item->id)->delete();
+        }
+
+        if($max_quantity >= $quantity){
+            $this->cartItems->find($item->id)->update(['quantity' => $quantity]);
+        }else{
+            return  $this->notify('A quantidade máxima é: '.$max_quantity);
+        }
+        
+        $this->emit('refresh')->self();
+
+       
+    }
+
+    public function getCartItemsProperty()
+    {
+        return $this->cart->items;
     }
 
 
