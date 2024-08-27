@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group([
     'prefix' => config('app.admin_path'),
-    'as' => 'employee.',
-    'middleware' => RedirectIfNotSetup::class
+    'as' => 'employee.'
 ], function () {
     Route::group(['middleware' => 'guest:employee'], function () {
         Route::get('/login', Login::class)->name('login');

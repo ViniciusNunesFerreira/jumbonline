@@ -16,20 +16,8 @@ class RedirectIfNotSetup
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!config('app.debug')) {
-            try {
-                \DB::connection()->getPdo();
-
-                if (!\Schema::hasTable('settings')) {
-                    return response(trans('A table was not found! You might have forgotten to run your database migrations.'));
-                }
-            } catch (\Exception $e) {
-                return response(trans('There was an error connecting to the database. Please check your configuration.'));
-            }
-        }
-
-        if (!app(GeneralSetting::class)->setup_finished) {
-            return redirect()->route('setup');
+        if (env('APP_MAINTENANCE') && !\Route::is('guest.welcome')) {
+            return redirect( route('guest.welcome') );
         }
 
         return $next($request);
