@@ -29,16 +29,16 @@ class AppServiceProvider extends ServiceProvider
         try {
             \DB::connection()->getPdo();
 
-            if (\Schema::hasTable('settings')) {
-                $general_settings = app(GeneralSetting::class);
+            
+            $general_settings = app(GeneralSetting::class);
 
-                config([
-                    'seotools.meta.defaults.title' => $general_settings->store_name,
-                    'seotools.opengraph.defaults.title' => $general_settings->store_name,
-                    'seotools.opengraph.defaults.site_name' => $general_settings->store_name,
-                    'seotools.json-ld.defaults.title' => $general_settings->store_name,
-                ]);
-            }
+            config([
+                'seotools.meta.defaults.title' => $general_settings->store_name,
+                'seotools.opengraph.defaults.title' => $general_settings->store_name,
+                'seotools.opengraph.defaults.site_name' => $general_settings->store_name,
+                'seotools.json-ld.defaults.title' => $general_settings->store_name,
+            ]);
+            
 
             if (\Schema::hasTable('payment_methods')) {
                 $paymentMethods = \App\Models\PaymentMethod::all();
@@ -71,15 +71,15 @@ class AppServiceProvider extends ServiceProvider
             $this->dispatchBrowserEvent('notify', $message);
         });
 
-        Livewire::component('setup.wizard', \App\Http\Livewire\Setup\Wizard::class);
+       // Livewire::component('setup.wizard', \App\Http\Livewire\Setup\Wizard::class);
 
-        Livewire::component('setup.license-activation', \App\Http\Livewire\Setup\LicenseActivationStep::class);
+        //Livewire::component('setup.license-activation', \App\Http\Livewire\Setup\LicenseActivationStep::class);
 
-        Livewire::component('setup.store-information', \App\Http\Livewire\Setup\StoreInformationStep::class);
+        //Livewire::component('setup.store-information', \App\Http\Livewire\Setup\StoreInformationStep::class);
 
-        Livewire::component('setup.administrator-account', \App\Http\Livewire\Setup\AdministratorAccountStep::class);
+       // Livewire::component('setup.administrator-account', \App\Http\Livewire\Setup\AdministratorAccountStep::class);
 
-        Livewire::component('setup.finalization', \App\Http\Livewire\Setup\FinalizationStep::class);
+       // Livewire::component('setup.finalization', \App\Http\Livewire\Setup\FinalizationStep::class);
 
         View::share('generalSettings', app(GeneralSetting::class));
 
