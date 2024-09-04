@@ -47,13 +47,14 @@
         <meta itemprop="description" content="Jumbonline é a pioneira, especializada na lista de jumbo de CDP, penitenciárias, CPP e CR! Com os melhores preços e variedades, entrega rápida e segura.">
         <!-- Styles -->
 
+
         <script type="text/javascript">
       window.onload = function(){
       (function(d, script) {
       script = d.createElement('script');
       script.type = 'text/javascript';
       script.async = true;
-      script.src = 'https://wa.me/5511957923791?text=Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20o%20jumbo';
+      script.src = '{{ url('/whats.js') }}';
       d.getElementsByTagName('head')[0].appendChild(script);
       }(document));
       };
