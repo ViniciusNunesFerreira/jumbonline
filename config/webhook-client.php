@@ -4,9 +4,9 @@ return [
     'configs' => [
         // Do not change the order of every services declared here.
         [
-            'name' => 'razorpay',
-            'signing_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
-            'signature_header_name' => 'X-Razorpay-Signature',
+            'name' => 'mercadopago',
+            'signing_secret' => env('MERCADOPAGO_WEBHOOK_SECRET'),
+            'signature_header_name' => 'x-signature',
             'signature_validator' => \Spatie\WebhookClient\SignatureValidator\DefaultSignatureValidator::class,
             'webhook_profile' => \Spatie\WebhookClient\WebhookProfile\ProcessEverythingWebhookProfile::class,
             'webhook_response' => \Spatie\WebhookClient\WebhookResponse\DefaultRespondsTo::class,

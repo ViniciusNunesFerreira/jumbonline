@@ -23,6 +23,7 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
     Route::get('/cart', \App\Http\Livewire\Guest\ShoppingCart::class)->name('cart');
     Route::get('/checkout', \App\Http\Livewire\Guest\Checkout::class)->name('checkout');
     Route::get('/purchase', \App\Http\Livewire\Guest\Purchase::class)->name('purchase');
+    Route::post('/purchase', [\App\Http\Livewire\Guest\Purchase::class, 'createPaymentOrder'])->name('purchase.post');
     Route::get('/orders/{order}', \App\Http\Livewire\Guest\OrderDetail::class)->name('orders.detail')->middleware('signed');
     Route::get('/blog', \App\Http\Livewire\Guest\Blog\ArticleList::class)->name('blog.articles.list');
     Route::get('/blog/{article:slug}', \App\Http\Livewire\Guest\Blog\ArticleDetail::class)->name('blog.articles.detail');
@@ -33,7 +34,8 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
 
 Route::get('/setup', \App\Http\Livewire\Setup\Setup::class)->middleware(\App\Http\Middleware\RedirectIfSetupFinished::class)->name('setup');
 
-Route::webhooks('webhooks/razorpay', 'razorpay');
+
+Route::webhooks('webhooks/mercadopago', 'mercadopago');
 Route::stripeWebhooks('webhooks/stripe');
 
 require __DIR__ . '/auth.php';

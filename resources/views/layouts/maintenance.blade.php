@@ -53,7 +53,7 @@
       script = d.createElement('script');
       script.type = 'text/javascript';
       script.async = true;
-      script.src = 'https://w.app/widget-v1/673sRX.js';
+      script.src = 'https://wa.me/5511957923791?text=Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20o%20jumbo';
       d.getElementsByTagName('head')[0].appendChild(script);
       }(document));
       };

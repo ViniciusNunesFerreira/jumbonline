@@ -31,15 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'stripe' => [
-        'public_key' => env('STRIPE_PUBLIC_KEY'),
-        'secret_key' => env('STRIPE_SECRET_KEY'),
-        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    'mercadopago' => [
+        'public_key' => env('MP_PUBLIC_KEY'),
+        'access_token' => env('MP_ACCESS_TOKEN'),
     ],
-
-    'razorpay' => [
-        'api_key' => env('RAZORPAY_API_KEY'),
-        'api_secret' => env('RAZORPAY_API_SECRET'),
-        'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
-    ],
+    
 ];

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="pt-BR">
     <head>
         <meta charset="utf-8">
         <meta
@@ -48,6 +48,7 @@
         <!-- Styles -->
         @livewireStyles
         @vite('resources/css/guest.css')
+        @stack('script_header')
     </head>
     <body
         id="main"

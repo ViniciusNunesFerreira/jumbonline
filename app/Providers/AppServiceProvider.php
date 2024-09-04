@@ -45,19 +45,12 @@ class AppServiceProvider extends ServiceProvider
 
                 foreach ($paymentMethods as $paymentMethod) {
                     if ($paymentMethod->is_enabled) {
-                        if ($paymentMethod->identifier == 'stripe') {
+                        if ($paymentMethod->identifier == 'mercadopago') {
                             config([
-                                'services.stripe.public_key' => $paymentMethod->meta['public_key'],
-                                'services.stripe.secret_key' => $paymentMethod->meta['secret_key'],
-                                'stripe-webhooks.signing_secret' => $paymentMethod->meta['webhook_secret'],
+                                'services.mercadopago.public_key' => $paymentMethod->meta['public_key'],
+                                'services.mercadopago.access_token' => $paymentMethod->meta['access_token'],
                             ]);
-                        } else if ($paymentMethod->identifier == 'razorpay') {
-                            config([
-                                'services.razorpay.api_key' => $paymentMethod->meta['api_key'],
-                                'services.razorpay.api_secret' => $paymentMethod->meta['api_secret'],
-                                'webhook-client.configs.0.signing_secret' => $paymentMethod->meta['webhook_secret'],
-                            ]);
-                        }
+                        } 
                     }
                 }
             }
@@ -71,15 +64,7 @@ class AppServiceProvider extends ServiceProvider
             $this->dispatchBrowserEvent('notify', $message);
         });
 
-       // Livewire::component('setup.wizard', \App\Http\Livewire\Setup\Wizard::class);
-
-        //Livewire::component('setup.license-activation', \App\Http\Livewire\Setup\LicenseActivationStep::class);
-
-        //Livewire::component('setup.store-information', \App\Http\Livewire\Setup\StoreInformationStep::class);
-
-       // Livewire::component('setup.administrator-account', \App\Http\Livewire\Setup\AdministratorAccountStep::class);
-
-       // Livewire::component('setup.finalization', \App\Http\Livewire\Setup\FinalizationStep::class);
+       
 
         View::share('generalSettings', app(GeneralSetting::class));
 
