@@ -39,6 +39,15 @@ html{
   color: #7F8490;
 }
 
+*:disabled {
+  background-color: #F4F7FF;
+  color:#AAADB5;
+  opacity: 1;
+  border-style: inset;
+  border-right:0.5px solid #DADDE8;
+  box-sizing: border-box;
+}
+
 @layer components {
     .btn-primary {
       @apply hover:text-primary hover:bg-accent;

@@ -37,7 +37,10 @@ class SyncCartOnLogin
             $previousCartInstance = Cart::query()->firstWhere('session_id', $previousSessionId);
 
             if ($previousCartInstance) {
-
+                //LImpa os items do carrinho anterio antes de atualizar;
+                $cart->items()->delete();
+                
+                //Atualiza os items do carrinho com os novos items selecionados;
                 $cart->items()->saveMany($previousCartInstance->items);
 
                 $previousCartInstance->delete();

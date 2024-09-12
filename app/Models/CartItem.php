@@ -15,7 +15,7 @@ class CartItem extends Model
         'quantity' => 'integer',
     ];
 
-    protected $with = ['variant'];
+    protected $with = ['variant', 'category'];
 
     public function cart(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

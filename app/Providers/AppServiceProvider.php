@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Component;
 use Livewire\Livewire;
+use App\Observers\CartItemObserver;
+use App\Observers\CartObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
     {
         try {
             \DB::connection()->getPdo();
+
+            \App\Models\Cart::observe(CartObserver::class);
+            \App\Models\CartItem::observe(CartItemObserver::class);
 
             
             $general_settings = app(GeneralSetting::class);

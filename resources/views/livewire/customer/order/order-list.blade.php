@@ -1,29 +1,29 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Order history') }}
+        {{ __('Histórico de Pedidos') }}
     </x-slot:title>
 
     <div class="py-16 sm:py-24">
         <div class="mx-auto max-w-7xl sm:px-2 lg:px-8">
             <div class="mx-auto max-w-2xl px-4 lg:max-w-4xl lg:px-0">
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                    {{ __('Order history') }}
+                    {{ __('Histórico de Pedidos') }}
                 </h1>
                 <p class="mt-2 text-sm text-slate-500">
-                    {{ __('Check the status of recent orders, manage returns, and discover similar products.') }}
+                    {{ __('Verifique o status de pedidos recentes, gerencie devoluções e descubra produtos similares.') }}
                 </p>
             </div>
         </div>
 
         <div class="mt-16">
-            <h2 class="sr-only">{{ __('Recent orders') }}</h2>
+            <h2 class="sr-only">{{ __('Pedidos Recentes') }}</h2>
             <div class="mx-auto max-w-7xl sm:px-2 lg:px-8">
                 <div class="mx-auto max-w-2xl space-y-8 sm:px-4 lg:max-w-4xl lg:px-0">
                     @foreach($orders as $order)
                         <div class="border-t border-b border-slate-200 bg-white shadow-sm sm:rounded-lg sm:border">
                             <h2 class="sr-only">
-                                {{ __('Order placed on') }}
+                                {{ __('Pedido realizado em') }}
                                 <time datetime="{{ $order->created_at->format('Y-m-d') }}">{{ $order->created_at->toFormattedDateString() }}</time>
                             </h2>
 
@@ -31,7 +31,7 @@
                                 <dl class="grid flex-1 grid-cols-2 gap-x-6 text-sm sm:col-span-3 sm:grid-cols-3 lg:col-span-2">
                                     <div>
                                         <dt class="font-medium text-slate-900">
-                                            {{ __('Order number') }}
+                                            {{ __('Número do Pedido') }}
                                         </dt>
                                         <dd class="mt-1 text-slate-500">
                                             {{ $order->id }}
@@ -39,14 +39,14 @@
                                     </div>
                                     <div class="hidden sm:block">
                                         <dt class="font-medium text-slate-900">
-                                            {{ __('Date placed') }}
+                                            {{ __('Data da criação') }}
                                         </dt>
                                         <dd class="mt-1 text-slate-500">
                                             <time datetime="{{ $order->created_at->format('Y-m-d') }}">{{ $order->created_at->toFormattedDateString() }}</time>
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt class="font-medium text-slate-900">{{ __('Total amount') }}</dt>
+                                        <dt class="font-medium text-slate-900">{{ __('Valor Total') }}</dt>
                                         <dd class="mt-1 font-medium text-slate-900">
                                             <x-money
                                                 :amount="$order->total"
@@ -66,13 +66,13 @@
                                                 aria-expanded="false"
                                                 aria-haspopup="true"
                                             >
-                                                <span class="sr-only">{{ __('Options for order :orderId', ['orderId' => $order->id]) }}</span>
+                                                <span class="sr-only">{{ __('Opções para pedido :orderId', ['orderId' => $order->id]) }}</span>
                                                 <x-heroicon-o-ellipsis-vertical class="h-6 w-6" />
                                             </button>
                                         </x-slot:trigger>
                                         <x-slot:content>
                                             <x-dropdown-link href="{{ route('customer.orders.detail', $order) }}">
-                                                {{ __('View') }}
+                                                {{ __('Visualizar') }}
                                             </x-dropdown-link>
                                         </x-slot:content>
                                     </x-dropdown>
@@ -83,7 +83,7 @@
                                         href="{{ route('customer.orders.detail', $order) }}"
                                         class="btn btn-outline-primary"
                                     >
-                                        <span>{{ __('View Order') }}</span>
+                                        <span>{{ __('Detalhes do Pedido') }}</span>
                                         <span class="sr-only">{{ $order->id }}</span>
                                     </a>
                                 </div>
@@ -91,7 +91,7 @@
 
                             <!-- Products -->
                             <h3 class="sr-only">
-                                {{ __('Items') }}
+                                {{ __('Itens') }}
                             </h3>
                             <ul
                                 role="list"
@@ -134,21 +134,14 @@
                                                 </div>
                                                 <div class="hidden mt-2 sm:flex">
                                                     <div class="flex items-center space-x-4 divide-x divide-slate-200 text-sm font-medium">
-                                                        <div class="flex flex-1 justify-center">
-                                                            <a
-                                                                href="{{ route('guest.products.detail', $item->product) }}"
-                                                                class="btn btn-link whitespace-nowrap"
-                                                            >
-                                                                {{ __('View product') }}
-                                                            </a>
-                                                        </div>
+                                                        
                                                         <div class="flex flex-1 justify-center pl-4">
                                                             <button
                                                                 wire:click="writeReviewForProduct({{ $item->product->id }})"
                                                                 type="button"
                                                                 class="btn btn-link whitespace-nowrap"
                                                             >
-                                                                {{ $item->product->reviews->isEmpty() ? __('Write a review') : __('Edit your review') }}
+                                                                {{ $item->product->reviews->isEmpty() ? __('Avaliar Produto') : __('Editar Avaliação') }}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -157,21 +150,14 @@
                                         </div>
                                         <div class="mt-6 sm:hidden">
                                             <div class="mt-6 flex items-center space-x-4 divide-x divide-slate-200 border-t border-slate-200 pt-4 text-sm font-medium">
-                                                <div class="flex flex-1 justify-center">
-                                                    <a
-                                                        href="{{ route('guest.products.detail', $item->product) }}"
-                                                        class="btn btn-link whitespace-nowrap"
-                                                    >
-                                                        {{ __('View product') }}
-                                                    </a>
-                                                </div>
+                                               
                                                 <div class="flex flex-1 justify-center pl-4">
                                                     <button
                                                         wire:click="writeReviewForProduct({{ $item->product->id }})"
                                                         type="button"
                                                         class="btn btn-link whitespace-nowrap"
                                                     >
-                                                        {{ $item->product->reviews->isEmpty() ? __('Write a review') : __('Edit your review') }}
+                                                        {{ $item->product->reviews->isEmpty() ? __('Avaliar Produto') : __('Editar Avaliação') }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -193,21 +179,21 @@
     <form wire:submit.prevent="saveReview">
         <x-modal-dialog wire:model="showReviewForm">
             <x-slot:title>
-                {{ __('Write a review') }}
+                {{ __('Escreva um comentário') }}
             </x-slot:title>
             <x-slot:content>
                 <div class="space-y-6">
                     <div>
                         <x-input-label
                             for="review.rating"
-                            :value="__('Rating')"
+                            :value="__('Avaliação')"
                         />
                         <x-select
                             wire:model.defer="review.rating"
                             id="rating"
                             class="block w-full mt-1 sm:text-sm"
                         >
-                            <option value="">{{ __('Select a rating') }}</option>
+                            <option value="">{{ __('Classifique o produto') }}</option>
                             @for($i = 1; $i <= 5; $i++)
                                 <option value="{{ $i }}">{{ $i }}</option>
                             @endfor
@@ -220,7 +206,7 @@
                     <div>
                         <x-input-label
                             for="review.title"
-                            :value="__('Review summary')"
+                            :value="__('Resumo da Avaliação')"
                         />
                         <x-input
                             wire:model.defer="review.title"
@@ -236,7 +222,7 @@
                     <div>
                         <x-input-label
                             for="review.content"
-                            :value="__('Share your thoughts')"
+                            :value="__('Compartilhe sua opinião')"
                         />
                         <x-textarea
                             wire:model="review.content"
@@ -257,7 +243,7 @@
                     type="submit"
                     class="btn btn-primary w-full sm:ml-3 sm:w-auto"
                 >
-                    {{ __('Save') }}
+                    {{ __('Salvar') }}
                 </button>
                 <button
                     wire:click="$set('showReviewForm', false)"
@@ -266,7 +252,7 @@
                     type="button"
                     class="mt-3 btn btn-invisible w-full sm:mt-0 sm:w-auto"
                 >
-                    {{ __('Cancel') }}
+                    {{ __('Cancelar') }}
                 </button>
             </x-slot:footer>
         </x-modal-dialog>

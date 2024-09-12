@@ -4,10 +4,10 @@ namespace App\Http\Livewire\Guest\PurchaseComponents;
 
 use Livewire\Component;
 
-class Detento extends Component
+class Entrega extends Component
 {
     public function render()
     {
-        return view('livewire.guest.purchase-components.detento');
+        return view('livewire.guest.purchase-components.entrega');
     }
 }

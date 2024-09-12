@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 trait MercadopagoPayment
 {
     public $preference_id = 1 ;
-    public $payment = '';
+    public $payment = [];
     public $createRequest = [];
 
     public function createPreference()
@@ -76,7 +76,7 @@ trait MercadopagoPayment
     public function createPaymentOrder(Request $request)
     {
 
-        \Log::debug($request);
+    
 
         MercadoPagoConfig::setAccessToken($this->mercadopago->meta['access_token']);
         $client = new PaymentClient();
@@ -87,7 +87,7 @@ trait MercadopagoPayment
             //Pagamentos Pix
             $this->createRequest = [
                 "transaction_amount" => $request->transaction_amount,
-                "external_reference" => 1250,
+                "external_reference" => 2323,
                 "payment_method_id" => $request->payment_method_id,
                     "payer" => [
                         "email" =>  $request->payer['email'],
@@ -125,13 +125,7 @@ trait MercadopagoPayment
 
         $this->payment = $client->create($this->createRequest);
 
-        if (isset($this->payment->id)) {
-
-            $copia_cola = $this->payment->point_of_interaction->transaction_data->qr_code;
-
-            \Log::debug($copia_cola);
-
-        }
+        return response()->json($this->payment);
         
     }
 

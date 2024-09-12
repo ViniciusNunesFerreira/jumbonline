@@ -22,6 +22,8 @@ class OrderDetail extends Component
             'orderItems.variant.variantAttributes.option',
             'orderItems.variant.variantAttributes.optionValue',
             'orderItems.shipmentItems',
+            'visitante',
+            'prison_unit'
         ]);
     }
 
@@ -44,12 +46,12 @@ class OrderDetail extends Component
 
     public function getBillingAddressProperty()
     {
-        return $this->order->addresses->where('is_billing', true)->first();
+        return $this->order->visitante->first();
     }
 
     public function getShippingAddressProperty()
     {
-        return $this->order->addresses->where('is_billing', false)->first();
+        return $this->order->prison_unit->first();
     }
 
     public function render()

@@ -24,6 +24,8 @@ class Customer extends Authenticatable implements HasMedia
         'name',
         'email',
         'password',
+        'phone',
+        'phone_country'
     ];
 
     /**
@@ -83,5 +85,10 @@ class Customer extends Authenticatable implements HasMedia
     public function detentos(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return  $this->hasMany(Detento::class);
+    }
+
+    public function visitantes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return  $this->hasMany(Visitante::class);
     }
 }

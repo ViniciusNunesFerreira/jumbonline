@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Cart;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,11 +18,11 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
     Route::get('/', \App\Http\Livewire\Guest\Welcome::class)->name('welcome');
     Route::get('/collections', \App\Http\Livewire\Guest\CollectionList::class)->name('collections.list');
     Route::get('/collections/{collection}', \App\Http\Livewire\Guest\CollectionDetail::class)->name('collections.detail');
-   // Route::redirect('/products', '/collections')->name('products.list');
+    Route::redirect('/checkout', '/purchase')->name('checkout');
     Route::get('/products/{prison:slug}', \App\Http\Livewire\Guest\ProductList::class)->name('products.list');
     Route::get('/products/{product}', \App\Http\Livewire\Guest\ProductDetail::class)->name('products.detail');
     Route::get('/cart', \App\Http\Livewire\Guest\ShoppingCart::class)->name('cart');
-    Route::get('/checkout', \App\Http\Livewire\Guest\Checkout::class)->name('checkout');
+   // Route::get('/checkout', \App\Http\Livewire\Guest\Checkout::class)->name('checkout');
     Route::get('/purchase', \App\Http\Livewire\Guest\Purchase::class)->name('purchase');
     Route::post('/purchase', [\App\Http\Livewire\Guest\Purchase::class, 'createPaymentOrder'])->name('purchase.post');
     Route::get('/orders/{order}', \App\Http\Livewire\Guest\OrderDetail::class)->name('orders.detail')->middleware('signed');
@@ -32,7 +33,8 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
     Route::get('/pages/{page:slug}', \App\Http\Livewire\Guest\PageDetail::class)->name('pages.detail');
 });
 
-Route::get('/setup', \App\Http\Livewire\Setup\Setup::class)->middleware(\App\Http\Middleware\RedirectIfSetupFinished::class)->name('setup');
+
+//Route::get('/setup', \App\Http\Livewire\Setup\Setup::class)->middleware(\App\Http\Middleware\RedirectIfSetupFinished::class)->name('setup');
 
 
 Route::webhooks('webhooks/mercadopago', 'mercadopago');

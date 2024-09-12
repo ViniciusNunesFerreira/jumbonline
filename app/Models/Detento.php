@@ -13,7 +13,9 @@ class Detento extends Model
         'name',
         'matricula',
         'raio',
-        'cela'
+        'cela',
+        'customer_id',
+        'prison_unit_id'
     ];
 
 

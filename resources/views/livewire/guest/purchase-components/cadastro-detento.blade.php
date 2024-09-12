@@ -2,7 +2,7 @@
     <div class="mx-auto max-w-7xl py-8  space-y-4">
 
     <form
-        wire:submit.prevent="save"
+        wire:submit.prevent="saveData"
         class="space-y-6"
     >
         <x-card>
@@ -30,14 +30,14 @@
                                     value="Nome <span class='text-warning'>*</span>"
                                 />
                                 <x-input
-                                    wire:model.defer="detento.name"
+                                    wire:model.blur="data.detento.name"
                                     type="text"
                                     id="full-name"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="Nome Completo do Detento"
                                 />
                                 <x-input-error
-                                    for="detento.name"
+                                    for="data.detento.name"
                                     class="mt-2"
                                 />
                             </div>
@@ -49,14 +49,14 @@
                                     value="Matrícula <span class='text-warning'>*</span>"
                                 />
                                 <x-input
-                                    wire:model.defer="detento.name"
+                                    wire:model.blur="data.detento.matricula"
                                     type="text"
                                     id="matricula"
                                     class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Matrícula"
+                                    placeholder="Matrícula (incluindo números, espaços e digitos)"
                                 />
                                 <x-input-error
-                                    for="detento.matricula"
+                                    for="data.detento.matricula"
                                     class="mt-2"
                                 />
                             </div>
@@ -68,14 +68,14 @@
                                     value="Raio <span class='text-warning'>*</span>"
                                 />
                                 <x-input
-                                    wire:model.defer="detento.name"
+                                    wire:model.blur="data.detento.raio"
                                     type="text"
                                     id="raio"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="Raio"
                                 />
                                 <x-input-error
-                                    for="detento.raio"
+                                    for="data.detento.raio"
                                     class="mt-2"
                                 />
                             </div>
@@ -87,14 +87,14 @@
                                     value="Cela <span class='text-warning'>*</span>"
                                 />
                                 <x-input
-                                    wire:model.defer="detento.name"
+                                    wire:model.blur="data.detento.cela"
                                     type="text"
                                     id="cela"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="Cela"
                                 />
                                 <x-input-error
-                                    for="detento.cela"
+                                    for="data.detento.cela"
                                     class="mt-2"
                                 />
                             </div>
@@ -127,93 +127,80 @@
                                     value="Nome <span class='text-warning'>*</span>"
                                 />
                                 <x-input
-                                    wire:model.defer="visitante.nome"
+                                    wire:model.blur="data.visitante.nome"
                                     type="text"
                                     id="nome-visitante"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="Nome Completo do Visitante"
                                 />
                                 <x-input-error
-                                    for="visitante.nome"
+                                    for="data.visitante.nome"
                                     class="mt-2"
                                 />
                             </div>
 
-                            <div class="col-span-3">
+                            <div class="col-span-6 md:col-span-1">
                                 <x-input-label
                                     class="!text-sm !font-bold !text-primary"
                                     for="cep"
                                     value="CEP <span class='text-warning'>*</span>"
                                 />
-                                <x-input
-                                    wire:model.defer="visitante.cep"
+                                <x-input x-mask="99.999-999"
+                                    wire:model.defer="data.visitante.cep"
+                                    wire:loading.attr="disabled"
                                     type="text"
                                     id="cep"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="CEP"
+                                    x-on:blur.prevent="$wire.changeDataVisitanteCep"
                                 />
                                 <x-input-error
-                                    for="visitante.cep"
+                                    for="data.visitante.cep"
                                     class="mt-2"
                                 />
                             </div>
 
-                            <div class="col-span-3">
+                            <div class="col-span-4">
                                 <x-input-label
                                     class="!text-sm !font-bold !text-primary"
                                     for="logradouro"
                                     value="Endereço <span class='text-warning'>*</span>"
                                 />
+                               
                                 <x-input
-                                    wire:model.defer="visitante.logradouro"
+                                    wire:model.blur="data.visitante.logradouro"
                                     type="text"
                                     id="logradouro"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="Endereço"
+                                    wire:loading.attr="disabled"
                                 />
                                 <x-input-error
-                                    for="visitante.nome"
+                                    for="data.visitante.logradouro"
                                     class="mt-2"
                                 />
                             </div>
 
-                            <div class="col-span-3">
+                            <div class="col-span-2">
                                 <x-input-label
                                     class="!text-sm !font-bold !text-primary"
                                     for="numero"
                                     value="Número <span class='text-warning'>*</span>"
                                 />
                                 <x-input
-                                    wire:model.defer="visitante.numero"
+                                    wire:model.defer="data.visitante.numero"
                                     type="text"
                                     id="numero"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="Número"
                                 />
                                 <x-input-error
-                                    for="visitante.numero"
+                                    for="data.visitante.numero"
                                     class="mt-2"
                                 />
                             </div>
 
-                            <div class="col-span-3">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="complemento"
-                                    value="Complemento"
-                                />
-                                <x-input
-                                    wire:model.defer="visitante.complemento"
-                                    type="text"
-                                    id="complemento"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Ex: Apartamento 02 "
-                                />
-                                <x-input-error
-                                    for="visitante.complemento"
-                                    class="mt-2"
-                                />
-                            </div>
+
 
                             <div class="col-span-2">
                                 <x-input-label
@@ -222,14 +209,15 @@
                                     value="Bairro <span class='text-warning'>*</span>"
                                 />
                                 <x-input
-                                    wire:model.defer="visitante.bairro"
+                                    wire:model.blur="data.visitante.bairro"
                                     type="text"
                                     id="bairro"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="Bairro"
+                                    wire:loading.attr="disabled"
                                 />
                                 <x-input-error
-                                    for="visitante.bairro"
+                                    for="data.visitante.bairro"
                                     class="mt-2"
                                 />
                             </div>
@@ -241,14 +229,15 @@
                                     value="Cidade <span class='text-warning'>*</span>"
                                 />
                                 <x-input
-                                    wire:model.defer="visitante.cidade"
+                                    wire:model.blur="data.visitante.cidade"
                                     type="text"
                                     id="cidade"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="Cidade"
+                                    wire:loading.attr="disabled"
                                 />
                                 <x-input-error
-                                    for="visitante.cidade"
+                                    for="data.visitante.cidade"
                                     class="mt-2"
                                 />
                             </div>
@@ -260,14 +249,15 @@
                                     value="Estado <span class='text-warning'>*</span>"
                                 />
                                 <x-input
-                                    wire:model.defer="visitante.uf"
+                                    wire:model.blur="data.visitante.uf"
                                     type="text"
                                     id="uf"
                                     class="mt-1 block w-full sm:text-sm"
                                     placeholder="Estado"
+                                    wire:loading.attr="disabled"
                                 />
                                 <x-input-error
-                                    for="visitante.uf"
+                                    for="data.visitante.uf"
                                     class="mt-2"
                                 />
                             </div>
@@ -287,16 +277,45 @@
                         </p>
                     </div>
 
-                    <div class="col-span-3">
-                        <x-upload-widget />
+                    <div class="col-span-3 relative">
+                        @if(optional($visitante)->hasMedia('cover') )
+
+                        
+                            <div class="ml-4 mt-2 absolute top-5">
+                                <button
+                                    x-on:click.prevent="if(confirm('{{ __('Tem certeza de que deseja apagar esta imagem?') }}')) $wire.deleteImage();"
+                                    type="button"
+                                    class="btn p-2 text-white hover:text-primary bg-accent rounded-lg text-xs"
+                                >
+                                    {{ __('Deletar') }}
+                                </button>
+                            </div>
+               
+                            <div class="p-4 flex justify-start max-h-64 overflow-hidden border border-accent">
+                                <img
+                                    src="{{ $visitante->getFirstMediaUrl('cover', 'thumb') }}"
+                                    class=" size-72 object-contain"
+                                >
+                            </div>
+                        @else
+                            <x-upload-widget wire:model="image" />
+                        @endif
+                        
                     </div>
 
                 </div>
 
-                <div class="col-span-full">
-                    <button class="btn btn-primary block">
-                        Continuar
-                    </button>
+                <div class="grid grid-cols-6 gap-6">
+                    <div class="col-span-3">
+                        <a class="btn bg-accent text-white text-center block w-full mt-2 flex">
+                            <x-heroicon-s-chevron-double-left class="h-5 w-5 flex-shrink-0 text-white" /> &nbsp; voltar
+                        </a>
+                    </div>
+                    <div class="col-span-3">
+                        <button type="submit" class="btn bg-primary text-white text-center block w-full mt-2 flex">
+                            Continuar &nbsp; <x-heroicon-s-chevron-double-right class="h-5 w-5 flex-shrink-0 text-white" />
+                        </button>
+                    </div>
                 </div>
 
             </x-slot:content>

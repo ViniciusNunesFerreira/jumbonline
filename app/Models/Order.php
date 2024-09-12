@@ -15,6 +15,9 @@ class Order extends Model
 
     protected $fillable = [
         'customer_id',
+        'detento_id',
+        'prison_unit_id',
+        'visitante_id',
         'customer_email',
         'order_status',
         'payment_method_id',
@@ -22,6 +25,7 @@ class Order extends Model
         'shipping_status',
         'shipping_rate',
         'shipping_price',
+        'shipping_label',
         'tax_breakdown',
         'meta',
         'notes',
@@ -45,6 +49,11 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function visitante(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Visitante::class);
+    }
+
     public function addresses(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Address::class, 'addressable')->latest();
@@ -58,6 +67,11 @@ class Order extends Model
     public function shippingAddress(): \Illuminate\Database\Eloquent\Relations\MorphOne
     {
         return $this->morphOne(Address::class, 'addressable')->where('is_billing', false);
+    }
+
+    public function prison_unit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PrisonUnit::class);
     }
 
     public function orderDiscounts(): \Illuminate\Database\Eloquent\Relations\HasMany

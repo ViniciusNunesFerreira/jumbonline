@@ -167,12 +167,12 @@ class OrderDetail extends Component
 
     public function getBillingAddressProperty()
     {
-        return $this->order->addresses->where('is_billing', true)->first();
+        return $this->order->visitante->first();
     }
 
     public function getShippingAddressProperty()
     {
-        return $this->order->addresses->where('is_billing', false)->first();
+        return $this->order->prison_unit->first();
     }
 
     public function render()

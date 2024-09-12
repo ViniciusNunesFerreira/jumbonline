@@ -1,52 +1,52 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Orders - :orderId', ['orderId' => $order->id]) }}
+        {{ __('Pedidos - :orderId', ['orderId' => $order->id]) }}
     </x-slot:title>
 
     <div class="bg-white">
         <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <div>
                 <h1 class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-                    {{ __('Thank you for your order!') }}
+                    {{ __('Obrigado pelo seu pedido!') }}
                 </h1>
                 <p class="mt-2 text-base text-slate-500">
                     @if($order->payment_status === \App\Enums\PaymentStatus::UNPAID)
-                        {{ __('To finalize your order, we kindly ask you to make the payment. Please proceed to the payment section below to complete your purchase.') }}
+                        {{ __('Para finalizar o seu pedido, pedimos a gentileza de efetuar o pagamento. Por favor, prossiga para a seção de pagamento abaixo para concluir sua compra.') }}
                     @elseif($order->payment_status === \App\Enums\PaymentStatus::PENDING)
-                        {{ __('We’re currently waiting for your payment to be confirmed. We’ll send you a confirmation email once your payment has been confirmed.') }}
+                        {{ __('Estamos aguardando a confirmação do seu pagamento. Enviaremos um e-mail de confirmação assim que seu pagamento for confirmado.') }}
                     @elseif($order->payment_status === \App\Enums\PaymentStatus::PAID && $order->shipping_status === \App\Enums\ShippingStatus::UNSHIPPED)
-                        {{ __('We appreciate your order, we’re currently processing it. So hang tight, and we’ll send you confirmation very soon!') }}
+                        {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
                     @elseif($order->payment_status === \App\Enums\PaymentStatus::PAID && $order->shipping_status === \App\Enums\ShippingStatus::SHIPPED)
-                        {{ __('We appreciate your order, we’re currently processing it. So hang tight, and we’ll send you confirmation very soon!') }}
+                        {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
                     @else
-                        {{ __('We appreciate your order, we’re currently processing it. So hang tight, and we’ll send you confirmation very soon!') }}
+                        {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
                     @endif
                 </p>
                 <dl class="mt-12 grid flex-1 grid-cols-2 gap-6 text-sm sm:col-span-4 sm:grid-cols-4 lg:col-span-2">
                     <div>
-                        <dt class="font-medium text-gray-900">{{ __('Order number') }}</dt>
+                        <dt class="font-medium text-gray-900">Nº Pedido </dt>
                         <dd class="mt-1 font-medium text-sky-600">{{ $order->id }}</dd>
                     </div>
                     <div>
-                        <dt class="font-medium text-gray-900">{{ __('Order date') }}</dt>
+                        <dt class="font-medium text-gray-900">{{ __('Data do Pedido') }}</dt>
                         <dd class="mt-1 font-medium text-sky-600">{{ $order->created_at->format('d/m/Y') }}</dd>
                     </div>
                     <div>
-                        <dt class="font-medium text-gray-900">{{ __('Payment status') }}</dt>
+                        <dt class="font-medium text-gray-900">{{ __('Status do Pagamento') }}</dt>
                         <dd class="mt-1 font-medium text-sky-600">{{ $order->payment_status->label() }}</dd>
                     </div>
                     <div>
-                        <dt class="font-medium text-gray-900">{{ __('Shipping status') }}</dt>
+                        <dt class="font-medium text-gray-900">{{ __('Status do Envio') }}</dt>
                         <dd class="mt-1 font-medium text-sky-600">{{ $order->shipping_status->label() }}</dd>
                     </div>
                 </dl>
             </div>
 
             <div class="mt-10 border-t border-slate-200">
-                <h2 class="sr-only">{{ __('Your order') }}</h2>
+                <h2 class="sr-only">{{ __('Seu Pedido') }}</h2>
 
-                <h3 class="sr-only">{{ __('Items') }}</h3>
+                <h3 class="sr-only">{{ __('Itens') }}</h3>
 
                 <ul
                     role="list"
@@ -88,14 +88,7 @@
                                     </div>
                                     <div class="hidden mt-2 sm:flex">
                                         <div class="flex items-center space-x-4 divide-x divide-slate-200 text-sm font-medium">
-                                            <div class="flex flex-1 justify-center">
-                                                <a
-                                                    href="{{ route('guest.products.detail', $item->product) }}"
-                                                    class="btn btn-link whitespace-nowrap"
-                                                >
-                                                    {{ __('View product') }}
-                                                </a>
-                                            </div>
+                                           
 
                                             @if($order->shipping_status != \App\Enums\ShippingStatus::UNSHIPPED)
                                                 <div class="flex flex-1 justify-center pl-4">
@@ -104,43 +97,26 @@
                                                         type="button"
                                                         class="btn btn-link whitespace-nowrap"
                                                     >
-                                                        {{ $item->product->reviews->isEmpty() ? __('Write a review') : __('Edit your review') }}
+                                                        {{ $item->product->reviews->isEmpty() ? __('Avaliar') : __('Editar avaliação') }}
                                                     </button>
                                                 </div>
                                             @endif
 
-                                            @if($item->variant->shipping_type === 'digital' && $item->shipmentItems->count())
-                                                <div class="flex flex-1 justify-center pl-4">
-                                                    <button
-                                                        wire:click="downloadDigitalAttachment({{ $item->variant->id }})"
-                                                        type="button"
-                                                        class="btn btn-link whitespace-nowrap"
-                                                    >
-                                                        {{ __('Download') }}
-                                                    </button>
-                                                </div>
-                                            @endif
+                                            
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="mt-6 sm:hidden">
                                 <div class="mt-6 flex items-center space-x-4 divide-x divide-slate-200 border-t border-slate-200 pt-4 text-sm font-medium">
-                                    <div class="flex flex-1 justify-center">
-                                        <a
-                                            href="{{ route('guest.products.detail', $item->product) }}"
-                                            class="btn btn-link whitespace-nowrap"
-                                        >
-                                            {{ __('View product') }}
-                                        </a>
-                                    </div>
+                                    
                                     <div class="flex flex-1 justify-center pl-4">
                                         <button
                                             wire:click="writeReviewForProduct({{ $item->product->id }})"
                                             type="button"
                                             class="btn btn-link whitespace-nowrap"
                                         >
-                                            {{ $item->product->reviews->isEmpty() ? __('Write a review') : __('Edit your review') }}
+                                            {{ $item->product->reviews->isEmpty() ? __('Avaliar') : __('Editar Avaliação') }}
                                         </button>
                                     </div>
                                 </div>
@@ -150,37 +126,35 @@
                 </ul>
 
                 <div class="sm:ml-40 sm:pl-6">
-                    <h3 class="sr-only">{{ __('Your information') }}</h3>
+                    <h3 class="sr-only">{{ __('Suas Informações') }}</h3>
 
-                    <h4 class="sr-only">{{ __('Addresses') }}</h4>
+                    <h4 class="sr-only">{{ __('Endereços') }}</h4>
                     <dl class="grid grid-cols-2 gap-x-6 py-10 text-sm">
                         <div>
-                            <dt class="font-medium text-slate-900">{{ __('Shipping address') }}</dt>
+                            <dt class="font-medium text-slate-900">{{ __('Endereço de Envio') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <address class="not-italic">
                                     {{ $this->shippingAddress->name }}<br>
 
-                                    @if($this->shippingAddress->company_name)
-                                        {{ $this->shippingAddress->company_name }}<br>
+                                    
+
+                                    @if($this->shippingAddress->logradouro)
+                                        {{ $this->shippingAddress->logradouro }}<br>
                                     @endif
 
-                                    @if($this->shippingAddress->address_line_1)
-                                        {{ $this->shippingAddress->address_line_1 }}<br>
+                                    @if($this->shippingAddress->bairro)
+                                        {{ $this->shippingAddress->bairro }}<br>
                                     @endif
 
-                                    @if($this->shippingAddress->address_line_2)
-                                        {{ $this->shippingAddress->address_line_2 }}<br>
+                                    @if($this->shippingAddress->cidade)
+                                        {{ $this->shippingAddress->cidade }}
                                     @endif
 
-                                    @if($this->shippingAddress->city)
-                                        {{ $this->shippingAddress->city }}
+                                    @if($this->shippingAddress->uf)
+                                        {{ $this->shippingAddress->uf }}<br>
                                     @endif
 
-                                    @if($this->shippingAddress->state)
-                                        {{ $this->shippingAddress->state }}<br>
-                                    @endif
-
-                                    {{ $this->shippingAddress->country->name }}<br>
+                                    
 
                                     @if($this->shippingAddress->phone)
                                         {{ $this->shippingAddress->phone }}<br>
@@ -189,32 +163,30 @@
                             </dd>
                         </div>
                         <div>
-                            <dt class="font-medium text-slate-900">{{ __('Billing address') }}</dt>
+                            <dt class="font-medium text-slate-900">{{ __('Endereço do Visitante') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <address class="not-italic">
-                                    {{ $this->billingAddress->name }}<br>
+                                    {{ $this->billingAddress->nome }}<br>
 
-                                    @if($this->billingAddress->company_name)
-                                        {{ $this->billingAddress->company_name }}<br>
+                                
+
+                                    @if($this->billingAddress->logradouro)
+                                        {{ $this->billingAddress->logradouro }} , {{ optional($this->billingAddress)->numero }}<br>
                                     @endif
 
-                                    @if($this->billingAddress->address_line_1)
-                                        {{ $this->billingAddress->address_line_1 }}<br>
+                                    @if($this->billingAddress->bairro)
+                                        {{ $this->billingAddress->bairro }}<br>
                                     @endif
 
-                                    @if($this->billingAddress->address_line_2)
-                                        {{ $this->billingAddress->address_line_2 }}<br>
+                                    @if($this->billingAddress->cidade)
+                                        {{ $this->billingAddress->cidade }}
                                     @endif
 
-                                    @if($this->billingAddress->city)
-                                        {{ $this->billingAddress->city }}
+                                    @if($this->billingAddress->uf)
+                                        {{ $this->billingAddress->uf }}<br>
                                     @endif
 
-                                    @if($this->billingAddress->state)
-                                        {{ $this->billingAddress->state }}<br>
-                                    @endif
-
-                                    {{ $this->billingAddress->country->name }}<br>
+                                   
 
                                     @if($this->billingAddress->phone)
                                         {{ $this->billingAddress->phone }}<br>
@@ -224,23 +196,23 @@
                         </div>
                     </dl>
 
-                    <h4 class="sr-only">{{ __('Payment') }}</h4>
+                    <h4 class="sr-only">{{ __('Pagamento') }}</h4>
                     <dl class="grid grid-cols-2 gap-x-6 border-t border-slate-200 py-10 text-sm">
                         <div>
-                            <dt class="font-medium text-slate-900">{{ __('Payment method') }}</dt>
+                            <dt class="font-medium text-slate-900">{{ __('Forma de Pagamento') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <p>{{ $order->paymentMethod->name }}</p>
                             </dd>
                         </div>
                         <div>
-                            <dt class="font-medium text-slate-900">{{ __('Shipping method') }}</dt>
+                            <dt class="font-medium text-slate-900">{{ __('Forma de Envio') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <p>{{ $order->shipping_rate }}</p>
                             </dd>
                         </div>
                     </dl>
 
-                    <h3 class="sr-only">{{ __('Summary') }}</h3>
+                    <h3 class="sr-only">{{ __('Resumo') }}</h3>
 
                     <dl class="space-y-6 border-t border-slate-200 pt-10 text-sm">
                         <div class="flex justify-between">
@@ -253,7 +225,7 @@
                             </dd>
                         </div>
                         <div class="flex justify-between">
-                            <dt class="flex font-medium text-slate-900">{{ __('Discount') }}</dt>
+                            <dt class="flex font-medium text-slate-900">{{ __('Desconto') }}</dt>
                             <dd class="text-slate-700">
                                 <x-money
                                     :amount="$order->discount_total"
@@ -262,7 +234,7 @@
                             </dd>
                         </div>
                         <div class="flex justify-between">
-                            <dt class="font-medium text-slate-900">{{ __('Shipping') }}</dt>
+                            <dt class="font-medium text-slate-900">{{ __('Envio') }}</dt>
                             <dd class="text-slate-700">
                                 <x-money
                                     :amount="$order->shipping_price"
@@ -270,26 +242,8 @@
                                 />
                             </dd>
                         </div>
-                        <div class="flex justify-between">
-                            <dt class="font-medium text-slate-900">{{ __('Tax') }}</dt>
-                            <dd class="text-slate-700">
-                                <x-money
-                                    :amount="$order->tax_total"
-                                    :currency="config('app.currency')"
-                                />
-                            </dd>
-                        </div>
-                        @if($order->refunds->count())
-                            <div class="flex justify-between">
-                                <dt class="font-medium text-slate-900">{{ __('Refunded') }}</dt>
-                                <dd class="text-slate-700">
-                                    <x-money
-                                        :amount="-$order->total_refunded"
-                                        :currency="config('app.currency')"
-                                    />
-                                </dd>
-                            </div>
-                        @endif
+                        
+                        
                         <div class="flex justify-between">
                             <dt class="font-medium text-slate-900">{{ __('Total') }}</dt>
                             <dd class="text-slate-900">

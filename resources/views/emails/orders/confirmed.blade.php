@@ -1,31 +1,30 @@
 @component('mail::message')
-# {{ __('Thank you for your purchase!') }}
+# {{ __('Obrigado pela sua compra!') }}
 
-{{ __('Hi :customer_name, we\'re getting your order ready to be shipped. We will notify you when it has been sent.', ['customer_name' => $order->billingAddress->name]) }}
+{{ __('Oi :customer_name, estamos preparando seu pedido para ser enviado. Iremos notificá-lo quando for enviado.', ['customer_name' => $order->visitante->name]) }}
 
 @component('mail::button', ['url' => $url])
-    {{ __('View your order') }}
+    {{ __('Veja seu pedido') }}
 @endcomponent
 
 @component('mail::table')
-    | {{ __('Order summary') }} |   |   |
+    | {{ __('Resumo do pedido') }} |   |   |
     | :----------- | :------------ | -----------: |
     @foreach($order->orderItems as $item)
     | **{{ $item->name }} x {{ $item->quantity }}** |  | **{{ money($item->subtotal, config('app.currency')) }}** |
     @endforeach
     |  | {{ __('Subtotal') }}  | **{{ money($order->subtotal, config('app.currency')) }}** |
-    |  | {{ __('Shipping') }}  | **{{ money($order->shipping_price, config('app.currency')) }}** |
-    |  | {{ __('Taxes') }}     | **{{ money($order->taxtotal, config('app.currency')) }}** |
+    |  | {{ __('Frete') }}  | **{{ money($order->shipping_price, config('app.currency')) }}** |
     |  | {{ __('Total') }}     | **{{ money($order->total, config('app.currency')) }}** |
 @endcomponent
 
 @component('mail::table')
-    | {{ __('Customer information') }} |   |   |
+    | {{ __('Informações do Cliente') }} |   |   |
     | :---------- | :----------: | :---------- |
-    | **{{ __('Shipping address') }}**<br>{{ $order->shippingAddress->name }}<br>{{ $order->shippingAddress->address }}<br>{{ $order->shippingAddress->city }} {{ $order->shippingAddress->state }} {{ $order->shippingAddress->postcode }}<br>{{ $order->shippingAddress->country->name }} |  | **{{ __('Billing address') }}**<br>{{ $order->billingAddress->name }}<br>{{ $order->billingAddress->address }}<br>{{ $order->billingAddress->city }} {{ $order->billingAddress->state }} {{ $order->billingAddress->postcode }}<br>{{ $order->billingAddress->country->name }} |
-    | **{{ __('Shipping method') }}**<br>{{ $order->shipping_rate }} |  | **{{ __('Payment method') }}**<br>{{ $order->paymentMethod->name }} |
+    | **{{ __('Endereço para envio') }}**<br>{{ $order->prison_unit->name }}<br>{{ $order->prison_unit->logradouro }}<br>{{ $order->prison_unit->cidade }} {{ $order->prison_unit->uf }} {{ $order->prison_unit->cep }}<br>  | **{{ __('Endereço do Visitante') }}**<br>{{ $order->visitante->name }}<br>{{ $order->visitante->logradouro }}<br>{{ $order->visitante->cidade }} {{ $order->visitante->uf }} {{ $order->visitante->cep }} |
+    | **{{ __('Forma de Envio') }}**<br>{{ $order->shipping_rate }} |  | **{{ __('Meio de pagamento') }}**<br>{{ $order->paymentMethod->name }} |
 @endcomponent
 
-{{ __('Thanks,') }}<br>
+{{ __('Obrigado,') }}<br>
 {{ $generalSettings->store_name ?: config('app.name') }}
 @endcomponent
