@@ -229,6 +229,9 @@
                     </div>
                 </x-slot:content>
             </x-card>
+            <div class="mt-6">
+                {{ $prison_units->links() }}
+            </div>
 
         @endif
     </div>
