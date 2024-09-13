@@ -162,7 +162,7 @@
                 <img src="{{ asset('img/estrelas.png')}}" alt="" class="absolute -top-4 z-10 ">
 
                 <div class="w-full h-72 md:h-96 bg-neutral-400 rounded-lg  text-center origin-center rotate-6"> 
-                    <img src="{{ asset('img/empresa-jumbo-online.png')}}" alt="" class="rounded-lg object-fill object-center w-full mx-auto h-full origin-center -rotate-12">     
+                    <img src="{{ asset('img/jumbo-online-cdp-penitenciarias.png')}}" alt="" class="rounded-lg object-fill object-center w-full mx-auto h-full origin-center -rotate-12">     
                 </div>
 
                 <div class="px-8">
