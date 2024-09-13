@@ -8,6 +8,7 @@ use App\Models\PrisonUnit;
 use Artesaos\SEOTools\Traits\SEOTools;
 use App\Models\Cart;
 use App\Models\Product;
+use Propaganistas\LaravelPhone\PhoneNumber;
 
 
 class ProductList extends Component
@@ -16,6 +17,8 @@ class ProductList extends Component
 
     public PrisonUnit $prison;
     public Product $product;
+
+    public $prison_phone_format;
 
     public $perPage = 10;
 
@@ -32,6 +35,14 @@ class ProductList extends Component
         $this->selectedOptions = $this->cart->items()->pluck('product_id')->toArray();
         $this->weight = $this->cart->weight;
         $this->subTotal = $this->cart->subTotal;
+
+        if($this->prison->phone){
+
+            $prison_phone = new PhoneNumber($this->prison->phone, 'BR');
+
+            $this->prison_phone_format = $prison_phone->formatNational();
+
+        }
     }
 
     public function refreshCart()
