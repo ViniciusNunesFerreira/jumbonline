@@ -15,6 +15,10 @@ use Illuminate\Queue\SerializesModels;
 use Spatie\WebhookClient\Jobs\ProcessWebhookJob;
 use Spatie\WebhookClient\Models\WebhookCall;
 
+use MercadoPago\MercadoPagoConfig;
+use App\Models\PaymentMethod;
+use MercadoPago\Client\Payment\PaymentClient;
+
 
 class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQueue
 {
@@ -29,6 +33,45 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
     public function __construct(WebhookCall $webhookCall)
     {
         $this->webhookCall = $webhookCall;
+    }
+
+
+
+    public function handle():void
+    {
+        if ( !empty($this->webhookCall->payload['event']['data']['id']) ) {
+
+            $mercadopago =  PaymentMethod::where('identifier', 'mercadopago')->firstOrFail();
+
+            MercadoPagoConfig::setAccessToken($mercadopago->meta['access_token']);
+        
+            $client = new PaymentClient();
+            $payment = $client->get($id);
+    
+            if(!empty($payment->external_reference) && $payment->status == "approved"){
+                $this->processOrderPaidEvent($payment);
+            }
+        
+        }
+
+    }
+
+    public function processOrderPaidEvent($data)
+    {
+        $order = Order::query()->where('idempotency_key', $data->external_reference)->where('order_status', 'OPEN')->firstOrFail();
+
+        $order->payments()->create([
+            'reference' => $data->external_reference,
+            'amount' => $data->transaction_amount,
+            'currency' => \Str::upper($data->currency_id),
+            'status' => PaymentStatus::PAID,
+        ]);
+
+        $order->payment_status = PaymentStatus::PAID;
+
+        $order->save();
+
+        PaymentReceived::dispatch($order);
     }
 
 

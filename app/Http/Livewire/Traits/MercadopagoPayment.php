@@ -84,16 +84,18 @@ trait MercadopagoPayment
         MercadoPagoConfig::setAccessToken($this->mercadopago->meta['access_token']);
         $client = new PaymentClient();
 
-        $request_options = new RequestOptions();
-        $request_options->setCustomHeaders(["X-Idempotency-Key: ".$this->order_service->idempotency_Key.""]);
+        
 
+        $request_options = new RequestOptions();
+        $request_options->setCustomHeaders(["X-Idempotency-Key: ".$this->order_service->idempotency_key.""]);
 
         if($request->payment_method_id == 'pix'){
 
             //Pagamentos Pix
             $this->createRequest = [
                 "transaction_amount" => $request->transaction_amount,
-                
+                "external_reference" => $this->order_service->idempotency_key,
+                "notification_url" => route('webhook-client-mercadopago'),
                 "payment_method_id" => $request->payment_method_id,
                     "payer" => [
                         "email" =>  $request->payer['email'],
@@ -114,6 +116,8 @@ trait MercadopagoPayment
                     "issuer_id" => $request->issuer_id,
                     "token" => $request->token,
                     "installments"  => $request->installments,
+                    "external_reference" => $this->order_service->idempotency_key,
+                    "notification_url" => route('webhook-client-mercadopago'),
                     "payment_method_id" => $request->payment_method_id,
                     "payer" => [
                         "email" => $request->payer['email'],
@@ -128,12 +132,14 @@ trait MercadopagoPayment
                 
         }
 
-
+        
         // $this->payment = $client->create($this->createRequest, $request_options);
 
         return response()->json($client->create($this->createRequest, $request_options));
         
     }
+
+    
 
     
     public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null

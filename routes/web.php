@@ -3,8 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Cart;
 
-
-
+use MercadoPago\MercadoPagoConfig;
+use App\Models\PaymentMethod;
+use MercadoPago\Client\Payment\PaymentClient;
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -34,7 +36,6 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
     Route::get('/contact', \App\Http\Livewire\Guest\Contact::class)->name('contact');
     Route::get('/pages/{page:slug}', \App\Http\Livewire\Guest\PageDetail::class)->name('pages.detail');
 });
-
 
 
 //Route::get('/setup', \App\Http\Livewire\Setup\Setup::class)->middleware(\App\Http\Middleware\RedirectIfSetupFinished::class)->name('setup');
