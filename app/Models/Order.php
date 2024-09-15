@@ -8,6 +8,7 @@ use App\Enums\ShippingStatus;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
@@ -43,6 +44,8 @@ class Order extends Model
     protected $attributes = [
         'shipping_price' => 0,
     ];
+
+
 
     public function customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -172,6 +175,10 @@ class Order extends Model
             if ($order->meta === null) {
                 $order->meta = [];
             }
+
+            $order->idempotency_key = (string) Str::uuid();
         });
+
+       
     }
 }

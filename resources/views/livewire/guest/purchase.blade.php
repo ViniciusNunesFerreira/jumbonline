@@ -268,7 +268,7 @@
                         Falta pouco para concluir e finalizar seu pedido.
                     </div>
 
-                    <div class="mx-auto max-w-7xl py-8 grid md:grid-cols-2 gap-6" >
+                    <div class="mx-auto max-w-7xl py-8" >
 
                         <x-card>
 
@@ -358,7 +358,7 @@
                                                     <dt class="text-sm">{{ __('Frete') }}</dt>
                                                     <dd class="text-sm font-medium text-slate-900">
                                                         <x-money
-                                                            :amount="0"
+                                                            :amount="optional($this->order)->shipping_price"
                                                             :currency="config('app.currency')"
                                                         />
                                                     </dd>
@@ -380,26 +380,29 @@
                                     </div>
                                 </div>
 
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-3">
+                                        <a class="btn bg-accent text-white text-center block w-full mt-2 flex">
+                                            <x-heroicon-s-chevron-double-left class="h-5 w-5 flex-shrink-0 text-white" /> &nbsp; Cancelar Pedido
+                                        </a>
+                                    </div>
+                                    <div class="col-span-3">
+                                        <button wire:click.prevent="preparePayment()" class="btn bg-primary text-white text-center block w-full mt-2 flex">
+                                            Confirmar &nbsp; <x-heroicon-s-chevron-double-right class="h-5 w-5 flex-shrink-0 text-white" />
+                                        </button>
+                                    </div>
+                                </div>
+
                             </x-slot:content>
 
                         </x-card>
-                        <x-card>
-                            <x-slot:content class="!py-8 sm:!px-10">
-
-                                <div id="paymentBrick_container"></div>
-                                <div id="statusScreenBrick_container"></div>
-
-                            </x-slot:content>
-                        </x-card>
+                        
                         
                     </div>
 
                 </div>
 
             
-
-            
-
         </div>
 
         
@@ -407,141 +410,12 @@
     </div>
 
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
-@if('tabs-pagamento' == $currentTab)
-<script>
-
-    const mp = new MercadoPago('{{ $this->mercadopago->meta['public_key'] }}', {
-          locale: 'pt-BR'
-        } );
-    const bricksBuilder = mp.bricks();
-
-    const renderPaymentBrick = async (bricksBuilder) => {
-        const settings = {
-        initialization: {
-            /*
-            "amount" é o valor total a ser pago por todos os meios de pagamento
-        com exceção da Conta Mercado Pago e Parcelamento sem cartão de crédito, que tem seu valor de processamento determinado no backend através do "preferenceId"
-            */
-            amount: parseFloat(1000),
-            
-        },
-        customization: {
-
-            paymentMethods: {
-                creditCard: "all",
-                ticket:'bolbradesco',
-                bankTransfer:'pix',
-                types: {
-                    excluded: ['debit_card', 'mercadoPago']
-                }, 
-                maxInstallments: 3,
-            },
-            visual: {
-                style: {
-                    customVariables: {
-                        textPrimaryColor: "#1B1850",
-                        baseColor: "#1B1850"
-                    },
-                },
-            }
-        },
-        callbacks: {
-            onReady: () => {
-            /*
-            Callback chamado quando o Brick estiver pronto.
-            Aqui você pode ocultar loadings do seu site, por exemplo.
-            */
-            },
-            onSubmit: ({ selectedPaymentMethod, formData }) => {
-            // callback chamado ao clicar no botão de submissão dos dados
-
-            
-            return new Promise((resolve, reject) => {
-                fetch("", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                body: JSON.stringify(formData),
-                })
-                .then((response) => response.json())
-                .then((response) => {
-                    // receber o resultado do pagamento
-
-                    const renderStatusScreenBrick = async (bricksBuilder) => {
-                        const settings = {
-                        initialization: {
-                            paymentId: response.id, // id do pagamento a ser mostrado
-                        },
-                        customization: {
-                            visual: {
-                                style:{
-                                    textPrimaryColor: "#1B1850",
-                                    baseColor:"#1B1850"
-                                }
-                            },
-                            backUrls: {
-                                'return': '{{route('guest.welcome')}}',
-                            }
-                        },
-                        callbacks: {
-                            onReady: () => {
-                                $("#paymentBrick_container").hide();
-                                console.log('entrei no sucesso do hide');
-                            },
-                            onError: (error) => {
-                                // callback chamado para todos os casos de erro do Brick
-                                console.error(error);
-                            },
-                        },
-                        };
-                        window.statusScreenBrickController = await bricksBuilder.create(
-                        'statusScreen',
-                        'statusScreenBrick_container',
-                        settings,
-                        );  
-                    };
-
-                    renderStatusScreenBrick(bricksBuilder);
-
-                    resolve();
-                })
-                .catch((error) => {
-                    // lidar com a resposta de erro ao tentar criar o pagamento
-                    console.error("erro "+ error);
-                    reject();
-                });
-            });
-            },
-            onError: (error) => {
-            // callback chamado para todos os casos de erro do Brick
-            console.log('entrei no primeiro erro');
-            console.error(error);
-            },
-        },
-        };
-        window.paymentBrickController = await bricksBuilder.create(
-        "payment",
-        "paymentBrick_container",
-        settings
-        );
-    };
-
-    renderPaymentBrick(bricksBuilder);
-
-</script>
-@endif
 
 </div>
 
 
 
-@push('script_header')
-    <script src="https://sdk.mercadopago.com/js/v2"></script>
-@endpush
+
 
 
 

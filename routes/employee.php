@@ -42,7 +42,7 @@ Route::group([
         Route::get('/discounts', \App\Http\Livewire\Employee\Discount\DiscountList::class)->name('discounts.list');
         Route::get('/discounts/create', \App\Http\Livewire\Employee\Discount\DiscountDetail::class)->name('discounts.create');
         Route::get('/discounts/{discount:id}', \App\Http\Livewire\Employee\Discount\DiscountDetail::class)->name('discounts.detail');
-        Route::get('/shipping', \App\Http\Livewire\Employee\Shipping\ShippingManager::class)->name('shipping.manager');
+        Route::get('/shipping', \App\Http\Livewire\Employee\Shipping\ShippingMethods::class)->name('shipping.manager');
         Route::get('/taxes', \App\Http\Livewire\Employee\Taxation\TaxManager::class)->name('taxes.manager');
         Route::get('/articles', \App\Http\Livewire\Employee\Article\ArticleList::class)->name('articles.list');
         Route::get('/articles/{article:id}', \App\Http\Livewire\Employee\Article\ArticleDetail::class)->name('articles.detail');

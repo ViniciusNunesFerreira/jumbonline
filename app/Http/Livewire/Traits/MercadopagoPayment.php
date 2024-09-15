@@ -5,15 +5,20 @@ namespace App\Http\Livewire\Traits;
 use App\Models\PaymentMethod;
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Client\Payment\PaymentClient;
+use MercadoPago\Client\Common\RequestOptions;
 use MercadoPago\Client\Preference\PreferenceClient;
 use App\Models\OrderItem;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Models\Customer;
 
 trait MercadopagoPayment
 {
     public $preference_id = 1 ;
     public $payment = [];
     public $createRequest = [];
+
+    
 
     public function createPreference()
     {
@@ -76,10 +81,11 @@ trait MercadopagoPayment
     public function createPaymentOrder(Request $request)
     {
 
-    
-
         MercadoPagoConfig::setAccessToken($this->mercadopago->meta['access_token']);
         $client = new PaymentClient();
+
+        $request_options = new RequestOptions();
+        $request_options->setCustomHeaders(["X-Idempotency-Key: ".$this->order_service->idempotency_Key.""]);
 
 
         if($request->payment_method_id == 'pix'){
@@ -87,7 +93,7 @@ trait MercadopagoPayment
             //Pagamentos Pix
             $this->createRequest = [
                 "transaction_amount" => $request->transaction_amount,
-                "external_reference" => 2323,
+                
                 "payment_method_id" => $request->payment_method_id,
                     "payer" => [
                         "email" =>  $request->payer['email'],
@@ -123,14 +129,26 @@ trait MercadopagoPayment
         }
 
 
-        $this->payment = $client->create($this->createRequest);
+        // $this->payment = $client->create($this->createRequest, $request_options);
 
-        return response()->json($this->payment);
+        return response()->json($client->create($this->createRequest, $request_options));
         
+    }
+
+    
+    public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null
+    {
+        return \Auth::user();
     }
 
     public function getMercadopagoProperty()
     {
         return PaymentMethod::query()->where('identifier', 'mercadopago')->firstOrFail();
     }
+
+    public function getOrderServiceProperty()
+    {
+        return Order::query()->where('customer_id',  $this->customer->id)->where('order_status', 'OPEN')->first();
+    }
+
 }

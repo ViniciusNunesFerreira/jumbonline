@@ -4,7 +4,7 @@ namespace App\Http\Livewire\Guest;
 
 use Livewire\Component;
 use Artesaos\SEOTools\Traits\SEOTools;
-use App\Http\Livewire\Traits\MercadopagoPayment;
+use App\Http\Livewire\Traits\Correios;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
@@ -32,9 +32,9 @@ use App\Settings\CheckoutSetting;
 
 class Purchase extends Component
 {
-    use MercadopagoPayment;
+    
     use SEOTools;
-
+    use Correios;
 
     public $shippingMethod;
     public $step = 1;
@@ -115,9 +115,9 @@ class Purchase extends Component
 
         if($current == 'tabs-pagamento'){
 
-            if($this->step > 0){
-                $this->placeOrder();
+            if($this->step > 0){ 
                 $this->step = 3;
+                $this->placeOrder();
             }
 
         }
@@ -216,7 +216,7 @@ class Purchase extends Component
 
     public function getOrderProperty(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
     {
-        return Order::query()->firstOrNew(['customer_email' => $this->customer?->email], 
+        return Order::query()->where('order_status', 'OPEN')->firstOrNew(['customer_email' => $this->customer?->email], 
             ['prison_unit_id' => $this->prisonUnit->id]
         );
 
@@ -232,16 +232,34 @@ class Purchase extends Component
         ]);
     }
 
+    public function updateShippingPrice()
+    {
+        $params = [
+            'cepDestino' => trim( preg_replace("/[^0-9]/", "",  $this->prisonUnit->cep) ),
+            'cepOrigem' => '02737050',
+            'peso' =>  ($this->cart->weight * 1000),
+        ];
+
+        $response = $this->calcPrecoFrete($params);
+    
+        if( optional($response)->pcFinal ){
+
+            $price = str_replace('.', '', $response->pcFinal);
+            $price = str_replace(',', '.', $price);
+
+            $this->order->shipping_rate  = 'correios';
+            $this->order->shipping_price = (double)$price;
+        }
+
+    }
+
 
 
     protected function placeOrder()
     {
-        \Log::debug($this->order);
 
         //valida se existe consumidor
         $customer = $this->customer ? $this->customer : $this->findOrCreateCustomer();
-
-
 
         $customer->load(['detentos', 'visitantes']);
 
@@ -258,15 +276,21 @@ class Purchase extends Component
            return  $this->changeTab('tabs-detento');
         }
 
-
         $this->order->detento_id = $customer->detentos()->first()->id;
         $this->order->visitante_id =  $customer->visitantes()->first()->id;
 
         //recupera e atualiza ordem
-
+        $this->updateShippingPrice();
         $this->order->save();
 
+
+        if($this->cartItems->count() > 0){
+            $this->order->orderItems()->delete();
+            $this->order->orderDiscounts()->delete();
+        }
+
         $this->cartItems->each(function (CartItem $item) {
+
             $orderItem = $this->order->orderItems()->create([
                 'product_id' => $item->product_id,
                 'variant_id' => $item->variant_id,
@@ -285,16 +309,23 @@ class Purchase extends Component
             }
         });
 
-        $this->cart->items()->delete();
-
-        $this->cart->discounts()->delete();
-
+       
         $this->step = 0;
-
-        OrderCreated::dispatch($this->order);
         
         $this->emit('refresh');
 
+    }
+
+    public function preparePayment()
+    {
+        
+        $this->cart->items()->delete();
+        $this->cart->discounts()->delete(); 
+        
+        OrderCreated::dispatch($this->order);
+
+        $this->redirect($this->customer ? route('customer.order.payment', $this->order) : URL::signedRoute('guest.order.payment', $this->order));
+        
     }
 
 

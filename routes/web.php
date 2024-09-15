@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Cart;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -24,7 +26,7 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
     Route::get('/cart', \App\Http\Livewire\Guest\ShoppingCart::class)->name('cart');
    // Route::get('/checkout', \App\Http\Livewire\Guest\Checkout::class)->name('checkout');
     Route::get('/purchase', \App\Http\Livewire\Guest\Purchase::class)->name('purchase');
-    Route::post('/purchase', [\App\Http\Livewire\Guest\Purchase::class, 'createPaymentOrder'])->name('purchase.post');
+    Route::get('/order/{order}/payment/', \App\Http\Livewire\Guest\OrderPayment::class)->name('order.payment');
     Route::get('/orders/{order}', \App\Http\Livewire\Guest\OrderDetail::class)->name('orders.detail')->middleware('signed');
     Route::get('/blog', \App\Http\Livewire\Guest\Blog\ArticleList::class)->name('blog.articles.list');
     Route::get('/blog/{article:slug}', \App\Http\Livewire\Guest\Blog\ArticleDetail::class)->name('blog.articles.detail');
@@ -32,6 +34,7 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
     Route::get('/contact', \App\Http\Livewire\Guest\Contact::class)->name('contact');
     Route::get('/pages/{page:slug}', \App\Http\Livewire\Guest\PageDetail::class)->name('pages.detail');
 });
+
 
 
 //Route::get('/setup', \App\Http\Livewire\Setup\Setup::class)->middleware(\App\Http\Middleware\RedirectIfSetupFinished::class)->name('setup');
