@@ -18,7 +18,6 @@ trait MercadopagoPayment
     public $payment = [];
     public $createRequest = [];
 
-    
 
     public function createPreference()
     {
@@ -129,11 +128,7 @@ trait MercadopagoPayment
             }
                 
         }
-
-        \Log::info(env('APP_ENV'));
-
-        \Log::debug($this->createRequest);
-        \Log::debug((array)$request_options);
+        
         // $this->payment = $client->create($this->createRequest, $request_options);
 
         return response()->json($client->create($this->createRequest, $request_options));

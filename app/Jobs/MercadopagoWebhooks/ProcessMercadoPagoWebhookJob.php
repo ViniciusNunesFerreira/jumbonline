@@ -41,8 +41,8 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
 
     public function handle():void
     {
-        \Log::debug($this->webhookCall->payload['data']['id']);
         
+       
         if ( !empty($this->webhookCall->payload['data']['id']) ) {
 
             $mercadopago =  PaymentMethod::where('identifier', 'mercadopago')->firstOrFail();
@@ -54,8 +54,6 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
             $id = $this->webhookCall->payload['data']['id'];
 
             $payment = $client->get($id);
-
-            \Log::debug( (array) $payment);
     
             if(!empty($payment->external_reference) && $payment->status == "approved"){
                 $this->processOrderPaidEvent($payment);
