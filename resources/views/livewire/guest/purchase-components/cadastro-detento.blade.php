@@ -1,12 +1,13 @@
 <div>
-    <div class="mx-auto max-w-7xl py-8  space-y-4">
-
+    
     <form
         wire:submit.prevent="saveData"
         class="space-y-6"
 
         :wire:key="time()"
     >
+    <div class="mx-auto max-w-7xl py-8  space-y-4">
+        
         <x-card>
             <x-slot:content class="!py-8 sm:!px-10">
                 <h2 class="text-lg font-semibold text-purple tracking-tight flex items-center"> 
@@ -323,7 +324,8 @@
             </x-slot:content>
         </x-card>
 
+    </div>
+
     </form>
 
-    </div>
 </div>
