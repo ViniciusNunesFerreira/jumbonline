@@ -5,7 +5,6 @@
 @else
 # @lang('Olá!')
 @endif
-@endif
 
 {{-- Intro Lines --}}
 Você está recebendo este e-mail porque recebemos uma solicitação de redefinição de senha da sua conta.
