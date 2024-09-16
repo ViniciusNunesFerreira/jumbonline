@@ -19,9 +19,6 @@ class MPSignatureValidator implements SignatureValidator
         // Extract the "data.id" from the query params
         $dataID = isset($queryParams->data->id) ? $queryParams->data->id : '';
 
-        \Log::info('dataid ='.$dataID);
-        \Log::info('xRequestId ='.$xRequestId);
-
         if (! $xSignature) {
             return false;
         }
@@ -53,19 +50,9 @@ class MPSignatureValidator implements SignatureValidator
             }
         }
 
-        \Log::info('ts='.$ts);
-        \Log::info('hash: '.$hash);
-                
         //Gera a string de comparação
         $manifest = "id:$dataID;request-id:$xRequestId;ts:$ts;";
-
-       
-        \Log::info('manifest= '.$manifest);
-        \Log::info('secret= '.$secret);
-
         $computedSignature = hash_hmac('sha256', $manifest, $secret);
-
-        \Log::info($computedSignature);
 
         return hash_equals($hash, $computedSignature);
     }
