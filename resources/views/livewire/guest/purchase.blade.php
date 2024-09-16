@@ -368,7 +368,7 @@
                                                     <dt class="text-base font-bold">{{ __('Total') }}</dt>
                                                     <dd class="text-base font-medium text-slate-900">
                                                         <x-money
-                                                            :amount="$cart->subtotal"
+                                                            :amount="optional($this->order)->total"
                                                             :currency="config('app.currency')"
                                                         />
                                                     </dd>

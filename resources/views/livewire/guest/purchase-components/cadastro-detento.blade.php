@@ -4,6 +4,8 @@
     <form
         wire:submit.prevent="saveData"
         class="space-y-6"
+
+        :wire:key="time()"
     >
         <x-card>
             <x-slot:content class="!py-8 sm:!px-10">
