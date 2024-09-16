@@ -53,7 +53,13 @@ class MPSignatureValidator implements SignatureValidator
         //Gera a string de comparação
         $manifest = "id:$dataID;request-id:$xRequestId;ts:$ts;";
 
+        \Log::info($xSignature);
+
+        
+
         $computedSignature = hash_hmac('sha256', $manifest, $secret);
+
+        \Log::info($computedSignature);
 
         return hash_equals($xSignature, $computedSignature);
     }
