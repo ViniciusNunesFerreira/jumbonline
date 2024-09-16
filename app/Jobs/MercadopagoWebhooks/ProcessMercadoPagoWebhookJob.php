@@ -41,7 +41,7 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
 
     public function handle():void
     {
-        \Log::debug((array) $this->webhookCall->payload);
+        \Log::debug($this->webhookCall->payload['data']['id']);
         
         if ( !empty($this->webhookCall->payload['data']['id']) ) {
 
