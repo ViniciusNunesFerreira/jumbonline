@@ -4,7 +4,7 @@
             <x-card class="!rounded-none sm:!rounded-lg">
                 <x-slot:content class="!py-8 sm:!px-10">
                     <div class="mb-6 text-sm text-gray-600">
-                        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+                        {{ __('Esta é uma área segura do aplicativo. Por favor, confirme sua senha antes de continuar.') }}
                     </div>
 
                     <form
@@ -35,7 +35,7 @@
 
                         <div class="mt-6">
                             <button class="btn btn-primary w-full">
-                                {{ __('Confirm') }}
+                                {{ __('Confirmar') }}
                             </button>
                         </div>
                     </form>

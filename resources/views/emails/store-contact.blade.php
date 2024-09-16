@@ -1,23 +1,23 @@
 <x-mail::message>
 <p>
-    {{ __('You have a new contact form submission!') }}
+    {{ __('Você tem um novo envio de formulário de contato!') }}
 </p>
 <p>
-    {{ __('Here are the details:') }}
+    {{ __('Aqui estão os detalhes:') }}
 </p>
 <ul>
     <li>
-        <strong>{{ __('Name:') }}</strong> {{ $name }}
+        <strong>{{ __('Nome:') }}</strong> {{ $name }}
     </li>
     <li>
         <strong>{{ __('Email:') }}</strong> {{ $email }}
     </li>
     <li>
-        <strong>{{ __('Phone:') }}</strong> {{ $phone }}
+        <strong>{{ __('Telefone:') }}</strong> {{ $phone }}
     </li>
 </ul>
 <p>
-    {{ __('Message:') }}
+    {{ __('Mensagem:') }}
 </p>
 <x-mail::panel>
     {{ $message }}

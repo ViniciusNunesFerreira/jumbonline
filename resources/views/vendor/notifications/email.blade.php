@@ -1,20 +1,14 @@
 <x-mail::message>
 {{-- Greeting --}}
-@if (! empty($greeting))
-# {{ $greeting }}
-@else
 @if ($level === 'error')
-# @lang('Whoops!')
+# @lang('Ops!')
 @else
-# @lang('Hello!')
+# @lang('Olá!')
 @endif
 @endif
 
 {{-- Intro Lines --}}
-@foreach ($introLines as $line)
-{{ $line }}
-
-@endforeach
+Você está recebendo este e-mail porque recebemos uma solicitação de redefinição de senha da sua conta.
 
 {{-- Action Button --}}
 @isset($actionText)
@@ -25,21 +19,20 @@
     };
 ?>
 <x-mail::button :url="$actionUrl" :color="$color">
-{{ $actionText }}
+Redefinir Senha
 </x-mail::button>
 @endisset
 
 {{-- Outro Lines --}}
-@foreach ($outroLines as $line)
-{{ $line }}
 
-@endforeach
+<p>Este link de redefinição de senha expirará em 60 minutos.</p>
+<p>Se você não solicitou uma redefinição de senha, nenhuma ação adicional será necessária.</p>
 
 {{-- Salutation --}}
 @if (! empty($salutation))
 {{ $salutation }}
 @else
-@lang('Regards'),<br>
+@lang('At. te'),<br>
 {{ config('app.name') }}
 @endif
 
@@ -47,8 +40,8 @@
 @isset($actionText)
 <x-slot:subcopy>
 @lang(
-    "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\n".
-    'into your web browser:',
+    "Se você estiver tendo problemas para clicar no botão de \":actionText\", copie e cole o URL abaixo\n".
+    'em seu navegador:',
     [
         'actionText' => $actionText,
     ]
