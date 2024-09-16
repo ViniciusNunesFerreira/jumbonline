@@ -20,7 +20,7 @@ use App\Models\PaymentMethod;
 use MercadoPago\Client\Payment\PaymentClient;
 
 
-class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQueue
+class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob 
 {
 
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -40,7 +40,7 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
     public function handle():void
     {
         \Log::debug((array) $this->webhookCall->payload);
-        
+
         if ( !empty($this->webhookCall->payload['event']['data']['id']) ) {
 
             $mercadopago =  PaymentMethod::where('identifier', 'mercadopago')->firstOrFail();
