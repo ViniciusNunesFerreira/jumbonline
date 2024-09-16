@@ -31,7 +31,7 @@ class MPSignatureValidator implements SignatureValidator
 
         $secret = $config->signingSecret;
 
-        if (empty($signingSecret)) {
+        if (empty($secret)) {
             throw InvalidConfig::signingSecretNotSet();
         }
 
