@@ -84,8 +84,6 @@ trait MercadopagoPayment
         MercadoPagoConfig::setAccessToken($this->mercadopago->meta['access_token']);
         $client = new PaymentClient();
 
-        
-
         $request_options = new RequestOptions();
         $request_options->setCustomHeaders(["X-Idempotency-Key: ".$this->order_service->idempotency_key.""]);
 
@@ -95,7 +93,7 @@ trait MercadopagoPayment
             $this->createRequest = [
                 "transaction_amount" => $request->transaction_amount,
                 "external_reference" => $this->order_service->idempotency_key,
-                "notification_url" => route('webhook-client-mercadopago'),
+                "notification_url" => env('APP_ENV') == 'local' ? 'https://eori7ke1uiyuqp1.m.pipedream.net': route('webhook-client-mercadopago'),
                 "payment_method_id" => $request->payment_method_id,
                     "payer" => [
                         "email" =>  $request->payer['email'],
@@ -117,7 +115,7 @@ trait MercadopagoPayment
                     "token" => $request->token,
                     "installments"  => $request->installments,
                     "external_reference" => $this->order_service->idempotency_key,
-                    "notification_url" => route('webhook-client-mercadopago'),
+                    "notification_url" => env('APP_ENV') == 'local' ? 'https://eori7ke1uiyuqp1.m.pipedream.net': route('webhook-client-mercadopago'),
                     "payment_method_id" => $request->payment_method_id,
                     "payer" => [
                         "email" => $request->payer['email'],
@@ -132,7 +130,10 @@ trait MercadopagoPayment
                 
         }
 
-        
+        \Log::info(env('APP_ENV'));
+
+        \Log::debug($this->createRequest);
+        \Log::debug((array)$request_options);
         // $this->payment = $client->create($this->createRequest, $request_options);
 
         return response()->json($client->create($this->createRequest, $request_options));

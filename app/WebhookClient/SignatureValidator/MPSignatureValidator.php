@@ -58,20 +58,3 @@ class MPSignatureValidator implements SignatureValidator
         return hash_equals($xSignature, $computedSignature);
     }
 }
-
-
-
-
-
-
-
-
-// Crie uma assinatura HMAC definindo o tipo de hash e a chave como uma matriz de bytes
-$sha = hash_hmac('sha256', $manifest, $secret);
-if ($sha === $hash) {
-    \Log::info("HMAC verification passed");
-} else {
-    \Log::info("HMAC verification failed");
-}
-
-?>

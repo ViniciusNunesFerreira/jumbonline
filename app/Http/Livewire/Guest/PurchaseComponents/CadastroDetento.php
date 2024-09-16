@@ -169,6 +169,7 @@ class CadastroDetento extends Component
        
 
         $this->visitante->update($this->data['visitante']);
+        
         $this->emitUp('changeTab', 'tabs-pagamento');
 
     }
