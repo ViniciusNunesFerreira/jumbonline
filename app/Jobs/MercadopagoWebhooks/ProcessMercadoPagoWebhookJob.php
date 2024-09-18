@@ -42,23 +42,27 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
     public function handle():void
     {
         
-       
-        if ( !empty($this->webhookCall->payload['data']['id']) ) {
+       try{
+            if ( !empty($this->webhookCall->payload['data']['id']) ) {
 
-            $mercadopago =  PaymentMethod::where('identifier', 'mercadopago')->firstOrFail();
+                $mercadopago =  PaymentMethod::where('identifier', 'mercadopago')->firstOrFail();
 
-            MercadoPagoConfig::setAccessToken($mercadopago->meta['access_token']);
-        
-            $client = new PaymentClient();
+                MercadoPagoConfig::setAccessToken($mercadopago->meta['access_token']);
             
-            $id = $this->webhookCall->payload['data']['id'];
+                $client = new PaymentClient();
+                
+                $id = $this->webhookCall->payload['data']['id'];
 
-            $payment = $client->get($id);
-    
-            if(!empty($payment->external_reference) && $payment->status == "approved"){
-                $this->processOrderPaidEvent($payment);
+                $payment = $client->get($id);
+
+                if(!empty($payment->external_reference) && $payment->status == "approved"){
+                    $this->processOrderPaidEvent($payment);
+                }
+            
             }
-        
+
+        }catch(\Exception $e){
+            \Log::error($e->getMessage());
         }
 
     }
@@ -78,7 +82,12 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
 
         $order->save();
 
-        PaymentReceived::dispatch($order);
+        try{
+            PaymentReceived::dispatch($order);
+        }catch(\Exception $e){
+            \Log::error($e->getMessage());
+        }
+        
     }
 
 
