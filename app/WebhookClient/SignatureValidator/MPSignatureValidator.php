@@ -31,6 +31,8 @@ class MPSignatureValidator implements SignatureValidator
 
         $secret = $config->signingSecret;
 
+        \Log::info('Secrete WebHook: '.$secret);
+
         if (empty($secret)) {
             throw InvalidConfig::signingSecretNotSet();
         }
@@ -52,6 +54,8 @@ class MPSignatureValidator implements SignatureValidator
 
         //Gera a string de comparação
         $manifest = "id:$dataID;request-id:$xRequestId;ts:$ts;";
+
+        \Log::info('Manifest: '.$manifest);
         $computedSignature = hash_hmac('sha256', $manifest, $secret);
 
         return hash_equals($hash, $computedSignature);
