@@ -14,16 +14,12 @@ class MPSignatureValidator implements SignatureValidator
         $xSignature = $request->header($config->signatureHeaderName);
         $xRequestId = $request->header('x-request-id') ? $request->header('x-request-id') : $_SERVER['HTTP_X_REQUEST_ID'] ;
 
-        $queryGet = $_GET;
+        $queryParams = $_GET;
         // Obtain Query params related to the request URL
-        $queryParams = json_decode(file_get_contents('php://input'));
-
-        \Log::debug($queryParams);
-
-        \Log::debug($queryGet);
+       // $queryParams = json_decode(file_get_contents('php://input'));
 
         // Extract the "data.id" from the query params
-        $dataID = isset($queryParams->data->id) ? $queryParams->data->id : '';
+        $dataID = is_object($queryParams) ? $queryParams->data->id : $queryParams['data']['id'];
 
         if (! $xSignature) {
             return false;
@@ -36,8 +32,6 @@ class MPSignatureValidator implements SignatureValidator
         $hash = null;
 
         $secret = $config->signingSecret;
-
-        \Log::info('Secrete WebHook: '.$secret);
 
         if (empty($secret)) {
             throw InvalidConfig::signingSecretNotSet();
