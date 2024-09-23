@@ -1,7 +1,7 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ trans_choice('Fulfill item|Fulfill items', $this->unshippedItems->count()) }}
+        {{ trans_choice('Informar Item|Informar itens', $this->unshippedItems->count()) }}
     </x-slot:title>
 
     <!-- Page title & actions -->
@@ -14,7 +14,7 @@
                 <x-heroicon-m-arrow-left class="w-5 h-5" />
             </a>
             <h1 class="text-2xl font-medium leading-6 text-slate-900 dark:text-slate-100">
-                {{ trans_choice('Fulfill item|Fulfill items', $this->unshippedItems->count()) }}
+                {{ trans_choice('Informar Item|Informar itens', $this->unshippedItems->count()) }}
             </h1>
         </div>
     </div>
@@ -27,7 +27,7 @@
                     <x-card>
                         <x-slot:header>
                             <h2 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                                {{ __('Order #:orderId', ['orderId' => $order->id]) }}
+                                {{ __('Pedido #:orderId', ['orderId' => $order->id]) }}
                             </h2>
                         </x-slot:header>
                         <x-slot:content class="-mt-5 -mx-4 sm:-mx-6">
@@ -49,7 +49,7 @@
                                                     scope="col"
                                                     class="px-3 py-3 sm:px-6 text-right text-xs font-medium text-slate-500 uppercase tracking-wider dark:text-slate-400"
                                                 >
-                                                    {{ __('Quantity') }}
+                                                    {{ __('Quantidade') }}
                                                 </th>
                                             </tr>
                                         </thead>
@@ -97,7 +97,7 @@
                                                                     class="text-slate-500 sm:text-sm"
                                                                     id="price-currency"
                                                                 >
-                                                                    {{ __('of') }} {{ $item->quantity - ($item->shipmentItems->sum('quantity') + $item->refundItems->sum('quantity')) }}
+                                                                    {{ __('de') }} {{ $item->quantity - ($item->shipmentItems->sum('quantity') + $item->refundItems->sum('quantity')) }}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -111,13 +111,13 @@
                                     <div class="mt-5">
                                         @if($type == 'physical')
                                             <h4 class="text-xs text-slate-500 font-medium uppercase dark:text-slate-400">
-                                                {{ __('Tracking information (optional)') }}
+                                                {{ __('Informações de Envio (optional)') }}
                                             </h4>
                                             <div class="mt-2 grid grid-cols-2 gap-5">
                                                 <div>
                                                     <x-input-label
                                                         for="shipping_carrier"
-                                                        :value="__('Shipping carrier')"
+                                                        :value="__('Forma de Envio')"
                                                     />
                                                     <x-select
                                                         wire:model="shipment.shipping_carrier"
@@ -138,7 +138,7 @@
                                                 <div>
                                                     <x-input-label
                                                         for="tracking_number"
-                                                        :value="__('Tracking number')"
+                                                        :value="__('Código de Rastreio')"
                                                     />
                                                     <x-input
                                                         wire:model.defer="shipment.tracking_number"
@@ -151,11 +151,11 @@
                                                         class="mt-2"
                                                     />
                                                 </div>
-                                                @if($shipment->shipping_carrier->value === \App\Enums\ShippingCarrier::OTHER->value)
+                                                
                                                     <div class="col-span-2">
                                                         <x-input-label
                                                             for="tracking_url"
-                                                            :value="__('Tracking URL')"
+                                                            :value="__('URL de rastreio')"
                                                         />
                                                         <x-input
                                                             wire:model.defer="shipment.tracking_url"
@@ -168,11 +168,11 @@
                                                             class="mt-2"
                                                         />
                                                     </div>
-                                                @endif
+                                                
                                             </div>
                                         @else
                                             <p class="text-sm text-slate-700">
-                                                {{ __('Shipping not required.') }}
+                                                {{ __('Envio não requerido.') }}
                                             </p>
                                         @endif
                                     </div>
@@ -192,7 +192,7 @@
                                     wire:loading.attr="disabled"
                                     class="btn btn-primary"
                                 >
-                                    {{ __('Create shipment') }}
+                                    {{ __('Informar Envio') }}
                                 </button>
                             </div>
                         </x-slot:footer>
@@ -204,38 +204,35 @@
                 <x-card class="-mx-4 sm:-mx-0 overflow-hidden">
                     <x-slot:header>
                         <h2 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('Shipping address') }}
+                            {{ __('Endereço para Envio') }}
                         </h2>
                     </x-slot:header>
                     <x-slot:content class="-mt-5">
-                        @if($order->shippingAddress)
+                        @if($order->prison_unit)
                             <address class="not-italic text-sm">
-                                {{ $order->shippingAddress->name }}<br>
+                                {{ $order->prison_unit->name }}<br>
 
-                                @if($order->shippingAddress->company_name)
-                                    {{ $order->shippingAddress->company_name }}<br>
+
+                                @if($order->prison_unit->logradouro)
+                                    {{ $order->prison_unit->logradouro }}, {{ $order->prison_unit->numero }}<br>
                                 @endif
 
-                                @if($order->shippingAddress->address_line_1)
-                                    {{ $order->shippingAddress->address_line_1 }}<br>
+                                @if($order->prison_unit->bairro)
+                                    {{ $order->prison_unit->bairro }}<br>
                                 @endif
 
-                                @if($order->shippingAddress->address_line_2)
-                                    {{ $order->shippingAddress->address_line_2 }}<br>
+                                @if($order->prison_unit->cidade)
+                                    {{ $order->prison_unit->cidade }}
                                 @endif
 
-                                @if($order->shippingAddress->city)
-                                    {{ $order->shippingAddress->city }}
+                                @if($order->prison_unit->estado)
+                                    {{ $order->prison_unit->estado }}<br>
                                 @endif
 
-                                @if($order->shippingAddress->state)
-                                    {{ $order->shippingAddress->state }}<br>
-                                @endif
+                                CEP: {{ $order->prison_unit->cep }}<br>
 
-                                {{ $order->shippingAddress->country->name }}<br>
-
-                                @if($order->shippingAddress->phone)
-                                    {{ $order->shippingAddress->phone }}<br>
+                                @if($order->prison_unit->phone)
+                                    {{ $order->prison_unit->phone }}<br>
                                 @endif
                             </address>
                         @endif

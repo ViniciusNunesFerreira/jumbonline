@@ -1,7 +1,7 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Orders - :id', ['id' => $order->id]) }}
+        {{ __('Pedidos - :id', ['id' => $order->id]) }}
     </x-slot:title>
 
     <!-- Page title & actions -->
@@ -17,7 +17,7 @@
         <div class="mt-0.5">
             <div class="sm:flex sm:items-center sm:space-x-3">
                 <h1 class="text-2xl font-medium leading-none text-slate-900 dark:text-slate-100">
-                    {{ __('Order: #:orderId', ['orderId' => $order->id]) }}
+                    {{ __('Pedido: #:orderId', ['orderId' => $order->id]) }}
                 </h1>
                 <div class="mt-2 space-x-3 sm:mt-0">
                     <x-badge class="space-x-1">
@@ -63,8 +63,6 @@
             </div>
 
             <div class="mt-6 col-span-3 xl:col-span-1 space-y-6 xl:mt-0">
-                <livewire:employee.order.components.order-notes :order="$order" />
-
                 <livewire:employee.order.components.order-customer-detail :order="$order" />
             </div>
         </div>

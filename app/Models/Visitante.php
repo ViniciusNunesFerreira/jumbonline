@@ -43,4 +43,9 @@ class Visitante extends Model implements HasMedia
     {
         return $this->belongsTo(Customer::class);
     }
+
+    public function prison_unit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PrisonUnit::class);
+    }
 }

@@ -5,12 +5,12 @@
                 <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
                     <div class="ml-4 mt-2 flex items-center space-x-3">
                         <h2 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('Shipment') }} #{{ $shipment->id }}
+                            {{ __('Remessa') }} #{{ $shipment->id }}
                         </h2>
 
                         @if($shipment->tracking_number)
                             <p class="text-sm text-slate-500 dark:text-slate-400">
-                                {{ $shipment->shipping_carrier->label() }} tracking {{ $shipment->tracking_number }}
+                                {{ $shipment->shipping_carrier->label() }} rastreando {{ $shipment->tracking_number }}
                             </p>
                         @else
                             <button
@@ -18,7 +18,7 @@
                                 type="button"
                                 class="btn btn-link"
                             >
-                                {{ __('Add tracking') }}
+                                {{ __('Add Código Rastreio') }}
                             </button>
                         @endif
                     </div>
@@ -31,7 +31,7 @@
                                     aria-expanded="false"
                                     aria-haspopup="true"
                                 >
-                                    <span class="sr-only">{{ __('Open options') }}</span>
+                                    <span class="sr-only">{{ __('Opções') }}</span>
                                     <x-heroicon-m-ellipsis-horizontal class="h-5 w-5" />
                                 </button>
                             </x-slot>
@@ -40,14 +40,14 @@
                                     wire:click="edit('{{ $shipment->id }}')"
                                     role="button"
                                 >
-                                    {{ __('Edit tracking') }}
+                                    {{ __('Edit Rastreio') }}
                                 </x-dropdown-link>
                                 <x-dropdown-link
                                     wire:click="delete('{{ $shipment->id }}')"
                                     role="button"
                                     class="text-red-600 dark:text-red-500"
                                 >
-                                    {{ __('Cancel shipment') }}
+                                    {{ __('Cancel envio') }}
                                 </x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
@@ -75,7 +75,7 @@
                                         scope="col"
                                         class="px-3 py-3 sm:px-6 text-right text-xs font-medium text-slate-500 uppercase tracking-wider dark:text-slate-400"
                                     >
-                                        {{ __('Price') }}
+                                        {{ __('Preço') }}
                                     </th>
                                     <th
                                         scope="col"
@@ -139,14 +139,14 @@
     <form wire:submit.prevent="update">
         <x-modal-dialog wire:model.defer="isEditingShipment">
             <x-slot:title>
-                {{ __('Edit tracking') }}
+                {{ __('Edit rastreio') }}
             </x-slot:title>
             <x-slot:content>
                 <div class="mt-2 grid grid-cols-2 gap-5">
                     <div>
                         <x-input-label
                             for="shipping_carrier"
-                            value="{{ __('Shipping carrier') }}"
+                            value="{{ __('Transportadora') }}"
                         />
                         <x-select
                             wire:model="shipmentBeingUpdated.shipping_carrier"
@@ -165,7 +165,7 @@
                     <div>
                         <x-input-label
                             for="tracking_number"
-                            :value="__('Tracking number')"
+                            :value="__('Código de Rastreio')"
                         />
                         <x-input
                             wire:model.defer="shipmentBeingUpdated.tracking_number"
@@ -178,11 +178,11 @@
                             class="mt-2"
                         />
                     </div>
-                    @if($shipmentBeingUpdated?->shipping_carrier->value === \App\Enums\ShippingCarrier::OTHER->value)
+
                         <div class="col-span-2">
                             <x-input-label
                                 for="tracking_url"
-                                :value="__('Tracking URL')"
+                                :value="__('URL de rastreio')"
                             />
                             <x-input
                                 wire:model.defer="shipmentBeingUpdated.tracking_url"
@@ -195,7 +195,7 @@
                                 class="mt-2"
                             />
                         </div>
-                    @endif
+                    
                 </div>
             </x-slot:content>
             <x-slot:footer>
@@ -203,14 +203,14 @@
                     type="submit"
                     class="btn btn-primary w-full sm:ml-3 sm:w-auto"
                 >
-                    {{ __('Save') }}
+                    {{ __('Salvar') }}
                 </button>
                 <button
                     wire:click="$set('isEditingShipment', false)"
                     type="button"
                     class="mt-3 btn btn-invisible w-full sm:mt-0 sm:w-auto"
                 >
-                    {{ __('Cancel') }}
+                    {{ __('Cancelar') }}
                 </button>
             </x-slot:footer>
         </x-modal-dialog>

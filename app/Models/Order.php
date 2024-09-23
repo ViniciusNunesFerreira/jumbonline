@@ -57,6 +57,11 @@ class Order extends Model
         return $this->belongsTo(Visitante::class);
     }
 
+    public function detento(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Detento::class);
+    }
+
     public function addresses(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Address::class, 'addressable')->latest();

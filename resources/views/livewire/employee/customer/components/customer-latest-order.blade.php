@@ -2,12 +2,12 @@
     <x-card>
         <x-slot:header>
             <h2 class="text-xl font-medium leading-6 text-slate-900 dark:text-slate-100">
-                {{ __('Last order placed') }}
+                {{ __('Ultimo pedido realizado') }}
             </h2>
         </x-slot:header>
         <x-slot:content class="-mt-5">
             @unless($customer->orders->count())
-                <p class="text-slate-500 sm:text-sm dark:text-slate-400">{{ __('This customer hasn’t placed any orders yet.') }}</p>
+                <p class="text-slate-500 sm:text-sm dark:text-slate-400">{{ __('Este cliente ainda não fez nenhum pedido.') }}</p>
             @else
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
@@ -66,7 +66,7 @@
                                     scope="col"
                                     class="px-3 py-3 sm:px-6 text-right text-xs font-medium text-slate-500 uppercase tracking-wider dark:text-slate-400"
                                 >
-                                    {{ __('Price') }}
+                                    {{ __('Preço') }}
                                 </th>
                                 <th
                                     scope="col"

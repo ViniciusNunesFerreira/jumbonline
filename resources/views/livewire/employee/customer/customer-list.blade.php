@@ -1,14 +1,14 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Customers') }}
+        {{ __('Clientes') }}
     </x-slot:title>
 
     <!-- Page title & actions -->
     <div class="px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div class="min-w-0 flex-1">
             <h1 class="text-2xl font-medium text-slate-900 dark:text-slate-100">
-                {{ __('Customers') }}
+                {{ __('Clientes') }}
             </h1>
         </div>
         @if($customers->count())
@@ -17,7 +17,7 @@
                     href="{{ route('employee.customers.create') }}"
                     class="btn btn-primary block w-full order-0 sm:order-1 sm:ml-3"
                 >
-                    {{ __('Add customer') }}
+                    {{ __('Add cliente') }}
                 </a>
             </div>
         @endif
@@ -32,11 +32,11 @@
                         <x-heroicon-o-user-group class="mx-auto h-12 w-12 text-slate-400" />
 
                         <h3 class="mt-2 text-lg font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('Everything customers-related in a single place') }}
+                            {{ __('Tudo relacionado ao cliente em um único lugar') }}
                         </h3>
 
                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            {{ __('When you’ve added customers, you’ll be able to update their details, get a summary of their order history and more.') }}
+                            {{ __('Ao adicionar clientes, você poderá atualizar seus detalhes, obter um resumo do histórico de pedidos e muito mais.') }}
                         </p>
 
                         <div class="mt-6">
@@ -45,7 +45,7 @@
                                 class="btn btn-primary"
                             >
                                 <x-heroicon-m-plus class="-ml-1 mr-2 h-5 w-5" />
-                                {{ __('Add customer') }}
+                                {{ __('Add cliente') }}
                             </a>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                             type="text"
                             class="placeholder-slate-500 w-full pl-10 sm:text-sm focus:placeholder-slate-400 dark:focus:placeholder-slate-600"
                             ::class="{ 'pr-10' : search }"
-                            placeholder="{{ __('Filter customers') }}"
+                            placeholder="{{ __('Filtrar clientes') }}"
                         />
                         <button
                             x-show="search.length"
@@ -91,7 +91,7 @@
                                         class="h-full w-screen items-center justify-center sm:w-auto"
                                     >
                                         <div class="m-auto flex items-center space-x-2">
-                                            <p class="text-sm dark:text-slate-200">{{ 'Loading customers...' }}</p>
+                                            <p class="text-sm dark:text-slate-200">{{ 'Buscando clientes...' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -112,19 +112,19 @@
                                                 scope="col"
                                                 class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
                                             >
-                                                {{ __('Customer name') }}
+                                                {{ __('Nome do Cliente') }}
                                             </th>
                                             <th
                                                 scope="col"
                                                 class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
                                             >
-                                                {{ __('Orders') }}
+                                                {{ __('Pedidos') }}
                                             </th>
                                             <th
                                                 scope="col"
                                                 class="pl-3 pr-4 py-4 text-right text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200"
                                             >
-                                                {{ __('Amount spent') }}
+                                                {{ __('Valor Gasto') }}
                                             </th>
                                         </tr>
                                     </thead>
@@ -181,10 +181,10 @@
                                                     <div class="max-w-lg mx-auto text-center">
                                                         <x-heroicon-o-magnifying-glass class="inline-block w-10 h-10 text-slate-400 dark:text-slate-300" />
                                                         <h3 class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-200">
-                                                            {{ __('No customers found') }}
+                                                            {{ __('Nenhum cliente encontrado') }}
                                                         </h3>
                                                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                                            {{ __('Try changing the filters or search term') }}
+                                                            {{ __('Tente alterar os filtros ou o termo de pesquisa') }}
                                                         </p>
                                                     </div>
                                                 </td>

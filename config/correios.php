@@ -1,5 +1,7 @@
 <?php return array (
-  'token' => 'eyJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MjY2MTY3NDksImlzcyI6InRva2VuLXNlcnZpY2UiLCJleHAiOjE3MjY3MDMxNDksImp0aSI6IjQ5N2EwYjFmLWNjMGUtNDM3NC05YTgzLTM0NGM5OTc5YzViZCIsImFtYmllbnRlIjoiUFJPRFVDQU8iLCJwZmwiOiJQSiIsImlwIjoiMTA0LjI4LjIwMy4yMjQsIDE5Mi4xNjguMS4xMzEiLCJjYXQiOiJPdTAiLCJjYXJ0YW8tcG9zdGFnZW0iOnsiY29udHJhdG8iOiI5OTEyNTUwMDI0IiwibnVtZXJvIjoiMDA3NjY3MTYyMyIsImRyIjo3MiwiYXBpIjpbMjcsMzQsMzUsMzYsMzcsNDEsNzYsNzgsODAsODMsODcsOTMsNTY2LDU4Niw1ODddfSwiaWQiOiI0MzIyMTE0ODAwMDE2OSIsImNucGoiOiI0MzIyMTE0ODAwMDE2OSJ9.DSLZ7cjhi9Rw8sRRlj4b2CvxKbdEkWVKgJdytFGHO6SgZN-QNFvXLZBHJAU3fA0ApMI3KWyB4bzP8hyyQ8QGPTVZSg1_anDbQ2fCXRTAzTfrEhqVGXOg0DW8dHO40zew9jGPhy8EFZHq4CTYRR2Jf8jgrb29pUhcHcudu8Cpj-cWSNS26X1SqB2OWFP8isK-_WbhCKvXsb5G0eY0EJ-bM890YKr70suDuvQv3riGhoJUTFOphif0syJIOzVJKSHSdttcj32_wCcADqyOmKJlkAB8e5etpewaW4Zbc4Wg3ec-_Nu9Id9wtHtdmA6AvoKQbdoRQHJG3RQ8WbWP_Cysiw',
-  'expired_in' => '2024-09-18T20:45:49',
+  'token' => '',
+  'expired_in' => '',
   'host' => 'https://api.correios.com.br/',
 );
+
+/*Api está localmente em homologação lembrar de mudar para produção quando for pro servidor */

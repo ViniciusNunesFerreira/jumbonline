@@ -21,10 +21,10 @@ enum OrderStatus
     public function label(): string
     {
         return match ($this) {
-            self::DRAFT => __('Draft'),
+            self::DRAFT => __('Rascunho'),
             self::OPEN => __('Open'),
-            self::ARCHIVED => __('Archived'),
-            self::CANCELLED => __('Cancelled'),
+            self::ARCHIVED => __('Completo'),
+            self::CANCELLED => __('Cancelado'),
         };
     }
 }

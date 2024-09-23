@@ -96,6 +96,50 @@ trait Correios
 
     }
 
+    public function prePostagem( Array $params )
+    {
+        $config = config('correios');
+
+        $current =  Carbon::now();
+        $newHour = new Carbon($config['expired_in']);
+        
+        //SE O TOKEN ESTIVER COM VENCIMENTO ABAIXO DE 30 Minutos
+        if( empty($config['expired_in']) || $current->diffInMinutes($newHour, false) <= 30 ){
+                $this->getAccessToken();
+        }
+
+        $headers = [
+            'Content-Type'=>'application/json',
+            'Accept' => 'application/json',
+            'Cache-Controle' => 'no-cache',
+            'Authorization' => 'Bearer '.$config['token']
+        ];
+
+        $body = [
+            'remetente'     => [],
+            'destinatario'  => [],
+            'codigoServico' => $params['codigoServico'],
+        ];
+
+        $url =  $config['host'].'/prepostagem/v1/prepostagens';
+
+
+        try {
+
+            $client = new Client();            
+            $response = $client->post();
+
+
+        } catch (ClientException $exception) {
+            \Log::debug($exception->getResponse());
+        
+            return response()->json($exception->getResponse(), 401);
+        }
+        
+        return json_decode($response->getBody(), true);
+
+    }
+
     public function getCorreiosProperty()
     {
         return ShippingMethod::query()->where('identifier', 'correios')->firstOrFail();

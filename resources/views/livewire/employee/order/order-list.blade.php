@@ -1,14 +1,14 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Orders') }}
+        {{ __('Pedidos') }}
     </x-slot:title>
 
     <!-- Page title & actions -->
     <div class="px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div class="min-w-0 flex-1">
             <h1 class="text-2xl font-medium text-slate-900 dark:text-slate-100">
-                {{ __('Orders') }}
+                {{ __('Pedidos') }}
             </h1>
         </div>
     </div>
@@ -22,11 +22,11 @@
                         <x-heroicon-o-inbox-arrow-down class="mx-auto h-12 w-12 text-slate-400" />
 
                         <h3 class="mt-2 text-lg font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('Your orders will show here') }}
+                            {{ __('Seus pedidos serão exibidos aqui') }}
                         </h3>
 
                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            {{ __('This is where you’ll fulfill orders, collect payments and track order progress.') }}
+                            {{ __('Aqui que você atenderá pedidos, receberá pagamentos e acompanhará o andamento dos pedidos.') }}
                         </p>
                     </div>
                 </x-slot:content>
@@ -46,7 +46,7 @@
                             type="text"
                             class="placeholder-slate-500 w-full pl-10 sm:text-sm focus:placeholder-slate-400 dark:focus:placeholder-slate-600"
                             ::class="{ 'pr-10' : search }"
-                            placeholder="{{ __('Filter orders') }}"
+                            placeholder="{{ __('Filtrar Pedidos') }}"
                         />
                         <button
                             x-show="search.length"
@@ -71,7 +71,7 @@
                                         class="h-full w-screen items-center justify-center sm:w-auto"
                                     >
                                         <div class="m-auto flex items-center space-x-2">
-                                            <p class="text-sm dark:text-slate-200">{{ 'Loading orders...' }}</p>
+                                            <p class="text-sm dark:text-slate-200">{{ 'Lendo pedidos...' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -98,25 +98,25 @@
                                                 scope="col"
                                                 class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
                                             >
-                                                {{ __('Customer') }}
+                                                {{ __('Cliente') }}
                                             </th>
                                             <th
                                                 scope="col"
                                                 class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
                                             >
-                                                {{ __('Payment Status') }}
+                                                {{ __('Status Pagamento') }}
                                             </th>
                                             <th
                                                 scope="col"
                                                 class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
                                             >
-                                                {{ __('Shipping Status') }}
+                                                {{ __('Status do Envio') }}
                                             </th>
                                             <th
                                                 scope="col"
                                                 class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
                                             >
-                                                {{ __('Items') }}
+                                                {{ __('Itens') }}
                                             </th>
                                             <th
                                                 scope="col"
@@ -128,7 +128,14 @@
                                                 scope="col"
                                                 class="pl-3 pr-4 py-4 text-right text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200"
                                             >
-                                                {{ __('Date') }}
+                                                {{ __('Data') }}
+                                            </th>
+
+                                            <th
+                                                scope="col"
+                                                class="pl-3 pr-4 py-4 text-right text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200"
+                                            >
+                                                Ver Pedido
                                             </th>
                                         </tr>
                                     </thead>
@@ -197,6 +204,15 @@
                                                 <td class="pl-3 pr-4 py-4 text-right text-sm text-slate-500 whitespace-nowrap tabular-nums sm:pr-6 dark:text-slate-400">
                                                     {{ $order->created_at }}
                                                 </td>
+
+                                                <td class="relative px-3 py-4 font-medium text-sm text-slate-900 text-center whitespace-nowrap tabular-nums dark:text-slate-200">
+                                                    <a
+                                                        href="{{ route('employee.orders.detail', $order) }}"
+                                                        class="hover:text-sky-600 dark:hover:text-sky-400"
+                                                    >
+                                                     <x-heroicon-o-eye class="inline-block w-5 h-5 text-slate-400 dark:text-slate-300" />
+                                                    </a>
+                                                </td>
                                             </tr>
                                         @empty
                                             <tr>
@@ -207,10 +223,10 @@
                                                     <div class="max-w-lg mx-auto text-center">
                                                         <x-heroicon-o-magnifying-glass class="inline-block w-10 h-10 text-slate-400 dark:text-slate-300" />
                                                         <h3 class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-200">
-                                                            {{ __('No orders found') }}
+                                                            {{ __('Nenhum pedido encontrado') }}
                                                         </h3>
                                                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                                            {{ __('Try changing the filters or search term') }}
+                                                            {{ __('Tente alterar os filtros ou o termo de pesquisa') }}
                                                         </p>
                                                     </div>
                                                 </td>

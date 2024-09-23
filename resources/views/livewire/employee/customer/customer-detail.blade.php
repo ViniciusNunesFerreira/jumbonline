@@ -1,7 +1,7 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Customer - :name', ['name' => $customer->name]) }}
+        {{ __('Cliente - :name', ['name' => $customer->name]) }}
     </x-slot:title>
 
     <!-- Page title & actions -->
@@ -31,11 +31,12 @@
             </div>
 
             <div class="col-span-3 xl:col-span-1 space-y-6">
-                <livewire:employee.customer.components.customer-notes :customer="$customer" />
-
+                
                 <livewire:employee.customer.components.customer-information :customer="$customer" />
 
                 <livewire:employee.customer.components.customer-address :customer="$customer" />
+
+                <livewire:employee.customer.components.customer-detento :customer="$customer" />
             </div>
         </div>
     </div>

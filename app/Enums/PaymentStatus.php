@@ -25,14 +25,14 @@ enum PaymentStatus
     public function label(): string
     {
         return match ($this) {
-            self::AUTHORIZED => __('Authorized'),
-            self::EXPIRED => __('Expired'),
-            self::OVERDUE => __('Overdue'),
-            self::PAID => __('Paid'),
-            self::PENDING => __('Awaiting Confirmation'),
-            self::PARTIALLY_REFUNDED => __('Partially Refunded'),
-            self::REFUNDED => __('Refunded'),
-            self::UNPAID => __('Unpaid'),
+            self::AUTHORIZED => __('Autorizado'),
+            self::EXPIRED => __('Expirado'),
+            self::OVERDUE => __('Atrasado'),
+            self::PAID => __('Pago'),
+            self::PENDING => __('Aguardando confirmação'),
+            self::PARTIALLY_REFUNDED => __('Parcialmente Reembolsado'),
+            self::REFUNDED => __('Reembolsado'),
+            self::UNPAID => __('Não Pago'),
         };
     }
 }

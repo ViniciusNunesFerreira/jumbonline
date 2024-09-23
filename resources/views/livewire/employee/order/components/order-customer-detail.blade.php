@@ -2,7 +2,7 @@
     <x-card>
         <x-slot:header>
             <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                {{ __('Customer') }}
+                {{ __('Cliente') }}
             </h3>
         </x-slot:header>
         <x-slot:content>
@@ -41,78 +41,85 @@
                     </div>
                 @endif
 
-                @if($order->shippingAddress)
+                @if($order->prison_unit)
                     <div class="p-4 sm:py-5 sm:px-6">
                         <h4 class="font-medium uppercase text-xs">
-                            {{ __('Shipping address') }}
+                            {{ __('Endereço para envio') }}
                         </h4>
                         <address class="mt-2 not-italic text-sm">
-                            {{ $order->shippingAddress->name }}<br>
+                            {{ $order->prison_unit->name }}<br>
 
-                            @if($order->shippingAddress->company_name)
-                                {{ $order->shippingAddress->company_name }}<br>
+                            @if($order->prison_unit->logradouro)
+                                {{ $order->prison_unit->logradouro }}, {{ $order->prison_unit->numero }}<br>
                             @endif
 
-                            @if($order->shippingAddress->address_line_1)
-                                {{ $order->shippingAddress->address_line_1 }}<br>
+                            @if($order->prison_unit->bairro)
+                                {{ $order->prison_unit->bairro }}<br>
                             @endif
 
-                            @if($order->shippingAddress->address_line_2)
-                                {{ $order->shippingAddress->address_line_2 }}<br>
+                            @if($order->prison_unit->cidade)
+                                {{ $order->prison_unit->cidade }}
                             @endif
 
-                            @if($order->shippingAddress->city)
-                                {{ $order->shippingAddress->city }}
+                            @if($order->prison_unit->estado)
+                                {{ $order->prison_unit->estado }}<br>
                             @endif
 
-                            @if($order->shippingAddress->state)
-                                {{ $order->shippingAddress->state }}<br>
-                            @endif
+                            CEP: {{ $order->prison_unit->cep }}<br>
 
-                            {{ $order->shippingAddress->country->name }}<br>
-
-                            @if($order->shippingAddress->phone)
-                                {{ $order->shippingAddress->phone }}<br>
+                            @if($order->prison_unit->phone)
+                                {{ $order->prison_unit->phone }}<br>
                             @endif
                         </address>
                     </div>
                 @endif
 
-                @if($order->billingAddress)
+                @if($order->visitante)
                     <div class="p-4 sm:py-5 sm:px-6">
                         <h4 class="font-medium uppercase text-xs">
-                            {{ __('Billing address') }}
+                            {{ __('Endereço Remetente') }}
                         </h4>
                         <address class="mt-2 not-italic text-sm">
-                            {{ $order->billingAddress->name }}<br>
+                            {{ $order->visitante->nome }}<br>
 
-                            @if($order->billingAddress->company_name)
-                                {{ $order->billingAddress->company_name }}<br>
+                            
+                            @if($order->visitante->logradouro)
+                                {{ $order->visitante->logradouro }}, {{ $order->visitante->numero }}<br>
                             @endif
 
-                            @if($order->billingAddress->address_line_1)
-                                {{ $order->billingAddress->address_line_1 }}<br>
+                            @if($order->visitante->bairro)
+                                {{ $order->visitante->bairro }}<br>
                             @endif
 
-                            @if($order->billingAddress->address_line_2)
-                                {{ $order->billingAddress->address_line_2 }}<br>
+                            @if($order->visitante->cidade)
+                                {{ $order->visitante->cidade }}
                             @endif
 
-                            @if($order->billingAddress->city)
-                                {{ $order->billingAddress->city }}
+                            @if($order->visitante->estado)
+                                {{ $order->visitante->estado }}<br>
                             @endif
 
-                            @if($order->billingAddress->state)
-                                {{ $order->billingAddress->state }}<br>
-                            @endif
+                            CEP: {{ $order->visitante->cep }}<br>
 
-                            {{ $order->billingAddress->country->name }}<br>
-
-                            @if($order->billingAddress->phone)
-                                {{ $order->billingAddress->phone }}<br>
-                            @endif
                         </address>
                     </div>
+                @endif
+
+                @if($order->detento)
+
+                    <div class="p-4 sm:py-5 sm:px-6">
+                        <h4 class="font-medium uppercase text-xs">
+                            {{ __('Informações do Detento') }}
+                        </h4>
+
+                        <address class="mt-2 not-italic text-sm">
+                            {{ $order->detento->name }} <br>
+                            Matricula: {{ $order->detento->matricula }}<br>
+                            Raio: {{ $order->detento->raio }}<br>
+                            Cela: {{ $order->detento->cela }}<br>
+                        </address>
+                    </div>
+
                 @endif
             </div>
         </x-slot:content>

@@ -1,7 +1,7 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('New customer') }}
+        {{ __('Novo Cliente') }}
     </x-slot:title>
 
     <!-- Page title & actions -->
@@ -14,7 +14,7 @@
                 <x-heroicon-m-arrow-left class="w-5 h-5" />
             </a>
             <h1 class="text-2xl font-medium leading-6 text-slate-900 dark:text-slate-100">
-                {{ __('New customer') }}
+                {{ __('Novo Cliente') }}
             </h1>
         </div>
     </div>
@@ -30,10 +30,10 @@
                     <div class="md:grid md:grid-cols-3 md:gap-6">
                         <div class="md:col-span-1">
                             <h3 class="text-lg font-medium leading-6 text-slate-900 dark:text-slate-200">
-                                {{ __('Customer overview') }}
+                                {{ __('Visão Geral') }}
                             </h3>
                             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                {{ __('Personal information about the customer') }}
+                                {{ __('Informações pessoais do cliente') }}
                             </p>
                         </div>
                         <div class="mt-5 md:col-span-2 md:mt-0">
@@ -41,7 +41,7 @@
                                 <div class="col-span-6 sm:col-span-5">
                                     <x-input-label
                                         for="full-name"
-                                        value="{{ __('Full name') }}"
+                                        value="{{ __('Nome completo') }}"
                                     />
                                     <x-input
                                         wire:model.defer="customer.name"
@@ -57,7 +57,7 @@
                                 <div class="col-span-6 sm:col-span-4">
                                     <x-input-label
                                         for="email-address"
-                                        value="{{ __('Email address') }}"
+                                        value="{{ __('Email') }}"
                                     />
                                     <x-input
                                         wire:model.defer="customer.email"
@@ -73,7 +73,7 @@
                                 <div class="col-span-6 sm:col-span-3">
                                     <x-input-label
                                         for="password"
-                                        value="{{ __('Password') }}"
+                                        value="{{ __('Senha') }}"
                                     />
                                     <x-input
                                         wire:model.defer="customer_password"
@@ -89,7 +89,7 @@
                                 <div class="col-span-6 sm:col-span-3">
                                     <x-input-label
                                         for="password-confirmation"
-                                        value="{{ __('Confirm password') }}"
+                                        value="{{ __('Confirmar senha') }}"
                                     />
                                     <x-input
                                         wire:model.defer="customer_password_confirmation"
@@ -108,7 +108,7 @@
                                 >
                                     <x-input-label
                                         for="phone-number"
-                                        value="{{ __('Phone number') }}"
+                                        value="{{ __('Telefone') }}"
                                     />
                                     <div class="relative mt-1 rounded-md">
                                         <div class="absolute inset-y-0 left-0 flex items-center">
@@ -165,10 +165,10 @@
                     <div class="md:grid md:grid-cols-3 md:gap-6">
                         <div class="md:col-span-1">
                             <h3 class="text-lg font-medium leading-6 text-slate-900 dark:text-slate-200">
-                                {{ __('Address') }}
+                                {{ __('Endereço') }}
                             </h3>
                             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                {{ __('The primary address of this customer') }}
+                                {{ __('Endereço principal deste cliente') }}
                             </p>
                         </div>
                         <div class="mt-5 md:col-span-2 md:mt-0">
@@ -176,13 +176,13 @@
                                 <div class="col-span-6">
                                     <x-input-label
                                         for="country"
-                                        :value="__('Country/region')"
+                                        :value="__('País')"
                                     />
                                     <x-select
                                         wire:model="address.country_id"
                                         class="mt-1 block w-full sm:text-sm"
                                     >
-                                        <option value="">{{ __('Please select') }}</option>
+                                        <option value="">{{ __('Selecione uma opção') }}</option>
                                         @foreach($countries as $country)
                                             <option value="{{ $country->id }}">{{ $country->name }}</option>
                                         @endforeach
@@ -196,7 +196,7 @@
                                 <div class="col-span-6 md:col-span-5">
                                     <x-input-label
                                         for="address-name"
-                                        :value="__('Full name')"
+                                        :value="__('Nome')"
                                     />
                                     <x-input
                                         wire:model.defer="address.name"
@@ -210,27 +210,12 @@
                                     />
                                 </div>
 
-                                <div class="col-span-6 md:col-span-4">
-                                    <x-input-label
-                                        for="companyName"
-                                        :value="__('Company')"
-                                    />
-                                    <x-input
-                                        wire:model.defer="address.company_name"
-                                        type="text"
-                                        id="companyName"
-                                        class="mt-1 block w-full sm:text-sm"
-                                    />
-                                    <x-input-error
-                                        for="address.company_name"
-                                        class="mt-2"
-                                    />
-                                </div>
+                                
 
                                 <div class="col-span-6">
                                     <x-input-label
                                         for="addressLine1"
-                                        :value="__('Address')"
+                                        :value="__('Endereço')"
                                     />
                                     <x-input
                                         wire:model.defer="address.address_line_1"
@@ -247,7 +232,7 @@
                                 <div class="col-span-6">
                                     <x-input-label
                                         for="addressLine2"
-                                        :value="__('Apartment, suite, etc.')"
+                                        :value="__('Apartamento, suite, etc.')"
                                     />
                                     <x-input
                                         wire:model.defer="address.address_line_2"
@@ -264,7 +249,7 @@
                                 <div class="col-span-6 md:col-span-2">
                                     <x-input-label
                                         for="city"
-                                        :value="__('City')"
+                                        :value="__('Cidade')"
                                     />
                                     <x-input
                                         wire:model.defer="address.city"
@@ -281,7 +266,7 @@
                                 <div class="col-span-6 md:col-span-2">
                                     <x-input-label
                                         for="state"
-                                        :value="__('State')"
+                                        :value="__('Estado')"
                                     />
                                     <x-input
                                         wire:model.defer="address.state"
@@ -298,7 +283,7 @@
                                 <div class="col-span-6 md:col-span-2">
                                     <x-input-label
                                         for="postcode"
-                                        :value="__('Zip/Postal code')"
+                                        :value="__('CEP')"
                                     />
                                     <x-input
                                         wire:model.defer="address.postcode"
@@ -318,7 +303,7 @@
                                 >
                                     <x-input-label
                                         for="phone-number"
-                                        value="{{ __('Phone number') }}"
+                                        value="{{ __('Telefone') }}"
                                     />
                                     <div class="relative mt-1 rounded-md">
                                         <div class="absolute inset-y-0 left-0 flex items-center">
@@ -375,10 +360,10 @@
                     <div class="md:grid md:grid-cols-3 md:gap-6">
                         <div class="md:col-span-1">
                             <h3 class="text-lg font-medium leading-6 text-slate-900 dark:text-slate-200">
-                                {{ __('Notes') }}
+                                {{ __('Informações') }}
                             </h3>
                             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                {{ __('Add notes about your customer') }}
+                                {{ __('Add anotações sobre este cliente') }}
                             </p>
                         </div>
                         <div class="mt-5 md:col-span-2 md:mt-0">
@@ -386,7 +371,7 @@
                                 <div class="col-span-6">
                                     <x-input-label
                                         for="notes"
-                                        value="{{ __('Note') }}"
+                                        value="{{ __('Informação') }}"
                                     />
                                     <x-textarea
                                         wire:model.defer="customer.notes"
@@ -408,13 +393,13 @@
                     href="{{ route('employee.customers.list') }}"
                     class="btn btn-invisible"
                 >
-                    {{ __('Cancel') }}
+                    {{ __('Cancelar') }}
                 </a>
                 <button
                     type="submit"
                     class="ml-3 btn btn-primary"
                 >
-                    {{ __('Save') }}
+                    {{ __('Salvar') }}
                 </button>
             </div>
         </form>

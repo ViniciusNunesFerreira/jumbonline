@@ -4,7 +4,7 @@
             <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
                 <div class="ml-4 mt-2">
                     <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                        {{ __('Payment') }}
+                        {{ __('Pagamento') }}
                     </h3>
                 </div>
                 @if($order->total_paid > 0)
@@ -13,7 +13,7 @@
                             href="{{ route('employee.orders.refund', $order) }}"
                             class="btn btn-link"
                         >
-                            {{ __('Refund payment') }}
+                            {{ __('Reembolso') }}
                         </a>
                     </div>
                 @endif
@@ -27,7 +27,7 @@
                     </dt>
                     <dd class="mt-1 flex text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0 dark:text-slate-400">
                         <div class="flex-grow">
-                            {{ trans_choice(':count item|:count items', $this->total_order_items_quantity) }}
+                            {{ trans_choice(':count item|:count itens', $this->total_order_items_quantity) }}
                         </div>
                         <div class="ml-4 flex-shrink-0 text-right tabular-nums">
                             <x-money
@@ -37,37 +37,10 @@
                         </div>
                     </dd>
                 </div>
-                @if($order->orderDiscounts->count())
-                    <div class="p-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">
-                            {{ __('Discount') }}
-                        </dt>
-                        <dd class="mt-1 flex text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0 dark:text-slate-400">
-                            <div class="flex-grow">
-                                <ul>
-                                    @foreach($order->orderDiscounts as $discount)
-                                        <li>{{ $discount->code }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                            <div class="ml-4 flex-shrink-0 text-right tabular-nums">
-                                <ul>
-                                    @foreach($order->orderDiscounts as $discount)
-                                        <li>
-                                            <x-money
-                                                :amount="$discount->discounted_amount"
-                                                :currency="config('app.currency')"
-                                            />
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </dd>
-                    </div>
-                @endif
+                
                 <div class="p-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt class="text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">
-                        {{ __('Shipping') }}
+                        {{ __('Frete') }}
                     </dt>
                     <dd class="mt-1 flex text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0 dark:text-slate-400">
                         <div class="flex-grow">
@@ -81,36 +54,7 @@
                         </div>
                     </dd>
                 </div>
-                @if($order->tax_breakdown)
-                    <div class="p-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">
-                            {{ __('Tax') }}
-                        </dt>
-                        <dd class="mt-1 flex text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0 dark:text-slate-400">
-                            <div class="flex-grow">
-                                <ul>
-                                    @foreach($order->tax_breakdown as $line)
-                                        <li>
-                                            {{ $line['name'] }} {{ $line['percentage'] }}%
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                            <div class="ml-4 flex-shrink-0 text-right tabular-nums">
-                                <ul>
-                                    @foreach($order->tax_breakdown as $line)
-                                        <li>
-                                            <x-money
-                                                :amount="($order->subtotal - $order->discount_total) * $line['percentage'] / 100"
-                                                :currency="config('app.currency')"
-                                            />
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </dd>
-                    </div>
-                @endif
+                
                 <div class="flex items-center justify-between p-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt class="text-sm font-medium text-slate-900 dark:text-slate-200">
                         {{ __('Total') }}
@@ -124,7 +68,7 @@
                 </div>
                 <div class="p-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">
-                        {{ __('Paid by customer') }}
+                        {{ __('Pago pelo Cliente') }}
                     </dt>
                     <dd class="mt-1 flex text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0 dark:text-slate-400">
                         <div class="flex-grow">
@@ -141,13 +85,13 @@
                 @if($order->refunds->count())
                     <div class="p-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt class="text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">
-                            {{ __('Refunded') }}
+                            {{ __('Reembolso') }}
                         </dt>
                         <dd class="mt-1 flex text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0 dark:text-slate-400">
                             <div class="flex-grow">
                                 <ul>
                                     @foreach($order->refunds as $refund)
-                                        <li>{{ __('Reason:') }} {!! $refund->reason ?? '&mdash;' !!}</li>
+                                        <li>{{ __('Motivo:') }} {!! $refund->reason ?? '&mdash;' !!}</li>
                                     @endforeach
                                 </ul>
                             </div>
@@ -167,7 +111,7 @@
                     </div>
                     <div class="p-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt class="text-sm font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('Net payment') }}
+                            {{ __('Pagamento Liquido') }}
                         </dt>
                         <dd class="mt-1 text-sm font-medium text-slate-900 sm:mt-0 sm:col-span-2 sm:text-right tabular-nums dark:text-slate-200">
                             <x-money
@@ -189,7 +133,7 @@
                         wire:loading.attr="disabled"
                         class="btn btn-primary"
                     >
-                        {{ __('Mark as paid') }}
+                        {{ __('Marcar como Pago') }}
                     </button>
                 </div>
             </x-slot:footer>
@@ -198,15 +142,15 @@
 
     <x-modal-alert wire:model="confirmingMarkingAsPaid">
         <x-slot name="title">
-            {{ __('Mark as paid') }}
+            {{ __('Marcar como pago') }}
         </x-slot>
         <x-slot name="content">
             <p class="text-sm text-slate-500 dark:text-slate-400">
-                {{ __('Processed by') }}
+                {{ __('Processado por') }}
                 <span class="font-medium text-slate-700 dark:text-slate-200">{{ $order->paymentMethod->name }}</span>
             </p>
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                {{ __('If you received payment manually, mark this order as paid.') }}
+                {{ __('Se você recebeu o pagamento manualmente marque este pedido como pago') }}
             </p>
         </x-slot>
         <x-slot name="footer">
@@ -216,13 +160,13 @@
                 wire:loading.attr="disabled"
                 class="btn btn-primary w-full sm:ml-3 sm:w-auto"
             >
-                {{ __('Mark as paid') }}
+                {{ __('Marcar com pago') }}
             </button>
             <button
                 x-on:click="show = false"
                 class="mt-3 btn btn-invisible w-full sm:mt-0 sm:w-auto"
             >
-                {{ __('Cancel') }}
+                {{ __('Cancelar') }}
             </button>
         </x-slot>
     </x-modal-alert>

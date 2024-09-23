@@ -11,9 +11,9 @@ enum ShippingStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::UNSHIPPED => __('Unshipped'),
-            self::PARTIALLY_SHIPPED => __('Partially shipped'),
-            self::SHIPPED => __('Shipped'),
+            self::UNSHIPPED => __('Envio Pendente'),
+            self::PARTIALLY_SHIPPED => __('Parcialmente Enviado'),
+            self::SHIPPED => __('Enviado'),
         };
     }
 

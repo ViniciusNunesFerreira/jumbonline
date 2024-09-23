@@ -4,7 +4,7 @@
             <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
                 <div class="ml-4 mt-2">
                     <h2 class="text-lg leading-6 font-medium text-slate-900 dark:text-slate-100">
-                        {{ __('Customer') }}
+                        {{ __('Cliente') }}
                     </h2>
                 </div>
                 <div class="ml-4 mt-2 flex-shrink-0">
@@ -13,7 +13,7 @@
                         type="button"
                         class="btn btn-link"
                     >
-                        {{ __('Edit') }}
+                        {{ __('Editar') }}
                     </button>
                 </div>
             </div>
@@ -51,7 +51,7 @@
             max-width="xl"
         >
             <x-slot:title>
-                {{ __('Edit customer') }}
+                {{ __('Editar cliente') }}
             </x-slot:title>
             <x-slot:content>
                 <fieldset
@@ -62,7 +62,7 @@
                     <div>
                         <x-input-label
                             for="name"
-                            :value="__('Name')"
+                            :value="__('Nome')"
                         />
                         <x-input
                             wire:model.defer="customer.name"
@@ -96,7 +96,7 @@
                     <div x-data="{ open: false }">
                         <x-input-label
                             for="phone-number"
-                            value="{{ __('Phone number') }}"
+                            value="{{ __('Telefone') }}"
                         />
                         <div class="relative mt-1 rounded-md shadow-sm">
                             <div class="absolute inset-y-0 left-0 flex items-center">
@@ -153,7 +153,7 @@
                         type="button"
                         class="btn btn-invisible"
                     >
-                        {{ __('Cancel') }}
+                        {{ __('Cancelar') }}
                     </button>
                     <button
                         wire:target="save"
@@ -161,7 +161,7 @@
                         type="submit"
                         class="btn btn-primary ml-2"
                     >
-                        {{ __('Save') }}
+                        {{ __('Salvar') }}
                     </button>
                 </div>
             </x-slot:footer>
