@@ -24,6 +24,7 @@ Route::group([
         Route::get('/orders/{order:id}', \App\Http\Livewire\Employee\Order\OrderDetail::class)->name('orders.detail');
         Route::get('/orders/{order}/refund', \App\Http\Livewire\Employee\Order\OrderRefundCreate::class)->name('orders.refund');
         Route::get('/orders/{order}/shipments/create', \App\Http\Livewire\Employee\Order\OrderShipmentCreate::class)->name('orders.shipments.create');
+        Route::get('/orders/{order}/shipments/label', \App\Http\Livewire\Employee\Shipping\ShippingPrePost::class)->name('orders.shipments.label');
         Route::get('/collections', \App\Http\Livewire\Employee\Collection\CollectionList::class)->name('collections.list');
         Route::get('/collections/create', \App\Http\Livewire\Employee\Collection\CollectionDetail::class)->name('collections.create');
         Route::get('/collections/{collection:id}', \App\Http\Livewire\Employee\Collection\CollectionDetail::class)->name('collections.detail');

@@ -10,6 +10,14 @@
                     </div>
                     <div class="ml-4 mt-2 flex-shrink-0">
                         <a
+                            href="{{ route('employee.orders.shipments.label', ['order' => $order]) }}"
+                            class="btn btn-primary"
+                        >
+                            {{ __('Etiqueta Manual') }}
+                        </a>
+                    </div>
+                    <div class="ml-4 mt-2 flex-shrink-0">
+                        <a
                             href="{{ route('employee.orders.shipments.create', ['order' => $order, 'type' => 'physical']) }}"
                             class="btn btn-primary"
                         >

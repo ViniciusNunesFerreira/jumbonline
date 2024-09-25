@@ -99,6 +99,7 @@ trait Correios
     public function prePostagem( Array $params )
     {
         $config = config('correios');
+        $service = ShippingServices::SEDEX_CONTRATO_AG;
 
         $current =  Carbon::now();
         $newHour = new Carbon($config['expired_in']);
@@ -116,9 +117,46 @@ trait Correios
         ];
 
         $body = [
-            'remetente'     => [],
-            'destinatario'  => [],
-            'codigoServico' => $params['codigoServico'],
+            'remetente'     => [
+                'nome' => '',
+                'cpfCnpj' => '',
+                'endereco' => [
+                    'cep' => '',
+                    'logradouro' => '',
+                    'numero' => '',
+                    'complemento' => '',
+                    'bairro' => '',
+                    'cidade' => '',
+                    'uf' => '',
+                    'pais' => ''
+                ]
+            ],
+            'destinatario'  => [
+                'nome' => '',
+                'obs' => '',
+                'endereco' => [
+                    'cep' => '',
+                    'logradouro' => '',
+                    'numero' => '',
+                    'complemento' => '',
+                    'bairro' => '',
+                    'cidade' => '',
+                    'uf' => '',
+                    'pais' => ''
+                ]
+            ],
+            'itensDeclaracaoConteudo' => [
+                [
+                    'conteudo' => '',
+                    'quantidade' => '',
+                    'valor' => ''
+                ]
+            ],
+            'codigoServico' => $service->value,
+            'codigoFormatoObjetoInformado' => '2',
+            'alturaInformada' => '',
+            'larguraInformada' => '',
+            'comprimentoInformado' => '',
         ];
 
         $url =  $config['host'].'/prepostagem/v1/prepostagens';
