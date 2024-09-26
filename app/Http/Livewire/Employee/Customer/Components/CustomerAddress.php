@@ -12,7 +12,7 @@ class CustomerAddress extends Component
 {
     public Customer $customer;
 
-    public $visitantes = [];
+   // public $visitantes = [];
 
     public Visitante $visitante;
 
@@ -32,7 +32,7 @@ class CustomerAddress extends Component
 
     public function manageVisitantes()
     {
-        $this->visitantes = $this->customer->visitantes->sortByDesc('created_at');
+      //  $this->visitantes = $this->customer->visitantes->sortByDesc('created_at');
 
         $this->showAddressesManageModal = true;
     }

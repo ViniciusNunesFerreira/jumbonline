@@ -19,7 +19,7 @@
             </div>
         </x-slot:header>
         <x-slot:content class="-mt-5">
-            @unless($customer->visitantes()->count() > 0)
+            @unless($customer->visitantes->count() > 0)
                 <div class="text-sm text-slate-500 dark:text-slate-400">
                     {{ __('Nenhum Visitante definido.') }}
                 </div>
@@ -98,7 +98,7 @@
         <x-slot:content>
             <div class="divide-y divide-slate-200 dark:divide-slate-200/10">
 
-                @unless($customer->visitantes()->count() > 0)
+                @unless($customer->visitantes->count() > 0)
                     <div class="text-sm text-slate-500 dark:text-slate-400">
                         {{ __('Nenhum Visitante definido.') }}
                     </div>

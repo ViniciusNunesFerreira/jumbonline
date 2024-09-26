@@ -36,7 +36,7 @@
 
                 <livewire:employee.customer.components.customer-address :customer="$customer" />
 
-                
+                <livewire:employee.customer.components.customer-detento :customer="$customer" />
             </div>
         </div>
     </div>
