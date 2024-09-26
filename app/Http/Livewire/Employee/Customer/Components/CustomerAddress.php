@@ -27,7 +27,7 @@ class CustomerAddress extends Component
 
     public function mount()
     {
-        $this->visitante =  $this->customer->visitantes->firstOrFail();
+        $this->visitante =  optional($this->customer->visitantes)->firstOrFail();
     }
 
     public function manageVisitantes()

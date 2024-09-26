@@ -97,7 +97,7 @@
         </x-slot:title>
         <x-slot:content>
             <ul class="divide-y divide-slate-200 dark:divide-slate-200/10">
-                @foreach($visitantes as $customerAddress)
+                @forelse($visitantes as $customerAddress)
                     <li class="py-4">
                        
                         <address class="not-italic text-sm">
@@ -126,7 +126,10 @@
                             </button>
                         </div>
                     </li>
-                @endforeach
+
+                @empty
+                    <li>Sem Visitantes Cadastrados</li>
+                @endforelse
             </ul>
         </x-slot:content>
     </x-modal-dialog>
