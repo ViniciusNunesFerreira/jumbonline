@@ -25,15 +25,15 @@
                 </div>
             @else
                 <address class="not-italic text-sm">
-                    {{ $visitante->nome }}<br>
+                    {{ optional($visitante)->nome }}<br>
                 
-                    {{ $visitante->logradouro }}, {{optional($visitante)->numero}}<br>
+                    {{ optional($visitante)->logradouro }}, {{optional($visitante)->numero}}<br>
                     
-                    {{ $visitante->bairro }}<br>
+                    {{ optional($visitante)->bairro }}<br>
                 
-                    {{ $visitante->cidade }} / {{ $visitante->uf }}
+                    {{ optional($visitante)->cidade }} / {{ optional($visitante)->uf }}
                                
-                    {{ $visitante->cep }}<br>
+                    {{ optional($visitante)->cep }}<br>
 
                 </address>
             @endunless
@@ -105,19 +105,19 @@
                 @else
 
                     <address class="not-italic text-sm">
-                        {{ $visitante->nome }}<br>
+                        {{ optional($visitante)->nome }}<br>
 
                         @if(optional($visitante->prison_unit())->name)
                             {{ $visitante->prison_unit->name }}<br>
                         @endif
 
-                        {{ $visitante->logradouro }}, {{optional($visitante)->numero}}<br>
+                        {{ optional($visitante)->logradouro }}, {{optional($visitante)->numero}}<br>
                 
-                        {{ $visitante->bairro }}<br>
+                        {{ optional($visitante)->bairro }}<br>
             
-                        {{ $visitante->cidade }} / {{ $visitante->uf }}
+                        {{ optional($visitante)->cidade }} / {{ optional($visitante)->uf }}
                         
-                        {{ $visitante->cep }}<br>
+                        {{ optional($visitante)->cep }}<br>
                         
                     </address>
 
