@@ -30,14 +30,7 @@
                 <livewire:employee.customer.components.customer-latest-order :customer="$customer" />
             </div>
 
-            <div class="col-span-3 xl:col-span-1 space-y-6">
-                
-                <livewire:employee.customer.components.customer-information :customer="$customer" />
-
-                <livewire:employee.customer.components.customer-address :customer="$customer" />
-
-                <livewire:employee.customer.components.customer-detento :customer="$customer" />
-            </div>
+           
         </div>
     </div>
 </div>
