@@ -15,7 +15,13 @@ class CustomerDetento extends Component
 
     public function mount()
     {
-        $this->detento =  optional($this->customer->detentos)->firstOrFail();
+        try{
+            $this->detento =  $this->customer->detentos->first();
+        }catch(\Exception $e){
+
+            \Log::debug($e->getMessage());
+
+        }
     }
 
     public function render()
