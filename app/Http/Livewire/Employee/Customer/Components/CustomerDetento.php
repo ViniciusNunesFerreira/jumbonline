@@ -16,7 +16,10 @@ class CustomerDetento extends Component
     public function mount()
     {
         try{
-            $this->detento =  $this->customer->detentos->first();
+            $detento = $this->customer->detentos->first();
+            if(!empty($detento)){
+                $this->detento =  $detento;
+            }
         }catch(\Exception $e){
 
             \Log::debug($e->getMessage());

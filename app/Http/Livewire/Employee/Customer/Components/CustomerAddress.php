@@ -28,11 +28,13 @@ class CustomerAddress extends Component
     public function mount()
     {
         try{
-            $this->visitante =  $this->customer->visitantes->first();
+            $visitante = $this->customer->visitantes->first();
+            if(!empty($visitante)){
+                $this->visitante =  $visitante;
+            }
+            
         }catch(\Exception $e){
-
             \Log::debug($e->getMessage());
-
         }
     }
 
