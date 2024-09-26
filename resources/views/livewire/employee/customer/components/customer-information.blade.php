@@ -126,11 +126,11 @@
                                                     <span class="font-normal ml-3 block truncate">{{ $country->name }}</span>
                                                 </div>
                                             </li>
-                                        @else
+                                        @empty
                                             <li class="text-gray-900 relative cursor-default select-none py-2 pl-3 pr-9 hover:bg-sky-500 hover:text-white dark:text-slate-200">
                                                 Sem países
                                             </li>
-                                        @endforeach
+                                        @endforelse
                                     </ul>
                                 </div>
                             </div>
