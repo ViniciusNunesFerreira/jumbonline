@@ -96,41 +96,42 @@
             {{ __('Gerenciar Visitantes') }}
         </x-slot:title>
         <x-slot:content>
-            <ul class="divide-y divide-slate-200 dark:divide-slate-200/10">
-                @forelse($visitantes as $customerAddress)
-                    <li class="py-4">
-                       
-                        <address class="not-italic text-sm">
-                            {{ $customerAddress->nome }}<br>
+            <div class="divide-y divide-slate-200 dark:divide-slate-200/10">
 
-                            @if(optional($customerAddress->prison_unit())->name)
-                                {{ $customerAddress->prison_unit->name }}<br>
-                            @endif
+                @unless($customer->visitantes()->count() > 0)
+                    <div class="text-sm text-slate-500 dark:text-slate-400">
+                        {{ __('Nenhum Visitante definido.') }}
+                    </div>
+                @else
 
-                            {{ $customerAddress->logradouro }}, {{optional($customerAddress)->numero}}<br>
-                    
-                            {{ $customerAddress->bairro }}<br>
+                    <address class="not-italic text-sm">
+                        {{ $visitante->nome }}<br>
+
+                        @if(optional($visitante->prison_unit())->name)
+                            {{ $visitante->prison_unit->name }}<br>
+                        @endif
+
+                        {{ $visitante->logradouro }}, {{optional($visitante)->numero}}<br>
                 
-                            {{ $customerAddress->cidade }} / {{ $customerAddress->uf }}
-                               
-                            {{ $customerAddress->cep }}<br>
-                            
-                        </address>
+                        {{ $visitante->bairro }}<br>
+            
+                        {{ $visitante->cidade }} / {{ $visitante->uf }}
+                        
+                        {{ $visitante->cep }}<br>
+                        
+                    </address>
 
-                        <div class="mt-3 flex items-center justify-between">
-                            <button
-                                wire:click.prevent="view()"
-                                class="btn btn-link"
-                            >
-                                {{ __('Visualizar Carteirinha') }}
-                            </button>
-                        </div>
-                    </li>
-
-                @empty
-                    <li>Sem Visitantes Cadastrados</li>
-                @endforelse
-            </ul>
+                    <div class="mt-3 flex items-center justify-between">
+                        <button
+                            wire:click.prevent="view()"
+                            class="btn btn-link"
+                        >
+                            {{ __('Visualizar Carteirinha') }}
+                        </button>
+                    </div>
+                    
+                @endunless
+            </div>
         </x-slot:content>
     </x-modal-dialog>
 </div>
