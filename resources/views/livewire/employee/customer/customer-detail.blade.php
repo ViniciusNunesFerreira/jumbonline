@@ -34,7 +34,9 @@
                 
                 <livewire:employee.customer.components.customer-information :customer="$customer" />
 
-               
+                <livewire:employee.customer.components.customer-address :customer="$customer" />
+
+                
             </div>
         </div>
     </div>
