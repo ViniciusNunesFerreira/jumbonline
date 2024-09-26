@@ -38,7 +38,7 @@
                         <x-heroicon-m-clipboard class="w-5 h-5 text-slate-500 hover:text-slate-600 dark:hover:text-slate-400" />
                     </button>
                 </li>
-                @if($customer->phone)
+                @if(optional($customer)->phone)
                     <li>{{ $customer->phone->formatInternational() }}</li>
                 @endif
             </ul>
@@ -116,7 +116,7 @@
                                         x-on:click.away="open = false"
                                         class="absolute bottom-full z-10 mb-1.5 max-h-56 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm dark:bg-slate-900"
                                     >
-                                        @foreach($countries as $country)
+                                        @forelse($countries as $country)
                                             <li
                                                 x-on:click="$wire.selectCountry('{{ $country->iso2 }}'); open = false;"
                                                 class="text-gray-900 relative cursor-default select-none py-2 pl-3 pr-9 hover:bg-sky-500 hover:text-white dark:text-slate-200"
@@ -125,6 +125,10 @@
                                                     <span class="text-2xl">{{ $country->emoji }}</span>
                                                     <span class="font-normal ml-3 block truncate">{{ $country->name }}</span>
                                                 </div>
+                                            </li>
+                                        @else
+                                            <li class="text-gray-900 relative cursor-default select-none py-2 pl-3 pr-9 hover:bg-sky-500 hover:text-white dark:text-slate-200">
+                                                Sem países
                                             </li>
                                         @endforeach
                                     </ul>
