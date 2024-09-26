@@ -15,7 +15,7 @@ class CustomerDetento extends Component
 
     public function mount()
     {
-        $this->detento =  $this->customer->detentos->firstOrFail();
+        $this->detento =  optional($this->customer->detentos)->firstOrFail();
     }
 
     public function render()

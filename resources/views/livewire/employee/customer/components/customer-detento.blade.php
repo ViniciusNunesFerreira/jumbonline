@@ -17,13 +17,13 @@
                 </div>
             @else
                 <address class="not-italic text-sm">
-                    {{ $detento->name }}<br>
+                    {{ optional($detento)->name }}<br>
                 
-                    Matricula: <strong> {{ $detento->matricula }} </strong> <br>
+                    Matricula: <strong> {{ optional($detento)->matricula }} </strong> <br>
                     
-                    Raio: <strong> {{ $detento->raio }} </strong><br>
+                    Raio: <strong> {{ optional($detento)->raio }} </strong><br>
                 
-                    Cela: <strong>{{ $detento->cela }} </strong> <br>
+                    Cela: <strong>{{ optional($detento)->cela }} </strong> <br>
                                
                     Unid. Prisional: <strong> {{ optional($detento->prison_unit)->name }} </strong> <br>
 
