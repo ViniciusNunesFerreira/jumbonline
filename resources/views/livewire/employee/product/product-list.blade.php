@@ -134,7 +134,7 @@
                                                 scope="col"
                                                 class="pl-3 pr-4 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200"
                                             >
-                                                {{ __('Categoria') }}
+                                                {{ __('Categoria') }} | Qty. Permitido
                                             </th>
 
                                             <th
@@ -195,11 +195,15 @@
                                                 <td class="pl-3 pr-4 py-4 text-left text-sm text-slate-500 whitespace-nowrap sm:pr-6 dark:text-slate-400">
                                                    
                                                     @forelse($product->categories as $category)
-                                                        <div class="bg-warning p-2 text-white font-sm w-fit max-w-fit rounded-2xl">
-                                                            {{ $category->title }}    
-                                                        </div>
+                                                        
+                                                        <x-badge :type="'default'">
+                                                            {{ $category->title }} 
+                                                        </x-badge>  
+                                                        &nbsp; |  &nbsp;
+                                                        Max: {{$category->quantity}} 
+                                                        
                                                     @empty
-                                                        Nenhuma categoria
+                                                        0 categoria
                                                     @endforelse
 
                                                 </td>
