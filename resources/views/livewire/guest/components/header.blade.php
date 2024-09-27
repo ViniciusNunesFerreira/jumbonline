@@ -47,114 +47,60 @@
                     </button>
                 </div>
 
-                @if($this->headerMenu)
-                    <div class="space-y-6 px-4 pt-10 pb-6">
-                        <div class="grid grid-cols-1 items-start gap-y-6 gap-x-6">
-                            @foreach($this->headerMenu->menuItems as $menuItem)
-                                @if($menuItem->children->count())
-                                    <div>
-                                        <p class="font-medium text-slate-900">
-                                            {{ $menuItem->name }}
-                                        </p>
-                                        <ul
-                                            role="list"
-                                            aria-labelledby="mobile-collection-heading"
-                                            class="ml-3 mt-6 space-y-6"
-                                        >
-                                            @foreach($menuItem->children as $childBlock)
-                                                <li x-data="{ open: false }">
-                                                    <span
-                                                        x-on:click="open = !open"
-                                                        class="text-sm font-medium text-slate-900"
-                                                    >
-                                                        {{ $childBlock->name }}
-                                                    </span>
-                                                    <ul
-                                                        x-show="open"
-                                                        role="list"
-                                                        aria-labelledby="{{ $childBlock->name }}-heading"
-                                                        class="ml-3 mt-6 space-y-6 text-sm sm:mt-4 sm:space-y-4"
-                                                    >
-                                                        @foreach($childBlock->children as $child)
-                                                            <li class="flex">
-                                                                <a
-                                                                    href="{{ $child->url }}"
-                                                                    class="hover:text-accent"
-                                                                >{{ $child->name }}</a>
-                                                            </li>
-                                                        @endforeach
-                                                    </ul>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @else
-                                    <div class="flow-root">
-                                        <a
-                                            href="{{ $menuItem->url }}"
-                                            class="-m-2 block p-2 font-medium text-slate-900"
-                                        >
-                                            {{ $menuItem->name }}
-                                        </a>
-                                    </div>
-                                @endif
-                            @endforeach
+            
+                <div class="space-y-6 border-t border-primary py-6 px-4">
+                    @guest()
+                        <div class="flow-root">
+                            <a
+                                href="{{ route('login') }}"
+                                class="-m-2 block p-2 font-medium text-primary flex space-x-2"
+                            >
+                            <x-heroicon-o-user class="ml-1.5 h-5 w-5" /> <span>Entrar</span>
+                            </a>
                         </div>
-                    </div>
-
-                    <div class="space-y-6 border-t border-slate-200 py-6 px-4">
-                        @guest()
-                            <div class="flow-root">
+                        <div class="flow-root">
+                            <a
+                                href="{{ route('register') }}"
+                                class="-m-2 block p-2 font-medium text-primary flex space-x-2"
+                            >
+                                <x-heroicon-o-plus class="ml-1.5 h-5 w-5" />  <span>Cadastrar</span>
+                            </a>
+                        </div>
+                    @else
+                        <div class="flow-root">
+                            <a
+                                href="{{ route('customer.profile') }}"
+                                class="-m-2 block p-2 font-medium text-primary"
+                            >
+                                Meu Perfil
+                            </a>
+                        </div>
+                        <div class="flow-root">
+                            <a
+                                href="{{ route('customer.orders.list') }}"
+                                class="-m-2 block p-2 font-medium text-primary"
+                            >
+                                Pedidos
+                            </a>
+                        </div>
+                        <div class="flow-root">
+                            <form
+                                action="{{ route('logout') }}"
+                                method="POST"
+                            >
+                                @csrf
                                 <a
-                                    href="{{ route('login') }}"
-                                    class="-m-2 block p-2 font-medium text-slate-900"
+                                    href="{{ route('logout') }}"
+                                    class="-m-2 block p-2 font-medium text-warning"
+                                    onclick="event.preventDefault(); this.closest('form').submit();"
                                 >
-                                    Entrar
+                                    Sair
                                 </a>
-                            </div>
-                            <div class="flow-root">
-                                <a
-                                    href="{{ route('register') }}"
-                                    class="-m-2 block p-2 font-medium text-slate-900"
-                                >
-                                   Cadastrar
-                                </a>
-                            </div>
-                        @else
-                            <div class="flow-root">
-                                <a
-                                    href="{{ route('customer.profile') }}"
-                                    class="-m-2 block p-2 font-medium text-slate-900"
-                                >
-                                    Meu Perfil
-                                </a>
-                            </div>
-                            <div class="flow-root">
-                                <a
-                                    href="{{ route('customer.orders.list') }}"
-                                    class="-m-2 block p-2 font-medium text-slate-900"
-                                >
-                                    Pedidos
-                                </a>
-                            </div>
-                            <div class="flow-root">
-                                <form
-                                    action="{{ route('logout') }}"
-                                    method="POST"
-                                >
-                                    @csrf
-                                    <a
-                                        href="{{ route('logout') }}"
-                                        class="-m-2 block p-2 font-medium text-slate-900"
-                                        onclick="event.preventDefault(); this.closest('form').submit();"
-                                    >
-                                        Sair
-                                    </a>
-                                </form>
-                            </div>
-                        @endguest
-                    </div>
-                @endif
+                            </form>
+                        </div>
+                    @endguest
+                </div>
+                
             </div>
         </div>
     </div>
