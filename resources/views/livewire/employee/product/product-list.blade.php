@@ -1,14 +1,14 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Products') }}
+        {{ __('Produtos') }}
     </x-slot:title>
 
     <!-- Page title & actions -->
     <div class="px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div class="min-w-0 flex-1">
             <h1 class="text-2xl font-medium text-slate-900 dark:text-slate-100">
-                {{ __('Products') }}
+                {{ __('Produtos') }}
             </h1>
         </div>
         @if($products->count())
@@ -17,7 +17,7 @@
                     wire:click.prevent="newProduct"
                     class="btn btn-primary block w-full order-0 sm:order-1 sm:ml-3"
                 >
-                    {{ __('Add product') }}
+                    {{ __('Add produto') }}
                 </button>
             </div>
         @endif
@@ -32,11 +32,11 @@
                         <x-heroicon-o-tag class="mx-auto h-12 w-12 text-slate-400" />
 
                         <h3 class="mt-2 text-lg font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('First up: what are you selling?') }}
+                            {{ __('Primeiro: o que você está vendendo?') }}
                         </h3>
 
                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            {{ __('Before you open your store, first you need some products.') }}
+                            {{ __('Antes de abrir sua loja, primeiro você precisa de alguns produtos.') }}
                         </p>
 
                         <div class="mt-6">
@@ -46,7 +46,7 @@
                                 class="btn btn-primary"
                             >
                                 <x-heroicon-m-plus class="-ml-1 mr-2 h-5 w-5" />
-                                {{ __('Add your products') }}
+                                {{ __('Add seus produtos') }}
                             </button>
                         </div>
                     </div>
@@ -113,20 +113,37 @@
                                                 scope="col"
                                                 class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
                                             >
-                                                {{ __('Product') }}
+                                                {{ __('Produto') }}
                                             </th>
+                                            <th
+                                                scope="col"
+                                                class="pl-3 pr-4 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200"
+                                            >
+                                                {{ __('Valor') }}
+                                            </th>
+
+
+                                            <th
+                                                scope="col"
+                                                class="pl-3 pr-4 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200"
+                                            >
+                                                {{ __('Peso') }}
+                                            </th>
+
+                                            <th
+                                                scope="col"
+                                                class="pl-3 pr-4 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200"
+                                            >
+                                                {{ __('Categoria') }}
+                                            </th>
+
                                             <th
                                                 scope="col"
                                                 class="px-3 py-4 text-center text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
                                             >
                                                 {{ __('Status') }}
                                             </th>
-                                            <th
-                                                scope="col"
-                                                class="pl-3 pr-4 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200"
-                                            >
-                                                {{ __('Inventory') }}
-                                            </th>
+                                            
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-200 dark:divide-slate-200/10">
@@ -166,14 +183,32 @@
                                                         </div>
                                                     </div>
                                                 </td>
+                                                <td class="pl-3 pr-4 py-4 text-left text-sm text-slate-500 whitespace-nowrap sm:pr-6 dark:text-slate-400">                                                    
+                                                    <x-money
+                                                        :amount="optional($product->first_variant)->price"
+                                                        :currency="config('app.currency')"
+                                                    />
+                                                </td>
+                                                <td class="pl-3 pr-4 py-4 text-left text-sm text-slate-500 whitespace-nowrap sm:pr-6 dark:text-slate-400">
+                                                   {{ optional($product->first_variant)->weight_value }}{{ optional($product->first_variant)->weight_unit }}
+                                                </td>
+                                                <td class="pl-3 pr-4 py-4 text-left text-sm text-slate-500 whitespace-nowrap sm:pr-6 dark:text-slate-400">
+                                                   
+                                                    @forelse($product->categories as $category)
+                                                        <div class="bg-warning p-2 text-white font-sm w-fit max-w-fit rounded-2xl">
+                                                            {{ $category->title }}    
+                                                        </div>
+                                                    @empty
+                                                        Nenhuma categoria
+                                                    @endforelse
+
+                                                </td>
                                                 <td class="relative px-3 py-4 text-sm text-slate-500 text-center whitespace-nowrap dark:text-slate-400">
                                                     <x-badge :type="$product->is_active ? 'success' : 'default'">
                                                         {{ $product->status->label() }}
                                                     </x-badge>
                                                 </td>
-                                                <td class="pl-3 pr-4 py-4 text-left text-sm text-slate-500 whitespace-nowrap sm:pr-6 dark:text-slate-400">
-                                                    {{ __(':count in stock', ['count' => $product->variants_sum_stock_value]) }}
-                                                </td>
+
                                             </tr>
                                         @empty
                                             <tr>

@@ -44,8 +44,7 @@ class ProductList extends Component
     public function getRowsQueryProperty()
     {
         return Product::query()
-            ->with('media')
-            ->withSum('variants', 'stock_value')
+            ->with('media', 'categories', 'variants', 'first_variant')
             ->when($this->search, fn($query, $search) => $query->where('name', 'like', '%' . $search . '%'))
             ->latest();
     }

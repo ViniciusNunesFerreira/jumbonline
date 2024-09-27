@@ -92,6 +92,16 @@ class Product extends Model implements HasMedia
         return $this->hasMany(Variant::class);
     }
 
+    public function first_variant(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Variant::class)->oldestOfMany();
+    }
+
+    public function last_variant(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Variant::class)->latestOfMany();
+     }
+
     public function variantAttributes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VariantAttribute::class);
