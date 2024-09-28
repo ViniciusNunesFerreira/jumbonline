@@ -16,7 +16,7 @@
                         <div class="relative bg-slate-900">
                             <div
                                 aria-hidden="true"
-                                class="absolute inset-0"
+                                class="w-full h-auto sm:max-h-96"
                             >
                                 @if($slide->hasMedia('image'))
                                     {{ $slide->getFirstMedia('image')('responsive')->attributes(['class' => 'h-full w-full object-cover object-center']) }}
@@ -24,30 +24,11 @@
                                     <img
                                         src="{{ asset('img/placeholder-wide.png') }}"
                                         alt="{{ $slide->title }}"
-                                        class="h-full w-full object-cover object-center"
+                                        class="h-full w-full object-contain object-center"
                                     >
                                 @endif
                             </div>
-                            <div class="relative px-6 py-32 bg-slate-900 bg-opacity-50 sm:px-12 sm:py-40 lg:px-16">
-                                <div class="relative mx-auto flex max-w-3xl flex-col items-center text-center">
-                                    <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                                        {{ $slide->title }}
-                                    </h2>
-                                    @if($slide->description)
-                                        <p class="mt-3 text-xl text-white line-clamp-2">
-                                            {{ $slide->description }}
-                                        </p>
-                                    @endif
-                                    @if($slide->button_link && $slide->button_text)
-                                        <a
-                                            href="{{ $slide->button_link }}"
-                                            class="mt-8 block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-slate-900 hover:bg-slate-100 sm:w-auto"
-                                        >
-                                            {{ $slide->button_text }}
-                                        </a>
-                                    @endif
-                                </div>
-                            </div>
+                            
                         </div>
                     </li>
                 @endforeach
