@@ -16,7 +16,7 @@
                         <div class="relative bg-slate-900">
                             <div
                                 aria-hidden="true"
-                                class="w-full h-auto sm:max-h-96"
+                                class="w-full h-auto"
                             >
                                 @if($slide->hasMedia('image'))
                                     {{ $slide->getFirstMedia('image')('responsive')->attributes(['class' => 'h-full w-full object-cover object-center']) }}
