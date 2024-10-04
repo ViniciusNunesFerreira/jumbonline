@@ -1,24 +1,22 @@
 <div>
     <x-slot:title>
-        {{ __('Integração Correios') }}
+        {{ __('Promoção no Frete') }}
     </x-slot:title>
 
     <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:flex lg:gap-x-16 lg:px-8">
-       
 
         <form wire:submit.prevent="save" class="py-6 lg:flex-auto lg:py-0">
-
+            
             <div class="space-y-12">
                 <div class="border-b border-gray-900/10 pb-12 dark:border-white/10">
+
                     <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-slate-200">
-                        Integração: {{ $shipping_method->name }}
+                        Cadastrar Promoção no Frete
                     </h2>
 
                     <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                        <div
-                            x-data="{ on: @entangle('state.is_enabled').defer }"
-                            class="col-span-full"
-                        >
+                        <div x-data="{ on: @entangle('state.is_enabled').defer }" class="col-span-full">
+                            
                             <div class="flex items-center">
                                 <button
                                     x-on:click="on = !on"
@@ -48,7 +46,7 @@
                     
                         </div>
 
-                        <div class="sm:col-span-5">
+                        <div class="sm:col-span-3">
                             <x-input-label
                                 for="displayNameInput"
                                 :value="__('Nome')"
@@ -67,84 +65,36 @@
                             </div>
                         </div>
 
-                        <div class="sm:col-span-3">
-                            <x-input-label
-                                for="userKeyInput"
-                                :value="__('User key')"
-                            />
-                            <div class="mt-2">
-                                <x-textarea
-                                    wire:model="state.credentials.user_key"
-                                    id="userKeyInput"
-                                    class="block w-full sm:text-sm"
-                                    placeholder="pk_..."
-                                />
-                                <x-input-error
-                                    for="state.credentials.user_key"
-                                    class="mt-2"
-                                />
-                            </div>
-                        </div>
-                        <div class="sm:col-span-3">
-                            <x-input-label
-                                for="accessKeyInput"
-                                :value="__('Access Key')"
-                            />
-                            <div class="mt-2">
-                                <x-textarea
-                                    wire:model="state.credentials.access_key"
-                                    id="accessKeyInput"
-                                    class="block w-full sm:text-sm"
-                                    placeholder=""
-                                />
-                                <x-input-error
-                                    for="state.credentials.access_key"
-                                    class="mt-2"
-                                />
-                            </div>
-                        </div>
+                
 
                         <div class="sm:col-span-3">
-                            <x-input-label
-                                for="contratoInput"
-                                :value="__('N. Contrato')"
-                            />
-                            <div class="mt-2">
-                                <x-textarea
-                                    wire:model.defer="state.credentials.contrato"
-                                    id="contratoInput"
-                                    class="block w-full sm:text-sm"
-                                    placeholder=""
-                                />
-                                <x-input-error
-                                    for="state.credentials.contrato"
-                                    class="mt-2"
-                                />
-                            </div>
-                        </div>
 
-                        <div class="sm:col-span-3">
                             <x-input-label
-                                for="cartaoPostagemInput"
-                                :value="__('N. Cartão Postagem')"
+                                for="discount"
+                                :value="__('Valor da Compra')"
                             />
+
                             <div class="mt-2">
-                                <x-textarea
-                                    wire:model.defer="state.credentials.cartaopostagem"
-                                    id="cartaoPostagemInput"
-                                    class="block w-full sm:text-sm"
-                                    placeholder=""
+
+                                <x-input-money
+                                    wire:model.defer="state.os_value"
+                                    id="discount"
+                                    class="mt-1 block w-full sm:text-sm"
                                 />
+
                                 <x-input-error
-                                    for="state.credentials.cartaopostagem"
+                                    for="state.os_value"
                                     class="mt-2"
                                 />
                             </div>
-                        </div>
+
+                        </div>    
+
                     </div>
+
                 </div>
             </div>
-
+            
             <div class="mt-6 flex items-center justify-end gap-x-6">
                 <button
                     type="button"
@@ -159,8 +109,8 @@
                     {{ __('Salvar') }}
                 </button>
             </div>
-
+            
         </form>
-    </div>
 
+    </div>
 </div>

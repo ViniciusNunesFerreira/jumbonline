@@ -199,13 +199,24 @@
                                                     {{ __('Discounts') }}
                                                 </a>
                                             </li>
+
+                                            <li>
+                                                <a
+                                                    href="{{ route('employee.promotions.list') }}"
+                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.promotions.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.promotions.*')])
+                                                >
+                                                    <x-heroicon-o-ticket @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.promotions.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.promotions.*')]) />
+                                                    {{ __('Promocões Frete') }}
+                                                </a>
+                                            </li>
+
                                             <li>
                                                 <a
                                                     href="{{ route('employee.shipping.manager') }}"
                                                     @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.shipping.*')])
                                                 >
                                                     <x-heroicon-o-truck @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.shipping.*')]) />
-                                                    {{ __('Frete') }}
+                                                    {{ __('Envio') }}
                                                 </a>
                                             </li>
                                             <li>
@@ -358,6 +369,17 @@
                                             {{ __('Discounts') }}
                                         </a>
                                     </li>
+
+                                    <li>
+                                        <a
+                                            href="{{ route('employee.promotions.list') }}"
+                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.promotions.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.promotions.*')])
+                                        >
+                                            <x-heroicon-o-ticket @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.promotions.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.promotions.*')]) />
+                                            {{ __('Frete Promoções') }}
+                                        </a>
+                                    </li>
+
                                     <li>
                                         <a
                                             href="{{ route('employee.shipping.manager') }}"

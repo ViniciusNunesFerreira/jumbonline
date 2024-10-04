@@ -106,15 +106,7 @@
                     {{ __('Checkout') }}
                 </a>
             </li>
-            <li>
-                <a
-                    href="{{ route('employee.settings.license') }}"
-                    @class(['group flex gap-x-3 rounded-md py-2 pl-2 pr-3 text-sm leading-6 font-semibold', 'bg-gray-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.settings.license'), 'text-gray-700 hover:text-sky-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white' => ! request()->routeIs('employee.settings.license')])
-                >
-                    <x-heroicon-o-finger-print @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:text-white' => request()->routeIs('employee.settings.license'), 'text-gray-400 group-hover:text-sky-600 dark:group-hover:text-white' => ! request()->routeIs('employee.settings.license')]) />
-                    {{ __('License') }}
-                </a>
-            </li>
+           
         </ul>
     </nav>
 </aside>

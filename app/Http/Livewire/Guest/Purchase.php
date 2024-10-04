@@ -25,6 +25,7 @@ use App\Models\Country;
 use App\Models\ShippingZone;
 use App\Models\ShippingZoneCountry;
 use App\Models\ShippingZoneRate;
+use App\Models\Promotion;
 
 use App\Enums\PaymentStatus;
 use App\Events\OrderCreated;
@@ -41,6 +42,7 @@ class Purchase extends Component
     public $currentTab = 'tabs-entrega';
     public $paymentMethod;
     public $session_prison;
+    public Promotion $promotion;
 
     public $state = [
         'name' => '',
@@ -96,6 +98,8 @@ class Purchase extends Component
 
 
       //  $this->createPreference();
+
+        $this->promotion = Promotion::where('is_enabled', 1)->first();
 
         $this->seo()->setTitle(trans('Checkout'));
     }
@@ -234,26 +238,38 @@ class Purchase extends Component
 
     public function updateShippingPrice()
     {
-        $params = [
-            'cepDestino' => trim( preg_replace("/[^0-9]/", "",  $this->prisonUnit->cep) ),
-            'cepOrigem' => '02737050',
-            'peso' =>  ($this->cart->weight * 1000),
-        ];
 
-        $response = $this->calcPrecoFrete($params);
-    
-        if( optional($response)->pcFinal ){
 
-            $price = str_replace('.', '', $response->pcFinal);
-            $price = str_replace(',', '.', $price);
+        if( $this->promotion->count() == 0 || 
+            $this->promotion->count() > 0 && $this->cart->subtotal < $this->promotion->os_value ){
 
+                $params = [
+                    'cepDestino' => trim( preg_replace("/[^0-9]/", "",  $this->prisonUnit->cep) ),
+                    'cepOrigem' => '02737050',
+                    'peso' =>  ($this->cart->weight * 1000),
+                ];
+
+                $response = $this->calcPrecoFrete($params);
+            
+                if( optional($response)->pcFinal ){
+
+                    $price = str_replace('.', '', $response->pcFinal);
+                    $price = str_replace(',', '.', $price);
+
+                    $this->order->shipping_rate  = 'correios';
+                    $this->order->shipping_price = (double)$price;
+                }
+            
+        }else{
+
+            \Log::info('Frete Grátis aplicado');
             $this->order->shipping_rate  = 'correios';
-            $this->order->shipping_price = (double)$price;
+            $this->order->shipping_price = 0;
         }
 
     }
 
-
+    
 
     protected function placeOrder()
     {

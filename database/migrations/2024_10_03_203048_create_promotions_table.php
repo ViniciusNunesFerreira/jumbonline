@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shipping_pre_posts', function (Blueprint $table) {
+        Schema::create('promotions', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->decimal('os_value', 12)->default(0); 
+            $table->tinyInteger('is_enabled')->default(0); 
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shipping_pre_posts');
+        Schema::dropIfExists('promotions');
     }
 };

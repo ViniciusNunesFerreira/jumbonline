@@ -10,3 +10,12 @@
 @import "./components/utilities.css";
 
 @config "./../../tailwind.admin.config.js";
+
+
+.input-number::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.input-number{
+    -moz-appearance: textfield;
+}
