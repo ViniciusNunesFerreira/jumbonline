@@ -18,20 +18,18 @@ class MPSignatureValidator implements SignatureValidator
         // Obtain Query params related to the request URL
         $queryParams = json_decode(file_get_contents('php://input', true));
 
-        \Log::debug((array) $queryParams);
-
         // Extract the "data.id" from the query params
        // $dataID = is_object($queryParams) ? $queryParams->data->id : $queryParams['data']['id'];
 
-        $dataID = optional($request)->data->id;
-
-        if(empty($dataID)){
-            if( !isset($queryParams->data) || !ctype_digit($queryParams->data->id) ){
-                http_response_code(400);
-	            return false; 
-            }
-            $dataID =  $queryParams->data->id;
+        if( !isset($queryParams->type, $queryParams->data) || !ctype_digit($queryParams->data->id) ){
+            http_response_code(400);
+            return false; 
         }
+
+        \Log::debug($queryParams->data->id);
+
+        $dataID =  $queryParams->data->id;
+        
 
         if (! $xSignature) {
             return false;
