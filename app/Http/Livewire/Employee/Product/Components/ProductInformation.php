@@ -115,8 +115,6 @@ class ProductInformation extends Component
     {
         $this->validate();
 
-        \Log::debug($this->product);
-
         $this->product->save();
 
         $this->emit('refresh');

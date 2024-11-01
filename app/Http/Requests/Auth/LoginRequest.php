@@ -29,6 +29,15 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'g-recaptcha-response' => ['sometimes','required','captcha']
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'g-recaptcha-response.required' => 'O campo reCAPTCHA é obrigatório.',
+            'g-recaptcha-response.captcha' => 'Erro de Captcha! resolva o desafio de segurança.',
         ];
     }
 

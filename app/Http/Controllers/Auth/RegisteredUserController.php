@@ -23,6 +23,7 @@ class RegisteredUserController extends Controller
         return view('auth.register');
     }
 
+
     /**
      * Handle an incoming registration request.
      *
@@ -30,11 +31,18 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+
+        $msg =  [
+            'g-recaptcha-response.required' => 'O campo reCAPTCHA é obrigatório.',
+            'g-recaptcha-response.captcha' => 'Erro de Captcha! resolva o desafio de segurança.',
+        ];
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:' . Customer::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+            'g-recaptcha-response' => ['sometimes','required','captcha']
+        ], $msg);
 
         $customer = Customer::create([
             'name' => $request->name,

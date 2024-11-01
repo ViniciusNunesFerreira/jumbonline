@@ -112,6 +112,14 @@
                             />
                         </div>
 
+                        <div class="mt-6 flex items-center justify-center flex-col">
+                            {!! NoCaptcha::renderJs() !!}
+                            {!! NoCaptcha::display() !!}
+                            @error('g-recaptcha-response')
+                                <span class="text-warning mt-1">@lang($message)</span>
+                            @enderror
+                        </div>
+
                         <div class="mt-6">
                             <button
                                 type="submit"

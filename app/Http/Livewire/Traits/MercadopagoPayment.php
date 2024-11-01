@@ -11,6 +11,7 @@ use App\Models\OrderItem;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use MercadoPago\Exceptions\MPApiException;
 
 trait MercadopagoPayment
 {
@@ -86,6 +87,8 @@ trait MercadopagoPayment
         $request_options = new RequestOptions();
         $request_options->setCustomHeaders(["X-Idempotency-Key: ".$this->order_service->idempotency_key.""]);
 
+        \Log::info($request->payment_method_id);
+
         if($request->payment_method_id == 'pix'){
 
             //Pagamentos Pix
@@ -103,6 +106,15 @@ trait MercadopagoPayment
 
             //Pagamentos Boleto
 
+                $this->createRequest = [
+                    "transaction_amount" => $request->transaction_amount,
+                    "payment_method_id" => $request->payment_method_id,
+                    "payer" => [
+                        "email" =>  $request->payer['email'],
+                    ]
+                ];
+
+            
         }else{
 
             //Para pagamentos via cartão
@@ -131,8 +143,18 @@ trait MercadopagoPayment
         
         // $this->payment = $client->create($this->createRequest, $request_options);
 
-        return response()->json($client->create($this->createRequest, $request_options));
-        
+        try {
+
+            $response = $client->create($this->createRequest, $request_options);
+
+            return response()->json($response);
+            
+        } catch (MPApiException $e) {
+
+            return response()->json( $e->getApiResponse()->getContent());
+        }
+
+
     }
 
     

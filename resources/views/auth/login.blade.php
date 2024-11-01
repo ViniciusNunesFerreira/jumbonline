@@ -78,6 +78,14 @@
                             />
                         </div>
 
+                        <div class="mt-6 flex items-center justify-center flex-col">
+                            {!! NoCaptcha::renderJs() !!}
+                            {!! NoCaptcha::display() !!}
+                            @error('g-recaptcha-response')
+                                <span class="text-warning mt-1">@lang($message)</span>
+                            @enderror
+                        </div>
+
                         <!-- Remember Me -->
                         <div class="mt-6 flex items-center justify-between">
                             <div class="flex items-center">

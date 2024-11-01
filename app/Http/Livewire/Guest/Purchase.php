@@ -250,14 +250,18 @@ class Purchase extends Component
                 ];
 
                 $response = $this->calcPrecoFrete($params);
+
+                \Log::debug((array)$response);
             
                 if( optional($response)->pcFinal ){
 
                     $price = str_replace('.', '', $response->pcFinal);
                     $price = str_replace(',', '.', $price);
 
+                    $price_corretion = round(($price*46)/100);
+
                     $this->order->shipping_rate  = 'correios';
-                    $this->order->shipping_price = (double)$price;
+                    $this->order->shipping_price = (double)$price+$price_corretion;
                 }
             
         }else{

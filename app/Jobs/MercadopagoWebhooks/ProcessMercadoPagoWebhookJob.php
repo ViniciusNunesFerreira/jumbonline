@@ -43,8 +43,7 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
     {
         
        try{
-            if ( !empty($this->webhookCall->payload['data']['id']) ) {
-
+            
                 $mercadopago =  PaymentMethod::where('identifier', 'mercadopago')->firstOrFail();
 
                 MercadoPagoConfig::setAccessToken($mercadopago->meta['access_token']);
@@ -53,14 +52,12 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
                 
                 $id = $this->webhookCall->payload['data']['id'];
 
-                $payment = $client->get($id);
+                $payment = json_decode($client->get($id));
 
                 if(!empty($payment->external_reference) && $payment->status == "approved"){
                     $this->processOrderPaidEvent($payment);
                 }
             
-            }
-
         }catch(\Exception $e){
             \Log::error($e->getMessage());
         }

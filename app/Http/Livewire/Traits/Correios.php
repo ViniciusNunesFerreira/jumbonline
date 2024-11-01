@@ -16,6 +16,8 @@ trait Correios
         $config = config('correios');
         $url = $config['host'].'token/v1/autentica/cartaopostagem';
 
+        $correios_params = ShippingMethod::query()->where('identifier', 'correios')->firstOrFail();
+
         $headers = [
                 'Content-Type'=>'application/json',
                 'Accept' => 'application/json',
@@ -44,9 +46,10 @@ trait Correios
             fwrite($fp, '<?php return ' . var_export(config('correios'), true) . ';');
             fclose($fp);
 
-        } catch (ClientException $exception) {
-            $response = $exception->getResponse();
-            \Log::error($response);
+        } catch (\Exception $exception) {
+            $response = $exception->getMessage();
+
+            \Log::debug((object)$response);
         }
 
     }
@@ -65,6 +68,7 @@ trait Correios
         //SE O TOKEN ESTIVER COM VENCIMENTO ABAIXO DE 30 Minutos
        if( empty($config['expired_in']) || $current->diffInMinutes($newHour, false) <= 30 ){
             $this->getAccessToken();
+            $config = config('correios');
        }
 
 
@@ -86,95 +90,14 @@ trait Correios
 
             $data = json_decode($response->getBody(), false);
 
-        }catch( ClientException $exception ){
-            \Log::debug($exception);
-            $data = $exception->getResponse();
+
+        }catch( \Exception $exception ){
+            
+            $data = $exception->getMessage();
         }
 
 
         return $data;
-
-    }
-
-    public function prePostagem( Array $params )
-    {
-        $config = config('correios');
-        $service = ShippingServices::SEDEX_CONTRATO_AG;
-
-        $current =  Carbon::now();
-        $newHour = new Carbon($config['expired_in']);
-        
-        //SE O TOKEN ESTIVER COM VENCIMENTO ABAIXO DE 30 Minutos
-        if( empty($config['expired_in']) || $current->diffInMinutes($newHour, false) <= 30 ){
-                $this->getAccessToken();
-        }
-
-        $headers = [
-            'Content-Type'=>'application/json',
-            'Accept' => 'application/json',
-            'Cache-Controle' => 'no-cache',
-            'Authorization' => 'Bearer '.$config['token']
-        ];
-
-        $body = [
-            'remetente'     => [
-                'nome' => '',
-                'cpfCnpj' => '',
-                'endereco' => [
-                    'cep' => '',
-                    'logradouro' => '',
-                    'numero' => '',
-                    'complemento' => '',
-                    'bairro' => '',
-                    'cidade' => '',
-                    'uf' => '',
-                    'pais' => ''
-                ]
-            ],
-            'destinatario'  => [
-                'nome' => '',
-                'obs' => '',
-                'endereco' => [
-                    'cep' => '',
-                    'logradouro' => '',
-                    'numero' => '',
-                    'complemento' => '',
-                    'bairro' => '',
-                    'cidade' => '',
-                    'uf' => '',
-                    'pais' => ''
-                ]
-            ],
-            'itensDeclaracaoConteudo' => [
-                [
-                    'conteudo' => '',
-                    'quantidade' => '',
-                    'valor' => ''
-                ]
-            ],
-            'codigoServico' => $service->value,
-            'codigoFormatoObjetoInformado' => '2',
-            'alturaInformada' => '',
-            'larguraInformada' => '',
-            'comprimentoInformado' => '',
-        ];
-
-        $url =  $config['host'].'/prepostagem/v1/prepostagens';
-
-
-        try {
-
-            $client = new Client();            
-            $response = $client->post();
-
-
-        } catch (ClientException $exception) {
-            \Log::debug($exception->getResponse());
-        
-            return response()->json($exception->getResponse(), 401);
-        }
-        
-        return json_decode($response->getBody(), true);
 
     }
 
