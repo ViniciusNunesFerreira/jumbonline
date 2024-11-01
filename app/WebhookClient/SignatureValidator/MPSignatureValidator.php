@@ -28,7 +28,7 @@ class MPSignatureValidator implements SignatureValidator
         if(empty($dataID)){
             if( !isset($queryParams->data) || !ctype_digit($queryParams->data->id) ){
                 http_response_code(400);
-	            return; 
+	            return false; 
             }
             $dataID =  $queryParams->data->id;
         }
