@@ -26,13 +26,8 @@ class MPSignatureValidator implements SignatureValidator
             return false; 
         }
 
-        \Log::info('Data Id Json: '.$queryParams->data->id);
-
-        \Log::info('Data Id Array: '.$queryParams->data['id']);
-
         $dataID =  $queryParams->data->id;
-        
-
+    
         if (! $xSignature) {
             return false;
         }
