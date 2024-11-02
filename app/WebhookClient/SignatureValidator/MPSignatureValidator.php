@@ -70,6 +70,9 @@ class MPSignatureValidator implements SignatureValidator
         \Log::info('Manifest: '.$manifest);
         $computedSignature = hash_hmac('sha256', $manifest, $secret);
 
+        \Log::info('Hash: '.$hash);
+        \Log::info('Signature compare:'.$computedSignature);
+
         return hash_equals($hash, $computedSignature);
     }
 }
