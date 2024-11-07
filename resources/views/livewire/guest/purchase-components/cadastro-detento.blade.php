@@ -279,30 +279,12 @@
                     </div>
 
                     <div class="col-span-3 relative">
-                        @if(optional($visitante)->hasMedia('cover') )
+                       
+                       <livewire:guest.purchase-components.visitante-gallery :visitante="$visitante" />
 
-                        
-                            <div class="ml-4 mt-2 absolute top-5">
-                                <button
-                                    x-on:click.prevent="if(confirm('{{ __('Tem certeza de que deseja apagar esta imagem?') }}')) $wire.deleteImage();"
-                                    type="button"
-                                    class="btn p-2 text-white hover:text-primary bg-accent rounded-lg text-xs"
-                                >
-                                    {{ __('Deletar') }}
-                                </button>
-                            </div>
-               
-                            <div class="p-4 flex justify-start max-h-64 overflow-hidden border border-accent">
-                                <img
-                                    src="{{ $visitante->getFirstMediaUrl('cover', 'thumb') }}"
-                                    class=" size-72 object-contain"
-                                >
-                            </div>
-                        @else
-                            <x-upload-widget wire:model="image" />
-                        @endif
-                        
                     </div>
+
+                    
 
                 </div>
 

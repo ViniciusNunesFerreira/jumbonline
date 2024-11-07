@@ -50,19 +50,30 @@
             <fieldset
                 wire:target="save"
                 wire:loading.attr="disabled"
-                class="mt-5 grid gap-6"
+                class="mt-5 grid gap-4"
             >
 
-                @if(optional($visitante)->hasMedia('cover') )
-                    <div class="p-4 flex justify-center w-full overflow-hidden">
-                        <img
-                            src="{{ $visitante->getFirstMediaUrl('cover', 'thumb') }}"
-                            class="object-contain"
-                        >
-                    </div>
-                @else
-                    Nenhuma imagem foi enviada pelo visitante durante o cadastro.
-                @endif
+                <div @class(['grid  grid-cols-2 gap-4 auto-rows-fr' => $visitante->hasMedia('gallery')])>
+
+                    @foreach($visitante->getMedia('gallery') as $medium)
+                        <div @class(['relative overflow-hidden border  border-slate-200 group rounded-md flex items-center justify-center dark:border-slate-200/20'])>
+                            <img
+                                src="{{ $medium->getUrl() }}"
+                                alt="{{ $medium->name }}"
+                                class="h-full w-full object-contain object-center transition group-hover:scale-125"
+                            />
+                            <div class="absolute inset-0 group-hover:bg-opacity-50 group-hover:bg-slate-600 rounded-md transition-all"></div>
+                            <x-input
+                                wire:model="selected"
+                                type="checkbox"
+                                class="absolute top-2 left-2 !rounded !shadow-none dark:!bg-slate-900 dark:checked:!bg-sky-500"
+                                x-bind:class="{ 'opacity-0 group-hover:opacity-100': !selected.length }"
+                                value="{{ $medium->id }}"
+                            />
+                        </div>
+                    @endforeach
+
+                </div>
 
         
 
