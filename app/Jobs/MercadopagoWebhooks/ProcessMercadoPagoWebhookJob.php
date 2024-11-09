@@ -54,7 +54,7 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
 
                 $payment = $client->get($id);
 
-                if(!empty($payment['external_reference']) && $payment['status'] == "approved"){
+                if(!empty($payment->external_reference) && $payment->status == "approved"){
                     \Log::info('entrei na atualização do pagamento');
                     $this->processOrderPaidEvent($payment);
                 }
@@ -67,12 +67,12 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
 
     public function processOrderPaidEvent($data)
     {
-        $order = Order::query()->where('idempotency_key', $data['external_reference'])->where('order_status', 'OPEN')->firstOrFail();
+        $order = Order::query()->where('idempotency_key', $data->external_reference)->where('order_status', 'OPEN')->firstOrFail();
 
         $order->payments()->create([
-            'reference' => $data['external_reference'],
-            'amount' => $data['transaction_amount'],
-            'currency' => \Str::upper($data['currency_id']),
+            'reference' => $data->external_reference,
+            'amount' => $data->transaction_amount,
+            'currency' => \Str::upper($data->currency_id),
             'status' => PaymentStatus::PAID,
         ]);
 
