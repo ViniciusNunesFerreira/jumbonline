@@ -251,8 +251,7 @@ class Purchase extends Component
 
                 $response = $this->calcPrecoFrete($params);
 
-                \Log::debug((array)$response);
-            
+                            
                 if( optional($response)->pcFinal ){
 
                     $price = str_replace('.', '', $response->pcFinal);
@@ -265,8 +264,7 @@ class Purchase extends Component
                 }
             
         }else{
-
-            \Log::info('Frete Grátis aplicado');
+            
             $this->order->shipping_rate  = 'correios';
             $this->order->shipping_price = 0;
         }

@@ -177,7 +177,7 @@ class CadastroDetento extends Component
     public function saveImage()
     {
         $this->validate([
-            'image' => 'file|image|max:5120',
+            'image' => 'mimes:jpeg,bmp,png|max:5120',
         ]);
 
         try {

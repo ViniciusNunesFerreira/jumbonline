@@ -64,6 +64,7 @@
                                     type="file"
                                     id="mediaUpload"
                                     class="sr-only"
+                                    accept="image/*"
                                     multiple
                                 />
                             </div>

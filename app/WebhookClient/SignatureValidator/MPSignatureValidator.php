@@ -11,7 +11,8 @@ class MPSignatureValidator implements SignatureValidator
 {
     public function isValid(Request $request, WebhookConfig $config): bool
     {
-        $xSignature = $request->header($config->signatureHeaderName);
+       // $xSignature = $request->header($config->signatureHeaderName);
+        $xSignature = $request->header('x-signature') ? $request->header('x-signature') : $_SERVER['HTTP_X_SIGNATURE'];
         $xRequestId = $request->header('x-request-id') ? $request->header('x-request-id') : $_SERVER['HTTP_X_REQUEST_ID'] ;
 
        // $queryParams = $_GET;

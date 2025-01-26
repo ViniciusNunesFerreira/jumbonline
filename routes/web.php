@@ -40,9 +40,8 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
 
 //Route::get('/setup', \App\Http\Livewire\Setup\Setup::class)->middleware(\App\Http\Middleware\RedirectIfSetupFinished::class)->name('setup');
 
-
 Route::webhooks('webhooks/mercadopago', 'mercadopago');
-Route::stripeWebhooks('webhooks/stripe');
+
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/customer.php';
