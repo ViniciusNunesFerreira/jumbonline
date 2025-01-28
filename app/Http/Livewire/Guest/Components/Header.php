@@ -27,17 +27,19 @@ class Header extends Component
 
     public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null
     {
-        return \Auth::user();
+        return \Auth::guard('customer')->user();
     }
 
     public function getCartProperty(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
     {
+
         $cart = $this->customer
             ? Cart::query()->firstOrCreate(['customer_id' => $this->customer->id])
             : Cart::query()->firstOrCreate(['session_id' => session()->getId()]);
 
-        $cart->loadSum('items', 'quantity');
 
+        $cart->loadSum('items', 'quantity');
+        
         return $cart;
     }
 

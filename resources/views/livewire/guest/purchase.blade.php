@@ -209,7 +209,7 @@
                                                             
                                                                 x-mask="(99) 99999-9999"
                                                            
-                                                            placeholder="+55 (11) 99999-9999"
+                                                            placeholder="(11) 99999-9999"
                                                         />
                                                         <x-input-error
                                                             for="state.phone"

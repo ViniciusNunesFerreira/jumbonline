@@ -43,6 +43,7 @@ class Purchase extends Component
     public $paymentMethod;
     public $session_prison;
     public Promotion $promotion;
+    public Order $order;
 
     public $state = [
         'name' => '',
@@ -82,7 +83,10 @@ class Purchase extends Component
             $this->redirect(route('guest.welcome'));
         }
 
+       
        $this->session_prison = $request->session()->get('prison');
+
+       $this->order = new Order(['customer_email' => $this->customer?->email]);
 
        $phone_format = '';
        if(optional($this->customer)->phone){
@@ -135,8 +139,11 @@ class Purchase extends Component
     public function saveCustomer()
     {
        
-        $this->state['phone'] = new PhoneNumber($this->state['phone'], $this->state['phone_country']);
+        if( !empty($this->state['phone']) ){
+            $this->state['phone'] = new PhoneNumber($this->state['phone'], $this->state['phone_country']);
 
+        }
+     
         $this->validate([
             'state.name' => ['required'],
             'state.email' => ['required', 'email', Rule::unique('customers', 'email')->ignore($this->customer?->id)],
@@ -218,13 +225,14 @@ class Purchase extends Component
 
     }
 
+    /*
     public function getOrderProperty(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
     {
         return Order::query()->where('order_status', 'OPEN')->firstOrNew(['customer_email' => $this->customer?->email], 
             ['prison_unit_id' => $this->prisonUnit->id]
         );
 
-    }
+    }*/
 
     public function findOrCreateCustomer()
     {
@@ -280,6 +288,8 @@ class Purchase extends Component
         $customer = $this->customer ? $this->customer : $this->findOrCreateCustomer();
 
         $customer->load(['detentos', 'visitantes']);
+
+        $this->order->prison_unit()->associate($this->prisonUnit);
 
         $this->order->customer_id = $customer->id;
         $this->order->customer_email = $customer->email;
