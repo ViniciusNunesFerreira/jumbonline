@@ -66,6 +66,9 @@ class MPSignatureValidator implements SignatureValidator
 
         \Log::info( "Assinatura mercado pago é: ".hash_equals($hash, $computedSignature) );
 
-        return hash_equals($hash, $computedSignature);
+        if(hash_equals($hash, $computedSignature) == 1){
+            return true;
+        } 
+
     }
 }
