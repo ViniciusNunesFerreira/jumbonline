@@ -225,14 +225,6 @@ class Purchase extends Component
 
     }
 
-    /*
-    public function getOrderProperty(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
-    {
-        return Order::query()->where('order_status', 'OPEN')->firstOrNew(['customer_email' => $this->customer?->email], 
-            ['prison_unit_id' => $this->prisonUnit->id]
-        );
-
-    }*/
 
     public function findOrCreateCustomer()
     {
@@ -290,7 +282,7 @@ class Purchase extends Component
         $customer->load(['detentos', 'visitantes']);
 
         $this->order->prison_unit()->associate($this->prisonUnit);
-
+        
         $this->order->customer_id = $customer->id;
         $this->order->customer_email = $customer->email;
 
@@ -337,7 +329,9 @@ class Purchase extends Component
             }
         });
 
-       
+        $this->cart->items()->delete();
+        $this->cart->discounts()->delete(); 
+        
         $this->step = 0;
         
         $this->emit('refresh');
@@ -346,9 +340,6 @@ class Purchase extends Component
 
     public function preparePayment()
     {
-        
-        $this->cart->items()->delete();
-        $this->cart->discounts()->delete(); 
         
         OrderCreated::dispatch($this->order);
 
