@@ -49,6 +49,8 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
                 MercadoPagoConfig::setAccessToken($mercadopago->meta['access_token']);
             
                 $client = new PaymentClient();
+
+                \Log::debug( (array) $this->webhookCall->payload );
                 
                 $id = $this->webhookCall->payload['data']['id'];
 
