@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProductStatus;
+use App\Enums\ProductType;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ class Product extends Model implements HasMedia
     protected $casts = [
         'price' => 'float',
         'status' => ProductStatus::class,
+        'type' => ProductType::class,
         'is_active' => 'boolean',
         'is_published' => 'boolean',
         'published_at' => 'datetime',
@@ -45,8 +47,8 @@ class Product extends Model implements HasMedia
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug')
-            ->preventOverwrite()
-            ->doNotGenerateSlugsOnUpdate();
+            ->usingLanguage('pt-BR');
+           
     }
 
     public function getRouteKeyName(): string
@@ -115,6 +117,11 @@ class Product extends Model implements HasMedia
     public function categories(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Category::class);
+    }
+
+    public function category()
+    {
+        return $this->categories()->first();
     }
 
 

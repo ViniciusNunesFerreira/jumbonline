@@ -75,32 +75,71 @@
                                     <h2 class="text-lg font-semibold text-purple tracking-tight flex items-center">
                                         <x-heroicon-s-check-circle class="h-5 w-5 flex-shrink-0 text-accent" />  &nbsp; Entregar na Unidade
                                     </h2>
-                                    <a href="/" class=" flex space-x-2">   Trocar unidade &nbsp; <x-heroicon-s-arrow-path class="h-5 w-5 flex-shrink-0 text-accent" /></a> 
+                                    <a href="#" wire:click.prevent="limpaSession" class=" flex space-x-2">   Trocar unidade &nbsp; <x-heroicon-s-arrow-path class="h-5 w-5 flex-shrink-0 text-accent" /></a> 
                                 </div>
 
+                                @if( $prison )
+                                    <div class="max-w-7xl mt-4 p-4">
 
-                                <div class="max-w-7xl mt-4 p-4">
+                                        <h1 class="my-2 text-xl font-bold tracking-tight sm:text-2xl text-primary">
+                                            {{ optional($prisonUnit)->name }}
+                                        </h1>
 
-                                    <h1 class="my-2 text-xl font-bold tracking-tight sm:text-2xl text-primary">
-                                           {{ optional($prisonUnit)->name }}
-                                    </h1>
+                                        <ul class="mt-4 py-4 text-sm md:text-lg text-slate-500 leading-loose font-bold  space-y-2">
 
-                                    <ul class="mt-4 py-4 text-sm md:text-lg text-slate-500 leading-loose font-bold  space-y-2">
+                                            <li class=" flex items-center leading-5">
+                                                <x-heroicon-s-map-pin class="h-5 w-5 flex-shrink-0 text-accent m-2" />           
+                                                {{ $prisonUnit->logradouro }} , {{ $prisonUnit->numero }}, {{$prisonUnit->bairro}} - {{ $prisonUnit->cidade }} / {{ $prisonUnit->uf }} - CEP: {{ $prisonUnit->cep }}
+                                            </li>
+                                            <li class=" flex items-center leading-5">
+                                                <x-heroicon-s-phone class="h-5 w-5 flex-shrink-0 text-accent m-2" /> 
+                                                Tel:{{ phone( optional($prisonUnit)->phone, 'BR' ); }}
+                                            </li>
+                                            
+                                        </ul>
 
-                                        <li class=" flex items-center leading-5">
-                                            <x-heroicon-s-map-pin class="h-5 w-5 flex-shrink-0 text-accent m-2" />           
-                                            {{ $prisonUnit->logradouro }} , {{ $prisonUnit->numero }}, {{$prisonUnit->bairro}} - {{ $prisonUnit->cidade }} / {{ $prisonUnit->uf }} - CEP: {{ $prisonUnit->cep }}
-                                        </li>
-                                        <li class=" flex items-center leading-5">
-                                            <x-heroicon-s-phone class="h-5 w-5 flex-shrink-0 text-accent m-2" /> 
-                                            Tel:{{ phone( optional($prisonUnit)->phone, 'BR' ); }}
-                                        </li>
                                         
-                                    </ul>
 
-                                     
+                                    </div>
+                                @else
 
-                                </div>
+                                        <div>
+                                           
+                                            <x-select
+                                                wire:model.change="prison"
+                                                wire:key="prisonSession"
+                                                id="prison"
+                                                class="block mt-1 w-full text-xl text-gray font-urbanist"
+                                                
+                                            >
+                                                <option disabled value="" selected >Selecione uma Unidade Prisional</option>
+
+                                                @forelse($this->prison_categories as $category)
+
+                                                    @if($category->prisonUnits()->count() > 0)
+                                                        <option disabled class="text-lg font-bold tracking-widest py-2"><strong>----{{$category->name}}----</strong></option>
+                                                    @endif
+
+                                                    @forelse($category->prisonUnits as $unit )
+                                                        <option value="{{ $unit->slug }}">{{ $unit->name }}</option>
+                                                    @empty
+                                                        
+                                                    @endforelse
+
+                                                @empty
+                                                    <option> Sem Categorias Prisionais Cadastradas </option>
+                                                @endforelse
+
+                                            </x-select>
+                                            
+                                            <x-input-error
+                                                for="prison"
+                                                class="mt-2"
+                                            />
+                                        </div>
+
+                                 
+                                @endif
 
                             </x-slot:content>
                         </x-card>

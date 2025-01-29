@@ -8,10 +8,13 @@ use App\Enums\KitProductStatus;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class Kit extends Model implements HasMedia
 {
     use HasFactory;
+    use HasSlug;
     use InteractsWithMedia;
 
     protected $attributes = [ 'price' => 0];
@@ -24,8 +27,34 @@ class Kit extends Model implements HasMedia
         'price' => 'float',
         'product_list' => 'array',
         'status' => KitProductStatus::class,
-        
+        'is_active' => 'boolean',        
     ];
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function (Kit $product) {
+            $variant = new Variant();
+            $variant->kit_id = $product->id;
+            $variant->price = $product->price;
+            $variant->save();
+        });
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug')
+            ->usingLanguage('pt-BR');
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function registerMediaCollections(): void
     {
@@ -63,7 +92,40 @@ class Kit extends Model implements HasMedia
         );
     }
 
-    
+    protected function price(): Attribute
+    {
+        $thousand_separator = config('money.' . config('app.currency') . '.thousands_separator');
+
+        return Attribute::make(
+            set: fn($value) => str_replace($thousand_separator, '', $value)
+        );
+    }
+
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function variants(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Variant::class);
+    }
+
+    public function first_variant(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Variant::class)->oldestOfMany();
+    }
+
+    public function last_variant(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Variant::class)->latestOfMany();
+     }
+
+    public function variantAttributes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(VariantAttribute::class);
+    }
+
 
     public function products(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {

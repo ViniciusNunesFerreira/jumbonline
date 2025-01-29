@@ -33,7 +33,7 @@
                                         <dt class="font-medium text-slate-900">
                                             {{ __('Número do Pedido') }}
                                         </dt>
-                                        <dd class="mt-1 text-slate-500">
+                                        <dd class="mt-1 text-slate-500 text-center font-bold">
                                             {{ $order->id }}
                                         </dd>
                                     </div>
@@ -139,7 +139,7 @@
                                                             <button
                                                                 wire:click="writeReviewForProduct({{ $item->product->id }})"
                                                                 type="button"
-                                                                class="btn btn-link whitespace-nowrap"
+                                                                class="btn btn-primary whitespace-nowrap"
                                                             >
                                                                 {{ $item->product->reviews->isEmpty() ? __('Avaliar Produto') : __('Editar Avaliação') }}
                                                             </button>
@@ -155,7 +155,7 @@
                                                     <button
                                                         wire:click="writeReviewForProduct({{ $item->product->id }})"
                                                         type="button"
-                                                        class="btn btn-link whitespace-nowrap"
+                                                        class="btn btn-primary whitespace-nowrap"
                                                     >
                                                         {{ $item->product->reviews->isEmpty() ? __('Avaliar Produto') : __('Editar Avaliação') }}
                                                     </button>

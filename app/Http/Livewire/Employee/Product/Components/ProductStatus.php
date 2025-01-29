@@ -17,6 +17,7 @@ class ProductStatus extends Component
     {
         return [
             'product.status' => ['required', new Enum(\App\Enums\ProductStatus::class)],
+            'product.type' => ['required', new Enum(\App\Enums\ProductType::class)],
         ];
     }
 

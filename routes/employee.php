@@ -34,8 +34,6 @@ Route::group([
         Route::get('/products', \App\Http\Livewire\Employee\Product\ProductList::class)->name('products.list');
         Route::get('/products/{product:id}', \App\Http\Livewire\Employee\Product\ProductDetail::class)->name('products.detail');
         Route::get('/products/{product:id}/variants/{variant:id}', \App\Http\Livewire\Employee\Product\ProductVariantDetail::class)->name('products.variants.detail');
-        Route::get('/kits', \App\Http\Livewire\Employee\Product\KitProduct\KitProductList::class)->name('kits.list');
-        Route::get('/kits/{kit:id}', \App\Http\Livewire\Employee\Product\KitProduct\KitProductDetail::class)->name('kits.detail');
         Route::get('/reviews', \App\Http\Livewire\Employee\Review\ReviewList::class)->name('reviews.list');
         Route::get('/reviews/create', \App\Http\Livewire\Employee\Review\ReviewCreate::class)->name('reviews.create');
         Route::get('/reviews/{review:id}', \App\Http\Livewire\Employee\Review\ReviewDetail::class)->name('reviews.detail');

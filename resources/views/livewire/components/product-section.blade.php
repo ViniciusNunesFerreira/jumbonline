@@ -1,6 +1,6 @@
 <div>
     @if($items)
-        <div class="mt-5 relative">
+        <div class="mt-2 relative">
             <div class="-mx-px grid grid-cols-1 sm:mx-0 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach($this->product_items as $product)
                     <div class="group relative rounded-lg p-4 ring-1 ring-slate-200 sm:p-6 hover:ring-1 hover:ring-sky-300 hover:shadow-lg hover:shadow-sky-300/50 transition">
@@ -10,7 +10,7 @@
                             @else
                                 <img
                                     src="{{ $product->getFirstMediaUrl('gallery') }}"
-                                    alt="{{ $product->name }}"
+                                    alt="{{ $product->title }}"
                                     class="h-full w-full object-cover object-center"
                                 >
                             @endif
@@ -27,14 +27,14 @@
                             </h3>
                             <div class="mt-3 flex flex-col items-center">
                                 <p class="sr-only">
-                                    {{ trans_choice(':count out of 5 stars', ['count' => $product->reviews->count()]) }}
+                                    {{ trans_choice(':count out of 5 stars', ['count' => $product->reviews->count() ]) }}
                                 </p>
-                                <x-star-rating :rating="$product->reviews->avg('rating')" />
+                                <x-star-rating :rating="5" />
                                 <p class="mt-1 text-sm text-slate-500">
                                     {{ trans_choice(':count review|:count reviews', $product->reviews->count()) }}
                                 </p>
                             </div>
-                            <p class="mt-4 text-base font-medium text-slate-900">
+                            <p class="mt-4 text-xl font-semibold text-slate-900">
                                 <x-money :amount="$product->price" />
                             </p>
                         </div>
@@ -42,7 +42,5 @@
                 @endforeach
             </div>
         </div>
-    @elseif($handle)
-
     @endif
 </div>

@@ -8,6 +8,7 @@ use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use App\Models\PrisonCategory;
 use App\Models\Prison;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 
@@ -52,10 +53,11 @@ class Welcome extends Component
     public function getRandomProductsProperty(): \Illuminate\Database\Eloquent\Collection|array
     {
         return \App\Models\Product::query()
-            ->with(['reviews', 'media'])
-            ->where('name', 'like', "%xiaomi%")
+            ->with(['media', 'reviews'])
+            ->where('type', 'KIT')
             ->inRandomOrder()
             ->limit(8)
+            ->active()
             ->get();
     }
 
@@ -107,6 +109,7 @@ class Welcome extends Component
         return redirect()->to($prison_unit_url);
         
     }
+
 
     public function render()
     {

@@ -31,12 +31,9 @@
                 </li>
                 <li>
                     <div class="flex items-center">
-                        <a
-                            href="{{ route('guest.products.list') }}"
-                            class="mr-4 text-sm font-medium text-slate-900"
-                        >
-                            {{ __('All products') }}
-                        </a>
+                        
+                       <span class="mr-4 text-sm font-medium text-slate-900"> {{ __(' Kit Jumbo Montado ') }} </span>
+                        
                         <svg
                             viewBox="0 0 6 20"
                             xmlns="http://www.w3.org/2000/svg"
@@ -167,21 +164,13 @@
                 <!-- Price -->
                 <div class="mt-3">
                     <h2 class="sr-only">
-                        {{ __('Product information') }}
+                        {{ __('Detalhes do Kit Jumbo') }}
                     </h2>
                     <p class="text-3xl tracking-tight text-slate-900">
                         <x-money
-                            :amount="$variant->price"
+                            :amount="$product->price"
                             :currency="config('app.currency')"
                         />
-                        @if($variant->compare_price > 0)
-                            <span class="text-xl text-slate-500 line-through">
-                                <x-money
-                                    :amount="$variant->compare_price"
-                                    :currency="config('app.currency')"
-                                />
-                            </span>
-                        @endif
                     </p>
                 </div>
 
@@ -191,7 +180,7 @@
                     class="mt-3"
                 >
                     <h3 class="sr-only">
-                        {{ __('Reviews') }}
+                        {{ __('Comentários') }}
                     </h3>
                     <div class="flex items-center">
                         <div class="flex items-center">
@@ -214,7 +203,7 @@
                 @if($product->excerpt)
                     <div class="mt-6">
                         <h3 class="sr-only">
-                            {{ __('Description') }}
+                            {{ __('Descrição') }}
                         </h3>
 
                         <div class="space-y-6 text-base text-slate-700">
@@ -228,88 +217,13 @@
                     wire:submit.prevent="addToCart"
                     class="mt-6"
                 >
-                    @if($this->productVariants->count())
-                        @foreach($this->productOptions as $index => $option)
-                            <div @class(['mt-8' => !$loop->first])>
-                                <h3 class="text-sm font-medium text-slate-900">
-                                    {{ $option->name }}
-                                </h3>
-                                <fieldset class="mt-2">
-                                    <legend class="sr-only">
-                                        {{ __('Choose a') }} {{ $option->name }}
-                                    </legend>
 
-                                    @if($option->visual === 'color' || $option->visual === 'image')
-                                        <div class="flex items-center space-x-3">
-                                            @foreach($option->optionValues as $optionValue)
-                                                <label
-                                                    @class(['-m-0.5 relative p-0.5 rounded-full flex items-center justify-center cursor-pointer focus:outline-none', "ring-2" => in_array($optionValue->id, $selectedOptionValues)])
-                                                    @style(["--tw-ring-color:$optionValue->value" => in_array($optionValue->id, $selectedOptionValues)])
-                                                    data-tippy-content="{{ $optionValue->label }}"
-                                                    data-tippy-placement="bottom"
-                                                >
-                                                    <input
-                                                        wire:model="selectedOptionValues.{{ $index }}"
-                                                        type="radio"
-                                                        value="{{ $optionValue->id }}"
-                                                        class="sr-only peer"
-                                                        aria-labelledby="{{ Str::slug($option->name) }}-choice-{{ $loop->index }}-label"
-                                                    >
-                                                    <p
-                                                        id="{{ Str::slug($option->name) }}-choice-{{ $loop->index }}-label"
-                                                        class="sr-only"
-                                                    >
-                                                        {{ $optionValue->label }}
-                                                    </p>
-                                                    @if($option->visual === 'color')
-                                                        <span
-                                                            class="w-8 h-8 rounded-full border border-black border-opacity-10"
-                                                            style="background-color: {{ $optionValue->value }}"
-                                                        ></span>
-                                                    @elseif($option->visual === 'image')
-                                                        <span
-                                                            class="w-8 h-8 rounded-full border border-black border-opacity-10 bg-center bg-cover"
-                                                            style="background-image: url('{{ $optionValue->getFirstMediaUrl('image') }}')"
-                                                        ></span>
-                                                    @endif
-                                                    <x-heroicon-m-check class="w-5 h-5 text-white absolute inset-0 m-auto z-0 pointer-events-none hidden peer-checked:block duration-150" />
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <div class="flex flex-wrap gap-4">
-                                            @foreach($option->optionValues as $optionValue)
-                                                <label @class(['relative overflow-hidden flex flex-1 items-center justify-center px-4 py-3 cursor-pointer text-sm font-medium uppercase rounded-md shadow-sm hover:bg-slate-50 focus:outline-none sm:flex-none', 'ring-1 ring-slate-300' => !in_array($optionValue->id, $selectedOptionValues), 'ring-2 ring-sky-500' => in_array($optionValue->id, $selectedOptionValues)])>
-                                                    <input
-                                                        wire:model="selectedOptionValues.{{ $index }}"
-                                                        type="radio"
-                                                        value="{{ $optionValue->id }}"
-                                                        class="sr-only"
-                                                        aria-labelledby="{{ Str::slug($option->name) }}-choice-{{ $loop->index }}-label"
-                                                    >
-                                                    <span id="{{ Str::slug($option->name) }}-choice-{{ $loop->index }}-label">
-                                                        {!! $optionValue->label ?? $optionValue->value !!}
-                                                    </span>
-                                                    @if(in_array($optionValue->id, $selectedOptionValues))
-                                                        <div class="absolute bottom-0 right-0 w-4 overflow-hidden inline-block">
-                                                            <div class="h-6 bg-sky-500 rotate-45 transform origin-bottom-left"></div>
-                                                            <x-heroicon-m-check class="h-3.5 w-2.5 absolute -bottom-0.5 right-0 text-white" />
-                                                        </div>
-                                                    @endif
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                </fieldset>
-                            </div>
-                        @endforeach
-                    @endif
 
                     <div class="flex items-center space-x-3 mt-8">
                         <div>
                             <x-input-label
                                 for="productQuantity"
-                                :value="__('Quantity')"
+                                :value="__('Quantidade')"
                                 class="sr-only"
                             />
                             <x-input
@@ -318,7 +232,7 @@
                                 id="productQuantity"
                                 class="py-3 w-28 text-sm text-center sm:text-base show-spinners"
                                 :min="$minQuantity"
-                                :max="$maxQuantity"
+                                :max="1"
                             />
                             <x-input-error for="addToCart.quantity" />
                         </div>
@@ -326,68 +240,14 @@
                             <button
                                 wire:loading.delay.attr="disabled"
                                 class="btn btn-primary btn-xl w-full"
-                                @disabled($variant->stock_value < 1)
+                                
                             >
-                                {{ $variant->stock_value >= 1 ? __('Add to cart') : __('Sold out') }}
+                                {{  __('Add to cart')  }}
                             </button>
                         </div>
                     </div>
                 </form>
 
-                <!-- Specifications -->
-                @if($product->specifications->isNotEmpty())
-                    <section
-                        aria-labelledby="specifications-heading"
-                        class="mt-12"
-                    >
-                        <h2
-                            id="specifications-heading"
-                            class="sr-only"
-                        >
-                            {{ __('Product specifications') }}
-                        </h2>
-
-                        <div class="divide-y divide-slate-200 border-t">
-                            @foreach($product->specifications as $specification)
-                                <div x-data="{ expanded: false }">
-                                    <h3>
-                                        <button
-                                            x-on:click="expanded = !expanded"
-                                            type="button"
-                                            class="group relative flex w-full items-center justify-between py-6 text-left"
-                                            aria-controls="disclosure-{{ $loop->index }}"
-                                            :aria-expanded="expanded.toString()"
-                                        >
-                                            <span
-                                                class="text-slate-900 text-sm font-medium"
-                                                :class="{ 'text-sky-600': expanded, 'text-slate-900': !expanded }"
-                                            >
-                                                {{ $specification->name }}
-                                            </span>
-                                            <span class="ml-6 flex items-center">
-                                                <x-heroicon-o-arrow-small-down
-                                                    class="h-6 w-6 text-slate-400 group-hover:text-slate-500"
-                                                    ::class="{ 'rotate-180': expanded }"
-                                                    aria-hidden="true"
-                                                />
-                                            </span>
-                                        </button>
-                                    </h3>
-                                    <div
-                                        x-cloak
-                                        x-collapse
-                                        x-show="expanded"
-                                        id="disclosure-{{ $loop->index }}"
-                                    >
-                                        <div class="prose prose-sm pb-6">
-                                            {!! $specification->value !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </section>
-                @endif
             </div>
         </div>
 
@@ -417,7 +277,7 @@
                                 role="tab"
                                 type="button"
                             >
-                                {{ __('Product Description') }}
+                                {{ __('Descrição do produto') }}
                             </button>
                         </li>
                         <li>
@@ -430,7 +290,7 @@
                                 role="tab"
                                 type="button"
                             >
-                                {{ __('Customer Reviews') }}
+                                {{ __('Avaliações de Clientes') }}
                             </button>
                         </li>
                     </ul>
@@ -445,7 +305,7 @@
                         tabindex="0"
                         aria-labelledby="tab-description"
                     >
-                        <h3 class="sr-only">{{ __('Product Description') }}</h3>
+                        <h3 class="sr-only">{{ __('Descrição do produto') }}</h3>
 
                         <div class="prose prose-sm prose-slate max-w-none">
                             {!! $product->description !!}
@@ -460,7 +320,7 @@
                         tabindex="0"
                         aria-labelledby="tab-reviews"
                     >
-                        <h3 class="sr-only">{{ __('Customer Reviews') }}</h3>
+                        <h3 class="sr-only">{{ __('Avaliações de Clientes') }}</h3>
 
                         @foreach($product->reviews as $review)
                             <div class="flex space-x-4 text-sm text-slate-500">
@@ -503,7 +363,7 @@
         <!-- Recently viewed products -->
         <div class="pt-12 px-4 sm:pt-24 sm:px-0">
             <div class="flex items-center justify-between space-x-4">
-                <h2 class="text-lg font-medium text-gray-900">{{ __('Recently viewed products') }}</h2>
+                <h2 class="text-lg font-medium text-gray-900">{{ __('Produtos visualizados recentemente') }}</h2>
             </div>
             <div class="mt-6 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
                 @foreach($this->recentlyViewedProducts as $product)
@@ -514,7 +374,7 @@
                             @else
                                 <img
                                     src="{{ $product->getFirstMediaUrl('media') }}"
-                                    alt="{{ $product->name }}"
+                                    alt="{{ $product->title }}"
                                     class="w-full h-full object-center object-cover"
                                 >
                             @endif
@@ -526,7 +386,7 @@
                                         aria-hidden="true"
                                         class="absolute inset-0"
                                     ></span>
-                                    {{ $product->name }}
+                                    {{ $product->title }}
                                 </a>
                             </h3>
                             <p class="mt-4 text-base font-medium text-slate-900">

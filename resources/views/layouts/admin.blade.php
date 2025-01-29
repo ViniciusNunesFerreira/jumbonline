@@ -153,15 +153,7 @@
                                                 </a>
                                             </li>
 
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.kits.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.kits.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.kits.*')])
-                                                >
-                                                    <x-heroicon-o-tag @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.kits.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.kits.*')]) />
-                                                    {{ __('Kits Prontos') }}
-                                                </a>
-                                            </li>
+
 
                                             <li>
                                                 <a
@@ -223,15 +215,7 @@
                                                 </a>
                                             </li>
                                            
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.articles.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.articles.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.articles.*')])
-                                                >
-                                                    <x-heroicon-o-document-text @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.articles.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.articles.*')])/>
-                                                    {{ __('Blog posts') }}
-                                                </a>
-                                            </li>
+
                                             <li>
                                                 <a
                                                     href="{{ route('employee.pages.list') }}"
@@ -318,15 +302,7 @@
                                         </a>
                                     </li>
 
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.kits.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.kits.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.kits.*')])
-                                        >
-                                            <x-heroicon-o-tag @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.kits.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.kits.*')]) />
-                                            {{ __('Kits Prontos') }}
-                                        </a>
-                                    </li>
+
 
                                     <li>
                                         <a
@@ -388,15 +364,7 @@
                                         </a>
                                     </li>
                                     
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.articles.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.articles.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.articles.*')])
-                                        >
-                                            <x-heroicon-o-document-text @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.articles.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.articles.*')])/>
-                                            {{ __('Blog posts') }}
-                                        </a>
-                                    </li>
+
                                     <li>
                                         <a
                                             href="{{ route('employee.pages.list') }}"
@@ -421,22 +389,7 @@
                                 </ul>
                             </li>
 
-                            @if(!$is_local && !$is_staging && !$generalSettings->license_active)
-                                <li>
-                                    <div class="p-4 mx-auto text-center bg-slate-50 rounded-md space-y-3 dark:bg-white/5">
-                                        <p class="text-sm text-slate-900 dark:text-slate-200">
-                                            {{ __('Fill out your license key to activate your store and accept live payments.') }}
-                                        </p>
-                                        <a
-                                            href="{{ route('employee.settings.license') }}"
-                                            class="btn btn-primary btn-sm"
-                                        >
-                                            {{ __('Activate your store') }}
-                                        </a>
-                                    </div>
-                                </li>
-                            @endif
-
+                          
                             <li class="mt-auto">
                                 <a
                                     href="{{ route('employee.settings.general') }}"

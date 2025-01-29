@@ -51,6 +51,11 @@ class Variant extends Model implements HasMedia
         return $this->belongsTo(Product::class);
     }
 
+    public function kit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Kit::class);
+    }
+
     public function variantAttributes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VariantAttribute::class);

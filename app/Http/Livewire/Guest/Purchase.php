@@ -26,6 +26,7 @@ use App\Models\ShippingZone;
 use App\Models\ShippingZoneCountry;
 use App\Models\ShippingZoneRate;
 use App\Models\Promotion;
+use App\Models\PrisonCategory;
 
 use App\Enums\PaymentStatus;
 use App\Events\OrderCreated;
@@ -41,10 +42,10 @@ class Purchase extends Component
     public $step = 1;
     public $currentTab = 'tabs-entrega';
     public $paymentMethod;
-    public $session_prison;
     public Promotion $promotion;
     public Order $order;
-
+    public $prison;
+  
     public $state = [
         'name' => '',
         'email' => '',
@@ -70,6 +71,8 @@ class Purchase extends Component
             'cartItems.*.quantity.numeric' => __('Quantidade precisa ser um inteiro válido'),
             'cartItems.*.quantity.min' => __('A quantidade deve ser pelo menos 1'),
             'order.customer_email' => __('Por favor insira seu endereço de e-mail'),
+
+            'prison.required' => 'Selecione uma Unidade Prisional',
         ]; 
     }  
 
@@ -79,12 +82,14 @@ class Purchase extends Component
         if ($this->checkout_settings->requires_login && ! auth()->check()) {
             return redirect()->route('login');
         }
-        if(!$request->session()->has('prison')) {
+        
+        /*if(!$request->session()->has('prison')) {
             $this->redirect(route('guest.welcome'));
-        }
+        }*/
 
-       
-       $this->session_prison = $request->session()->get('prison');
+        if($request->session()->has('prison')) {
+            $this->prison = $request->session()->get('prison');
+        }
 
        $this->order = new Order(['customer_email' => $this->customer?->email]);
 
@@ -100,12 +105,26 @@ class Purchase extends Component
             'phone_country' => $this->customer?->phone_country ? $this->customer->phone_country : 'BR',
         ];
 
-
-      //  $this->createPreference();
-
+       
         $this->promotion = Promotion::where('is_enabled', 1)->first();
 
         $this->seo()->setTitle(trans('Checkout'));
+    }
+
+    public function limpaSession(Request $request)
+    {
+
+        if( $request->session()->exists('prison') ){
+            $request->session()->forget('prison');
+            $this->prison = '';
+            $this->emit('refresh');
+        }
+
+        if( !$request->session()->exists('prison') && !empty($this->prison) ){
+            $this->prison = '';
+            $this->emit('refresh');
+        }
+        
     }
 
 
@@ -136,7 +155,7 @@ class Purchase extends Component
 
 
 
-    public function saveCustomer()
+    public function saveCustomer(Request $request)
     {
        
         if( !empty($this->state['phone']) ){
@@ -148,7 +167,8 @@ class Purchase extends Component
             'state.name' => ['required'],
             'state.email' => ['required', 'email', Rule::unique('customers', 'email')->ignore($this->customer?->id)],
             'state.phone' => ['required', Rule::phone()->country($this->state['phone_country'])],
-            'state.phone_country' => ['required']
+            'state.phone_country' => ['required'],
+            'prison' => ['required']
         ]);
 
         $this->customer->update([
@@ -157,6 +177,11 @@ class Purchase extends Component
             'phone' => $this->state['phone'],
             'phone_country' => $this->state['phone_country']
         ]);
+
+        if(!$request->session()->has('prison')){
+            $this->prisonUnit =  PrisonUnit::query()->where('slug', $this->prison)->first(); 
+            $request->session()->put('prison', $this->prison);
+        }
 
         $this->notify(trans('Perfil atualizado com sucesso.'));
 
@@ -208,6 +233,11 @@ class Purchase extends Component
             ->get();
     }
 
+    public function getPrisonCategoriesProperty(): Collection|array
+    {
+        return PrisonCategory::with(['prisonUnits'])->get();
+    }
+
     public function getCheckoutSettingsProperty()
     {
         return app(CheckoutSetting::class);
@@ -215,10 +245,10 @@ class Purchase extends Component
 
     public function getPrisonUnitProperty(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
     {
-        $prisonUnit = null;
+        $prisonUnit = new PrisonUnit;
 
-        if(!empty($this->session_prison)) {
-            $prisonUnit =  PrisonUnit::query()->where('slug', $this->session_prison)->first(); 
+        if(!empty($this->prison)) {
+            $prisonUnit =  PrisonUnit::query()->where('slug', $this->prison)->first(); 
         };
 
         return $prisonUnit;
@@ -329,8 +359,7 @@ class Purchase extends Component
             }
         });
 
-        $this->cart->items()->delete();
-        $this->cart->discounts()->delete(); 
+
         
         $this->step = 0;
         
@@ -340,6 +369,8 @@ class Purchase extends Component
 
     public function preparePayment()
     {
+        $this->cart->items()->delete();
+        $this->cart->discounts()->delete(); 
         
         OrderCreated::dispatch($this->order);
 

@@ -15,16 +15,10 @@ class ProductSection extends Component
     public function getProductItemsProperty()
     {
         if ($this->items) {
-            return Product::with(['reviews', 'media'])->whereIn('id', $this->items)->active()->get();
+            return $this->items;
         }
     }
 
-    public function getCollectionCarouselProperty()
-    {
-        if (!$this->items && $this->handle) {
-            return Carousel::with('slides.media')->where('slug', $this->handle)->first();
-        }
-    }
 
     public function render()
     {

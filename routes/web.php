@@ -23,8 +23,10 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
     Route::get('/collections', \App\Http\Livewire\Guest\CollectionList::class)->name('collections.list');
     Route::get('/collections/{collection}', \App\Http\Livewire\Guest\CollectionDetail::class)->name('collections.detail');
     Route::redirect('/checkout', '/purchase')->name('checkout');
-    Route::get('/products/{prison:slug}', \App\Http\Livewire\Guest\ProductList::class)->name('products.list');
-    Route::get('/products/{product}', \App\Http\Livewire\Guest\ProductDetail::class)->name('products.detail');
+    Route::get('/products/{prison:slug?}', \App\Http\Livewire\Guest\ProductList::class)->name('products.list');
+
+    Route::get('/kit-jumbo/{product:slug}', \App\Http\Livewire\Guest\ProductDetail::class)->name('products.detail');
+
     Route::get('/cart', \App\Http\Livewire\Guest\ShoppingCart::class)->name('cart');
    // Route::get('/checkout', \App\Http\Livewire\Guest\Checkout::class)->name('checkout');
     Route::any('/purchase', \App\Http\Livewire\Guest\Purchase::class)->name('purchase');

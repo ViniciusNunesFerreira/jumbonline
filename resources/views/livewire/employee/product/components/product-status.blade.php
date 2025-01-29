@@ -46,6 +46,9 @@
                 </div>
             </x-slot:header>
             <x-slot:content class="-mt-5">
+
+                
+
                 <x-select
                     x-on:change="$nextTick(() => $el.value !== '{{ $product->status->name }}' ? dirty.add('status') : dirty.delete('status'))"
                     wire:model="product.status"
@@ -55,6 +58,8 @@
                         <option value="{{ $status->name }}">{{ $status->label() }}</option>
                     @endforeach
                 </x-select>
+
+                
                 <div class="mt-2 sm:text-sm">
                     <div class="text-slate-500 text-sm dark:text-slate-400">
                         @if($published_at && \Carbon\Carbon::parse($published_at)->isFuture())
@@ -95,6 +100,25 @@
                         @endif
                     </div>
                 </div>
+
+
+                
+                <div class="mt-2">
+
+                    <x-input-label> Tipo de Produto </x-input-label>
+                    
+
+                    <x-select
+                        x-on:change="$nextTick(() => $el.value !== '{{ $product->type->name }}' ? dirty.add('status') : dirty.delete('status'))"
+                        wire:model="product.type"
+                        class="sm:text-sm mt-2"
+                    >
+                        @foreach(\App\Enums\ProductType::cases() as $type)
+                            <option value="{{ $type->name }}">{{ $type->label() }}</option>
+                        @endforeach
+                    </x-select>
+                </div>
+
             </x-slot:content>
         </x-card>
     </form>

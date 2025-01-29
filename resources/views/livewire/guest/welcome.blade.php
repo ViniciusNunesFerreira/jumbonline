@@ -1,7 +1,5 @@
 <main>
     
-
-       
     <div class=" max-w-7xl mx-auto grid xs:grid-rows-3 md:grid-cols-3 gap-2 pt-12 lg:mt-10 block h-full">
 
         <div class="flex flex-col  justify-center md:col-span-2 p-8  space-y-6 size-full">
@@ -306,44 +304,28 @@
     </section>
 
 
+    
+    <section @class(['bg-white px-4 pb-24 space-y-5 sm:px-6 sm:pb-24 xl:mx-auto xl:max-w-7xl lg:px-8', 'pb-24 sm:pb-32' => !empty($this->randomProducts) ])>
 
 
-    @foreach(collect($this->template_settings->home_page_sections)->sortBy('order') as $section)
-        <section @class(['bg-white px-4 pt-24 space-y-5 sm:px-6 sm:pt-32 xl:mx-auto xl:max-w-7xl lg:px-8', 'pb-24 sm:pb-32' => $loop->last])>
-            <div class="sm:flex sm:items-center sm:justify-between">
-                <h2 class="text-2xl font-bold tracking-tight text-slate-900">
-                    {{ $section['title'] }}
-                </h2>
-                @if($section['link'] && $section['link_text'])
-                    <a
-                        href="{{ $section['link'] }}"
-                        class="hidden text-sm font-semibold text-sky-700 hover:text-sky-600 sm:block"
-                    >
-                        {!! $section['link_text'] !!}
-                        <span aria-hidden="true"> &rarr;</span>
-                    </a>
-                @endif
+            <div class="text-base text-center text-purple antialiased  uppercase font-semibold tracking-widest align-middle inline-block flex justify-center w-full">
+                <x-heroicon-s-gift class="h-5 w-5 flex-shrink-0 text-accent" /> &nbsp; Nossos Kits de Jumbo Montados 
             </div>
-            @if($section['banner_path'])
-                <img
-                    src="{{ Storage::url($section['banner_path']) }}"
-                    alt="{{ $section['title'] }}"
-                    class="w-full h-auto object-cover object-center rounded-lg"
-                />
-            @endif
-            @if($section['type'] === 'collection')
-                <livewire:components.collection-section
-                    :handle="$section['carousel_handle']"
-                    :items="$section['items']"
-                />
-            @elseif($section['type'] === 'product')
-                <livewire:components.product-section
-                    :handle="$section['carousel_handle']"
-                    :items="$section['items']"
-                />
-            @elseif($section['type'] === 'blog')
-                <livewire:components.blog-section />
-            @endif
-        </section>
-    @endforeach
+
+            <div class="text-center pb-12">
+               <p class="sm:text-2xl md:text-4xl text-primary font-extrabold font-urbanist  tracking-tight"> Qual a diferença nos kits de Jumbo Pronto? </p>
+               
+                <p class="text-wrap py-4 tracking-tight text-gray-700 text-sm w-2/3  mx-auto">
+                São Kits de Jumbo montados e padronizados de acordo com as normas estabelecidas pela unidade prisional, 
+                com produtos de melhor qualidade selecionados para atender todas as necessidades do detento. Comprando os Kits de Jumbo montados da JumboOnline você evita gastos desnecessários, economiza tempo e tem a certeza que sua entrega será bem sucedida e dentro do prazo estabelecido.
+                </p>
+               
+            </div>
+
+        <livewire:components.product-section
+            :items="$this->randomProducts"
+        />
+        
+    </section>
+
 </main>
