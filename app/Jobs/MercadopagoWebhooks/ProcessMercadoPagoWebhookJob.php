@@ -50,15 +50,15 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
             
                 $client = new PaymentClient();
 
-                \Log::debug( (array) $this->webhookCall->payload );
-                
-                $id = $this->webhookCall->payload['data']['id'];
+               
+               if( isset( $this->webhookCall->payload['data'] ) ) {
+                    
+                    $id = $this->webhookCall->payload['data']['id'];
+                    $payment = $client->get($id);
 
-                $payment = $client->get($id);
-
-                if(!empty($payment->external_reference) && $payment->status == "approved"){
-                    \Log::info('entrei na atualização do pagamento');
-                    $this->processOrderPaidEvent($payment);
+                    if(!empty($payment->external_reference) && $payment->status == "approved"){
+                        $this->processOrderPaidEvent($payment);
+                    }
                 }
             
         }catch(\Exception $e){

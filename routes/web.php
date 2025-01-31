@@ -30,7 +30,7 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
     Route::get('/cart', \App\Http\Livewire\Guest\ShoppingCart::class)->name('cart');
    // Route::get('/checkout', \App\Http\Livewire\Guest\Checkout::class)->name('checkout');
     Route::any('/purchase', \App\Http\Livewire\Guest\Purchase::class)->name('purchase');
-    Route::get('/order/{order}/payment/', \App\Http\Livewire\Guest\OrderPayment::class)->name('order.payment');
+   // Route::get('/order/{order}/payment/', \App\Http\Livewire\Guest\OrderPayment::class)->name('order.payment');
     Route::get('/orders/{order}', \App\Http\Livewire\Guest\OrderDetail::class)->name('orders.detail')->middleware('signed');
     Route::get('/blog', \App\Http\Livewire\Guest\Blog\ArticleList::class)->name('blog.articles.list');
     Route::get('/blog/{article:slug}', \App\Http\Livewire\Guest\Blog\ArticleDetail::class)->name('blog.articles.detail');

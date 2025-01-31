@@ -13,7 +13,23 @@ class OrderDetail extends Component
     public function mount()
     {
         $this->order->load([
-            'addresses.country:id,name',
+              'orderItems:id,order_id,product_id,variant_id,price,quantity,subtotal',
+            'orderItems.product:id,name,slug,excerpt,price',
+            'orderItems.product.media',
+            'orderItems.variant:id,product_id,sku,price,shipping_type',
+            'orderItems.variant.media',
+            'orderItems.variant.variantAttributes.option',
+            'orderItems.variant.variantAttributes.optionValue',
+            'orderItems.shipmentItems',
+            'visitante',
+            'prison_unit',
+        ]);
+    }
+
+    public function downloadDigitalAttachment(Variant $variant)
+    {
+        $this->order->load([
+        
             'orderItems:id,order_id,product_id,variant_id,price,quantity,subtotal',
             'orderItems.product:id,name,slug,excerpt,price',
             'orderItems.product.media',
@@ -23,22 +39,7 @@ class OrderDetail extends Component
             'orderItems.variant.variantAttributes.optionValue',
             'orderItems.shipmentItems',
             'visitante',
-            'prison_unit'
-        ]);
-    }
-
-    public function downloadDigitalAttachment(Variant $variant)
-    {
-        $this->order->load([
-            'addresses.country:id,name',
-            'orderItems:id,order_id,product_id,variant_id,price,quantity,subtotal',
-            'orderItems.product:id,name,slug,excerpt,price',
-            'orderItems.product.media',
-            'orderItems.variant:id,product_id,sku,price,shipping_type',
-            'orderItems.variant.media',
-            'orderItems.variant.variantAttributes.option',
-            'orderItems.variant.variantAttributes.optionValue',
-            'orderItems.shipmentItems',
+            'prison_unit',
         ]);
 
         return $variant->getFirstMedia('attachment');
@@ -46,12 +47,12 @@ class OrderDetail extends Component
 
     public function getBillingAddressProperty()
     {
-        return $this->order->visitante->first();
+        return $this->order->visitante;
     }
 
     public function getShippingAddressProperty()
     {
-        return $this->order->prison_unit->first();
+        return $this->order->prison_unit;
     }
 
     public function render()

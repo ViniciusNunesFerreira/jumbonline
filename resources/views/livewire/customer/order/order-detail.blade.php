@@ -134,9 +134,8 @@
                             <dt class="font-medium text-slate-900">{{ __('Endereço de Envio') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <address class="not-italic">
-                                    {{ $this->shippingAddress->name }}<br>
-
                                     
+                                    {{ $this->shippingAddress->name }}<br>
 
                                     @if($this->shippingAddress->logradouro)
                                         {{ $this->shippingAddress->logradouro }}<br>
@@ -154,8 +153,6 @@
                                         {{ $this->shippingAddress->uf }}<br>
                                     @endif
 
-                                    
-
                                     @if($this->shippingAddress->phone)
                                         {{ $this->shippingAddress->phone }}<br>
                                     @endif
@@ -166,9 +163,8 @@
                             <dt class="font-medium text-slate-900">{{ __('Endereço do Visitante') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <address class="not-italic">
+                                    
                                     {{ $this->billingAddress->nome }}<br>
-
-                                
 
                                     @if($this->billingAddress->logradouro)
                                         {{ $this->billingAddress->logradouro }} , {{ optional($this->billingAddress)->numero }}<br>

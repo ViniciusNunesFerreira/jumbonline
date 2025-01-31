@@ -103,7 +103,7 @@
                 types: {
                     excluded: ['debit_card', 'mercadoPago']
                 }, 
-                maxInstallments: 3,
+                maxInstallments: 12,
             },
             visual: {
                 style: {

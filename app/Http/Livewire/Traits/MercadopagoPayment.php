@@ -37,7 +37,7 @@ trait MercadopagoPayment
                     "id" => "debit_card"
                   )
                 ),
-                "installments" => 3
+                "installments" => 12
             ];
     
             $preference = $client->create($createRequest);
@@ -172,7 +172,7 @@ trait MercadopagoPayment
 
     public function getOrderServiceProperty()
     {
-        return Order::query()->where('customer_id',  $this->customer->id)->where('order_status', 'OPEN')->first();
+        return Order::query()->where('customer_id',  $this->customer->id)->where('order_status', 'OPEN')->latest()->first();
     }
 
 }
