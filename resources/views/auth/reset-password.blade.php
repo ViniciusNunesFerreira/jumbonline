@@ -30,6 +30,7 @@
                                 name="email"
                                 :value="old('email', $request->email)"
                                 required
+                                readonly
                             />
 
                             <x-input-error
@@ -42,7 +43,7 @@
                         <div class="mt-6">
                             <x-input-label
                                 for="password"
-                                :value="__('New password')"
+                                :value="__('Nova Senha')"
                             />
 
                             <x-input
@@ -64,7 +65,7 @@
                         <div class="mt-6">
                             <x-input-label
                                 for="password_confirmation"
-                                :value="__('Confirm new password')"
+                                :value="__('Confirme a nova senha')"
                             />
 
                             <x-input
@@ -92,7 +93,7 @@
 
                         <div class="mt-6">
                             <button class="btn btn-primary w-full">
-                                {{ __('Reset Password') }}
+                                {{ __('Redefinir Senha') }}
                             </button>
                         </div>
                     </form>
