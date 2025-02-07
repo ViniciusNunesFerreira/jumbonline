@@ -33,6 +33,10 @@ class NewPasswordController extends Controller
             'token' => ['required'],
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'g-recaptcha-response' => ['sometimes','required','captcha']
+        ], [
+            'g-recaptcha-response.required' => 'O campo reCAPTCHA é obrigatório.',
+            'g-recaptcha-response.captcha' => 'Erro de Captcha! resolva o desafio de segurança.',
         ]);
 
         // Here we will attempt to reset the user's password. If it is successful we

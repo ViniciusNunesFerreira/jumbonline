@@ -13,6 +13,8 @@ return [
     |
     */
 
+    'g-recaptcha-response.required' => 'O campo reCAPTCHA é obrigatório.',
+    'g-recaptcha-response.captcha' => 'Erro de Captcha! resolva o desafio de segurança.',
     'accepted' => 'The :attribute field must be accepted.',
     'accepted_if' => 'The :attribute field must be accepted when :other is :value.',
     'active_url' => 'The :attribute field must be a valid URL.',
