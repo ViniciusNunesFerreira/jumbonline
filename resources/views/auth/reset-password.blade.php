@@ -5,7 +5,7 @@
                 <x-slot:content class="!py-8 sm:!px-10">
                     <form
                         method="POST"
-                        action="{{ route('password.update') }}"
+                        action="{{ route('password.store') }}"
                     >
                         @csrf
 
