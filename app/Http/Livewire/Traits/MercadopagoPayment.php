@@ -87,8 +87,7 @@ trait MercadopagoPayment
         $request_options = new RequestOptions();
         $request_options->setCustomHeaders(["X-Idempotency-Key: ".$this->order_service->idempotency_key.""]);
 
-        \Log::info($request->payment_method_id);
-
+        
         if($request->payment_method_id == 'pix'){
 
             //Pagamentos Pix
@@ -146,6 +145,8 @@ trait MercadopagoPayment
         try {
 
             $response = $client->create($this->createRequest, $request_options);
+
+            \Log::debug((array) $response->id);
 
             return response()->json($response);
             

@@ -9,9 +9,13 @@ use App\Models\Variant;
 use Livewire\Component;
 use Razorpay\Api\Api;
 use Stripe\StripeClient;
+use App\Http\Livewire\Traits\MercadopagoPayment;
 
 class OrderDetail extends Component
 {
+
+    use MercadopagoPayment;
+    
     public Order $order;
 
     public Review $review;

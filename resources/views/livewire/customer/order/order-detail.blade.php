@@ -5,12 +5,12 @@
     </x-slot:title>
 
     <div class="bg-white">
-        <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <div class="mx-auto max-w-7xl px-4 py-10 ">
             <div>
                 <h1 class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
                     {{ __('Obrigado pelo seu pedido!') }}
                 </h1>
-                <p class="mt-2 text-base text-slate-500">
+                <p class="my-4 text-base text-slate-500">
                     @if($order->payment_status === \App\Enums\PaymentStatus::UNPAID)
                         {{ __('Para finalizar o seu pedido, pedimos a gentileza de efetuar o pagamento. Por favor, prossiga para a seção de pagamento abaixo para concluir sua compra.') }}
                     @elseif($order->payment_status === \App\Enums\PaymentStatus::PENDING)
@@ -23,115 +23,119 @@
                         {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
                     @endif
                 </p>
-                <dl class="mt-12 grid flex-1 grid-cols-2 gap-6 text-sm sm:col-span-4 sm:grid-cols-4 lg:col-span-2">
-                    <div>
-                        <dt class="font-medium text-gray-900">Nº Pedido </dt>
-                        <dd class="mt-1 font-medium text-sky-600">{{ $order->id }}</dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium text-gray-900">{{ __('Data do Pedido') }}</dt>
-                        <dd class="mt-1 font-medium text-sky-600">{{ $order->created_at->format('d/m/Y') }}</dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium text-gray-900">{{ __('Status do Pagamento') }}</dt>
-                        <dd class="mt-1 font-medium text-sky-600">{{ $order->payment_status->label() }}</dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium text-gray-900">{{ __('Status do Envio') }}</dt>
-                        <dd class="mt-1 font-medium text-sky-600">{{ $order->shipping_status->label() }}</dd>
-                    </div>
-                </dl>
+                
+                
+
+                <table class="table-auto w-full mt-8 text-center border-collapse ">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th class="border border-gray-300 "> Nº Pedido </th>
+                            <th class="border border-gray-300 ">{{ __('Data do Pedido') }} </th>
+                            <th class="border border-gray-300 ">{{ __('Status do Pagamento') }}</th>
+                            <th class="border border-gray-300 ">{{ __('Status do Envio') }}</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td class="p-4">{{ $order->id }}</td>
+                            <td class="p-4">{{ $order->created_at->format('d/m/Y') }}</td>
+                            <td class="p-4  relative  font-bold @if($order->payment_status === \App\Enums\PaymentStatus::PAID) bg-success text-white  @else bg-warning text-white  @endif">
+                                {{ $order->payment_status->label() }} 
+                                @if( $order->payment_status === \App\Enums\PaymentStatus::UNPAID ) 
+                                    <a href="{{ route('customer.order.payment', $order->id) }}" class="btn btn-link px-5 absolute border rounded-full top-0 right-0 m-2 text-white border-white"> Pagar </a>
+                                @endif
+                            </td>
+                            <td class="p-4 font-bold @if( $order->shipping_status === \App\Enums\ShippingStatus::SHIPPED ) text-success @else text-warning @endif">
+                                {{ $order->shipping_status->label() }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                
             </div>
 
-            <div class="mt-10 border-t border-slate-200">
-                <h2 class="sr-only">{{ __('Seu Pedido') }}</h2>
+            <div class="my-10 py-2 relative overflow-auto " x-data="{ current: 0 }">
+                
+                <span class="p-2 text-white bg-primary w-auto rounded-full text-sm">
+                    {{ __('Seu Pedido') }} {{ $order->orderItems->count() }}
+                </span>
 
-                <h3 class="sr-only">{{ __('Itens') }}</h3>
+                
 
                 <ul
                     role="list"
-                    class="divide-y divide-slate-200 border-b border-slate-200"
+                    x-ref="slider"
+                    class=" py-10 flex flex-1 scroll-smooth scroll-no-bar snap-mandatory snap-x overflow-x-auto overflow-y-hidden"
                 >
+                
                     @foreach($order->orderItems as $item)
-                        <li class="py-4 sm:py-6">
-                            <div class="flex items-center sm:items-stretch">
-                                <div class="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:h-40 sm:w-40">
-                                    @if($item->variant->hasMedia('image'))
-                                        {{ $item->variant->getFirstMedia('image')('thumb_large')->attributes(['alt' => $item->product->name, 'class' => 'h-full w-full object-cover object-center']) }}
-                                    @elseif($item->product->hasMedia('gallery'))
-                                        {{ $item->product->getFirstMedia('gallery')('thumb_large')->attributes(['alt' => $item->product->name, 'class' => 'h-full w-full object-cover object-center']) }}
-                                    @else
-                                        <x-heroicon-o-camera class="h-full w-16 absolute inset-0 mx-auto text-slate-400 sm:w-24" />
-                                    @endif
-                                </div>
-                                <div class="ml-6 flex flex-col flex-1 justify-between text-sm">
-                                    <div>
-                                        <div class="font-medium text-slate-900 sm:flex sm:justify-between">
-                                            <h4>
-                                                {{ $item->quantity }}x
-                                                {{ $item->product->name }}
-                                            </h4>
-                                            <p class="mt-2 sm:mt-0">
-                                                <x-money
-                                                    :amount="$item->price"
-                                                    :currency="config('app.currency')"
-                                                />
-                                            </p>
-                                        </div>
-                                        @if($item->variant->variantAttributes->count())
-                                            <ul class="mt-2 space-x-2 divide-x divide-slate-200 text-slate-700">
-                                                @foreach($item->variant->variantAttributes as $attribute)
-                                                    <li @class(['inline', 'pl-2' => !$loop->first])>{{ $attribute->optionValue->label }}</li>
-                                                @endforeach
-                                            </ul>
+                        <li class="snap-center shrink-0 w-full"  x-intersect.threshold.90="$nextTick(() => current = {{ $loop->index }})">
+
+                            <div class="relative ">
+                                <div class="flex items-center sm:items-stretch">
+                                    <div class="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:h-40 sm:w-40">
+                                        @if($item->variant->hasMedia('image'))
+                                            {{ $item->variant->getFirstMedia('image')('thumb_large')->attributes(['alt' => $item->product->name, 'class' => 'h-full w-full object-cover object-center']) }}
+                                        @elseif($item->product->hasMedia('gallery'))
+                                            {{ $item->product->getFirstMedia('gallery')('thumb_large')->attributes(['alt' => $item->product->name, 'class' => 'h-full w-full object-cover object-center']) }}
+                                        @else
+                                            <x-heroicon-o-camera class="h-full w-16 absolute inset-0 mx-auto text-slate-400 sm:w-24" />
                                         @endif
                                     </div>
-                                    <div class="hidden mt-2 sm:flex">
-                                        <div class="flex items-center space-x-4 divide-x divide-slate-200 text-sm font-medium">
-                                           
+                                    <div class="ml-6 flex flex-col flex-1 justify-between  self-center ">
+                                        <div>
+                                            <div class="font-bold text-slate-900 sm:flex sm:justify-between">
+                                                
+                                                <h4>
+                                                    {{ $item->quantity }}x
+                                                    {{ $item->product->name }}
+                                                </h4>
 
-                                            @if($order->shipping_status != \App\Enums\ShippingStatus::UNSHIPPED)
-                                                <div class="flex flex-1 justify-center pl-4">
-                                                    <button
-                                                        wire:click="writeReviewForProduct({{ $item->product->id }})"
-                                                        type="button"
-                                                        class="btn btn-link whitespace-nowrap"
-                                                    >
-                                                        {{ $item->product->reviews->isEmpty() ? __('Avaliar') : __('Editar avaliação') }}
-                                                    </button>
-                                                </div>
-                                            @endif
-
-                                            
+                                                <p class="mt-2 sm:mt-0">
+                                                    <x-money
+                                                        :amount="$item->price"
+                                                        :currency="config('app.currency')"
+                                                    />
+                                                </p>
+                                            </div>
+                                        
                                         </div>
+                                        
                                     </div>
                                 </div>
                             </div>
-                            <div class="mt-6 sm:hidden">
-                                <div class="mt-6 flex items-center space-x-4 divide-x divide-slate-200 border-t border-slate-200 pt-4 text-sm font-medium">
-                                    
-                                    <div class="flex flex-1 justify-center pl-4">
-                                        <button
-                                            wire:click="writeReviewForProduct({{ $item->product->id }})"
-                                            type="button"
-                                            class="btn btn-link whitespace-nowrap"
-                                        >
-                                            {{ $item->product->reviews->isEmpty() ? __('Avaliar') : __('Editar Avaliação') }}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                           
                         </li>
                     @endforeach
                 </ul>
 
-                <div class="sm:ml-40 sm:pl-6">
-                    <h3 class="sr-only">{{ __('Suas Informações') }}</h3>
 
-                    <h4 class="sr-only">{{ __('Endereços') }}</h4>
+                <div class="absolute bottom-10 inset-x-0 flex justify-center space-x-3">
+                    @foreach($order->orderItems as $slide)
+                        <button x-on:click="$refs.slider.scrollTo({ left: $refs.slider.offsetWidth * {{ $loop->index }}, behavior: 'smooth' })">
+                            <span class="sr-only">
+                                {{ __('Slide :count', ['count' => $loop->index + 1]) }}
+                            </span>
+                            <span
+                                class="block h-2 w-2 rounded-full border-primary ring-2 ring-primary ring-opacity-50 hover:ring-opacity-100"
+                                :class="{ 'bg-primary ring-opacity-100': current === {{ $loop->index }} }"
+                            ></span>
+                        </button>
+                    @endforeach
+                </div>
+
+
+            </div>
+
+            <div class="">
+                
+                <h4 class="p-2 text-white bg-primary font-semibold">{{ __('Suas Informações') }}</h4>
+
                     <dl class="grid grid-cols-2 gap-x-6 py-10 text-sm">
                         <div>
-                            <dt class="font-medium text-slate-900">{{ __('Endereço de Envio') }}</dt>
+                            <dt class="font-bold text-primary">{{ __('Endereço de Envio') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <address class="not-italic">
                                     
@@ -160,7 +164,7 @@
                             </dd>
                         </div>
                         <div>
-                            <dt class="font-medium text-slate-900">{{ __('Endereço do Visitante') }}</dt>
+                            <dt class="font-bold text-primary">{{ __('Endereço do Visitante') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <address class="not-italic">
                                     
@@ -182,8 +186,6 @@
                                         {{ $this->billingAddress->uf }}<br>
                                     @endif
 
-                                   
-
                                     @if($this->billingAddress->phone)
                                         {{ $this->billingAddress->phone }}<br>
                                     @endif
@@ -192,24 +194,24 @@
                         </div>
                     </dl>
 
-                    <h4 class="sr-only">{{ __('Pagamento') }}</h4>
+                    <h4  class="p-2 text-white bg-primary font-semibold">{{ __('Pagamento / Envio') }}</h4>
+
                     <dl class="grid grid-cols-2 gap-x-6 border-t border-slate-200 py-10 text-sm">
                         <div>
-                            <dt class="font-medium text-slate-900">{{ __('Forma de Pagamento') }}</dt>
+                            <dt class="font-bold text-primary">{{ __('Forma de Pagamento') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <p>{{ $order->paymentMethod->name }}</p>
                             </dd>
                         </div>
                         <div>
-                            <dt class="font-medium text-slate-900">{{ __('Forma de Envio') }}</dt>
+                            <dt class="font-bold text-primary">{{ __('Forma de Envio') }}</dt>
                             <dd class="mt-2 text-slate-700">
                                 <p>{{ $order->shipping_rate }}</p>
                             </dd>
                         </div>
                     </dl>
 
-                    <h3 class="sr-only">{{ __('Resumo') }}</h3>
-
+                   
                     <dl class="space-y-6 border-t border-slate-200 pt-10 text-sm">
                         <div class="flex justify-between">
                             <dt class="font-medium text-slate-900">{{ __('Subtotal') }}</dt>
@@ -221,9 +223,9 @@
                             </dd>
                         </div>
                         <div class="flex justify-between">
-                            <dt class="flex font-medium text-slate-900">{{ __('Desconto') }}</dt>
+                            <dt class="flex font-medium text-warning">{{ __('Desconto') }}</dt>
                             <dd class="text-slate-700">
-                                <x-money
+                                - <x-money
                                     :amount="$order->discount_total"
                                     :currency="config('app.currency')"
                                 />
@@ -231,7 +233,7 @@
                         </div>
                         <div class="flex justify-between">
                             <dt class="font-medium text-slate-900">{{ __('Envio') }}</dt>
-                            <dd class="text-slate-700">
+                            <dd class="text-slate-700 font-bold">
                                 <x-money
                                     :amount="$order->shipping_price"
                                     :currency="config('app.currency')"
@@ -241,8 +243,8 @@
                         
                         
                         <div class="flex justify-between">
-                            <dt class="font-medium text-slate-900">{{ __('Total') }}</dt>
-                            <dd class="text-slate-900">
+                            <dt class="font-bold text-slate-900 text-lg">{{ __('Total') }}</dt>
+                            <dd class="text-slate-900 font-bold text-lg">
                                 <x-money
                                     :amount="$order->total - $order->total_refunded"
                                     :currency="config('app.currency')"
@@ -250,62 +252,16 @@
                             </dd>
                         </div>
                         @if($order->payment_status == \App\Enums\PaymentStatus::UNPAID)
-                            @if($order->paymentMethod->identifier == 'stripe')
-                                <div class="flex">
-                                    <button
-                                        wire:click="processStripePayment"
-                                        type="button"
-                                        class="btn btn-primary btn-lg block w-full"
-                                    >
-                                        {{ __('Proceed to payment') }}
-                                    </button>
-                                </div>
-                            @elseif($order->paymentMethod->identifier == 'razorpay')
-                                <div class="flex">
-                                    <button
-                                        id="payNow"
-                                        type="button"
-                                        class="btn btn-primary btn-lg block w-full"
-                                    >
-                                        {{ __('Proceed to payment') }}
-                                    </button>
-                                </div>
-                                @push('scripts')
-                                    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                                    <script>
-                                        document.addEventListener('livewire:load', function () {
-                                            const options = {
-                                                "key": "rzp_test_gohOSyptUwoHXa",
-                                                "amount": "{{ $order->total * 100 }}",
-                                                "currency": "{{ config('app.currency') }}",
-                                                "name": "{{ $generalSettings->store_name }}",
-                                                "order_id": "{{ $order->meta['razorpay_order_id'] }}",
-                                                "handler": function (response) {
-                                                    @this.
-                                                    verifyRazorpayPayment(response.razorpay_payment_id, response.razorpay_signature);
-                                                },
-                                                "prefill": {
-                                                    "name": "{{ $order->billingAddress->name }}",
-                                                    "email": "{{ $order->customer_email }}",
-                                                    "contact": "{{ $order->billingAddress->phone }}"
-                                                },
-                                            };
-
-                                            const razorpay = new Razorpay(options);
-
-                                            document.getElementById('payNow').onclick = function (e) {
-                                                razorpay.open();
-
-                                                e.preventDefault();
-                                            }
-                                        });
-                                    </script>
-                                @endpush
+                            @if( $order->paymentMethod->identifier == 'mercadopago')
+                                <div class="flex  justify-end">
+                                    <a class="btn btn-primary btn-lg " href="{{ route('customer.order.payment', $order->id) }}">
+                                        {{ __('Efetuar Pagamento') }}
+                                    </a>
+                                </div>                     
                             @endif
                         @endif
                     </dl>
                 </div>
-            </div>
         </div>
     </div>
 
@@ -391,3 +347,12 @@
         </x-modal-dialog>
     </form>
 </div>
+
+
+
+
+
+
+
+
+
