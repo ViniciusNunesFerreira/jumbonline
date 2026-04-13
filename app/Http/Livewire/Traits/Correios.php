@@ -48,8 +48,6 @@ trait Correios
 
         } catch (\Exception $exception) {
             $response = $exception->getMessage();
-
-            \Log::debug((object)$response);
         }
 
     }
