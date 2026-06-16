@@ -9,9 +9,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Laravel\Sanctum\HasApiTokens;
 
 class Employee extends Authenticatable implements HasMedia, BannableInterface
 {
+    use HasApiTokens;
     use HasFactory;
     use Notifiable;
     use InteractsWithMedia;
