@@ -15,20 +15,45 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => [
+        'api/*', 
+        'app/*', 
+        'broadcasting/auth', 
+        'sanctum/csrf-cookie',
+        'login',
+        'logout',
+        'webhooks/*'
+    ],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        '*',         
+        'tauri://localhost',
+        'http://tauri.localhost'
+    ],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => [
+        'Content-Type', 
+        'X-Requested-With', 
+        'Authorization', 
+        'Accept', 
+        'Origin', 
+        'X-XSRF-TOKEN', // Essencial para Sanctum
+        'X-Socket-Id',    // Essencial para Broadcasting
+        'X-Origin',
+        'Cache-Control', // Adicionado
+        'Pragma',        // Adicionado
+        'Expires',       // Adicionado
+        'X-App-Inertia', // Se usar Inertia
+    ],
 
     'exposed_headers' => [],
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];
