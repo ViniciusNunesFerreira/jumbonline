@@ -76,10 +76,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', [PDVPaymentController::class, 'process']);
             
             // Front-end checa de 3 em 3 segundos se o cliente já pagou
-            Route::post('/{intent}/check', [PDVPaymentController::class, 'checkStatus']);
+            Route::post('/{paymentId}/check', [PDVPaymentController::class, 'checkStatus']);
             
             // Se o operador clicar em "Cancelar PIX" na tela
-            Route::delete('/{intent}', [PDVPaymentController::class, 'cancel']);
+            Route::delete('/{paymentId}', [PDVPaymentController::class, 'cancel']);
         });
       
 

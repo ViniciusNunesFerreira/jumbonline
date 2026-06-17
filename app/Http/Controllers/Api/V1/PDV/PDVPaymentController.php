@@ -11,6 +11,7 @@ use App\Services\PDVMercadoPagoService;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PDVPaymentController extends Controller
 {
@@ -19,22 +20,25 @@ class PDVPaymentController extends Controller
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'amount' => 'required|numeric|min:0.01',
-            'payment_method' => 'required|string' // ex: 'dinheiro', 'pix', 'cartao_credito'
+            'payment_method' => 'required|string' 
         ]);
 
         $order = Order::findOrFail($request->order_id);
         $employee = $request->user();
         
-        // Pega o caixa aberto do operador
         $session = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
-
         $requestedMethod = $request->input('payment_method');
 
         $paymentMethod = PaymentMethod::where('identifier', 'like', "%{$requestedMethod}%")
             ->orWhere('name', 'like', "%{$requestedMethod}%")
             ->first();
 
+        // 1. ATUALIZA A ORDER COM O MÉTODO DE PAGAMENTO (Local correto na arquitetura Jumbonline)
+        if ($paymentMethod) {
+            $order->update(['payment_method_id' => $paymentMethod->id]);
+        }
 
+        // 2. CRIA O PAGAMENTO (Sem o payment_method_id, pois essa coluna não existe aqui)
         $payment = Payment::create([
             'order_id' => $order->id,
             'cash_session_id' => $session ? $session->id : null,
@@ -44,49 +48,25 @@ class PDVPaymentController extends Controller
             'reference' => 'PDV-' . uniqid(),
         ]);
 
-        if ($paymentMethod) {
-            $order->update(['payment_method_id' => $paymentMethod->id]);
-        }
-
-
-
         // === SE FOR PIX ===
         if (strtolower($requestedMethod) === 'pix') {
             try {
                 $pixData = $mpService->generatePix($payment, $order, $order->customer);
-                
                 $payment->update(['reference' => $pixData['mp_payment_id']]);
 
-                // RETORNO CORRIGIDO PARA O TYPESCRIPT DO PDV
                 return response()->json([
                     'success' => true,
                     'message' => 'PIX gerado com sucesso.',
-                    'data' => [
-                        'id' => (string) $payment->id, 
-                        'order_id' => (string) $order->id,
-                        'amount' => (float) $payment->amount,
-                        'payment_method' => 'pix',
-                        'status' => 'pending',
-                        'is_pix' => true,
-                        'is_approved' => false,
-                        'is_pending' => true,
-                        // Aqui está o segredo: A chave "pix" precisa envolver os dados!
-                        'pix' => [
-                            'qr_code' => $pixData['qr_code'],
-                            'qr_code_base64' => $pixData['qr_code_base64'],
-                            // Tempo fake de 10 min. (Opcional, mas trava o React se tiver bug)
-                            'expires_in_seconds' => 600, 
-                            'expiration' => now()->addMinutes(10)->toIso8601String(),
-                        ]
-                    ]
+                    'data' => $this->formatIntent($payment, $pixData)
                 ], 200);
 
             } catch (\Exception $e) {
+                Log::error('Erro PDV PIX: ' . $e->getMessage());
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
             }
         }
 
-        // === SE FOR DINHEIRO OU MÁQUINA DE CARTÃO FÍSICA (Baixa automática) ===
+        // === SE FOR DINHEIRO OU CARTÃO ===
         $payment->update(['status' => PaymentStatus::PAID]);
         $order->update([
             'order_status' => OrderStatus::COMPLETED,
@@ -96,20 +76,11 @@ class PDVPaymentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Pagamento processado com sucesso.',
-            'data' => [
-                'id' => (string) $payment->id,
-                'order_id' => (string) $order->id,
-                'amount' => (float) $payment->amount,
-                'payment_method' => $requestedMethod,
-                'status' => 'approved',
-                'is_pix' => false,
-                'is_approved' => true,
-                'is_pending' => false,
-            ]
+            'data' => $this->formatIntent($payment)
         ], 200);
     }
     
-    // Rota que o PDV fica fazendo "polling" para saber se o PIX foi pago
+    // Polling do PDV
     public function checkStatus($paymentId)
     {
         $payment = Payment::find($paymentId);
@@ -118,50 +89,72 @@ class PDVPaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Não encontrado'], 404);
         }
 
-        // Suporte seguro a Enums do PHP 8+ ou Strings convencionais
-        $statusStr = is_object($payment->status) ? $payment->status->value : $payment->status;
-        $isPaid = in_array(strtolower($statusStr), ['paid', 'approved', 'completed']);
-
         return response()->json([
             'success' => true,
-            'data' => [
-                'status' => $isPaid ? 'approved' : 'pending' 
-            ]
+            'data' => $this->formatIntent($payment)
         ]);
     }
 
-    /**
-     * Cancela a intenção de pagamento se o operador desistir na tela do QR Code
-     */
+    // Cancelamento
     public function cancel($paymentId)
     {
         $payment = Payment::find($paymentId);
         
-        if ($payment && $payment->status === PaymentStatus::PENDING) {
-            // Marca como falho/cancelado para não sujar o caixa
-            $payment->delete(); // Ou você pode atualizar o status para cancelado
-            
-            // Cancela a ordem vinculada para não prender o estoque
-            if ($payment->order && $payment->order->order_status === OrderStatus::PENDING) {
-                // Devolve o estoque
+        if ($payment) {
+            $payment->delete(); 
+            if ($payment->order) {
                 foreach ($payment->order->orderItems as $item) {
                     $product = \App\Models\Product::find($item->product_id);
-                    if ($product) {
-                        $product->increment('stock', $item->quantity);
-                    }
+                    if ($product) $product->increment('stock', $item->quantity);
                 }
-                
-                // Exclui ou cancela a order
                 $payment->order->delete();
             }
         }
-
-        return response()->json([
-            'success' => true, 
-            'message' => 'Pagamento cancelado com sucesso.'
-        ]);
+        return response()->json(['success' => true, 'message' => 'Cancelado']);
     }
 
+    /**
+     * Formatador para a interface do PDV React
+     */
+    private function formatIntent($payment, $pixData = null)
+    {
+        $statusStr = is_object($payment->status) ? $payment->status->value : $payment->status;
+        $isPaid = in_array(strtolower($statusStr), ['paid', 'approved', 'completed']);
 
+        // DEDUZIR O MÉTODO: Busca o método lá na tabela de Orders!
+        $method = 'cash';
+        $payment->loadMissing('order.paymentMethod'); // Garante que a relação exista na memória
+        
+        if ($payment->order && $payment->order->paymentMethod) {
+            $name = strtolower($payment->order->paymentMethod->identifier);
+            if (str_contains($name, 'pix')) $method = 'pix';
+            elseif (str_contains($name, 'credit_card') || str_contains($name, 'credit_card')) $method = 'credit_card';
+            elseif (str_contains($name, 'debit_card') || str_contains($name, 'debit_card')) $method = 'debit_card';
+        }
 
+        $pdvStatus = $isPaid ? 'approved' : 'pending';
+
+        $data = [
+            'id' => (string) $payment->id,
+            'order_id' => (string) $payment->order_id,
+            'payment_method' => $method,
+            'amount' => (float) $payment->amount,
+            'status' => $pdvStatus,
+            'is_pix' => $method === 'pix',
+            'is_approved' => $isPaid,
+            'is_pending' => !$isPaid,
+            'is_cancelled' => false,
+        ];
+
+        if ($method === 'pix' && $pixData) {
+            $data['pix'] = [
+                'qr_code' => $pixData['qr_code'] ?? '',
+                'qr_code_base64' => $pixData['qr_code_base64'] ?? '',
+                'expires_in_seconds' => 600,
+                'expiration' => now()->addMinutes(10)->toIso8601String(),
+            ];
+        }
+
+        return $data;
+    }
 }
