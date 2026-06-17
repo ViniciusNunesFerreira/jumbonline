@@ -48,7 +48,6 @@ class PDVPaymentController extends Controller
             $order->update(['payment_method_id' => $paymentMethod->id]);
         }
 
-        \Log::info($requestedMethod);
 
 
         // === SE FOR PIX ===

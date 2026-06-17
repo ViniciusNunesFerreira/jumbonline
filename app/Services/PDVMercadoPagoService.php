@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str; // Importamos o manipulador de Strings para gerar o UUID
 
 class PDVMercadoPagoService
 {
@@ -11,31 +12,39 @@ class PDVMercadoPagoService
 
     public function __construct()
     {
-        $this->accessToken = config('services.mercadopago.access_token') ?? env('MP_ACCESS_TOKEN');
+        // Lê diretamente do arquivo config/services.php do Jumbonline
+        $this->accessToken = config('services.mercadopago.access_token');
+        
+        // Trava de segurança para você saber se esqueceu de colocar no .env
+        if (empty($this->accessToken)) {
+            throw new \Exception('O Access Token do Mercado Pago não foi encontrado nas configurações.');
+        }
     }
 
-    /**
-     * Gera um PIX via Checkout Transparente (API)
-     */
     public function generatePix($payment, $order, $customer)
     {
         $payload = [
             'transaction_amount' => (float) $payment->amount,
-            'description' => 'Pedido PDV #' . $order->id,
+            'description' => 'Venda Balcão PDV #' . $order->id,
             'payment_method_id' => 'pix',
-            'external_reference' => (string) $payment->id, // A referência é o ID do pagamento no Jumbonline
+            'external_reference' => (string) $payment->id, 
             'payer' => [
                 'email' => $customer ? $customer->email : 'pdv@jumbonline.com.br',
-                'first_name' => $customer ? $customer->name : 'Cliente PDV',
+                'first_name' => $customer ? $customer->name : 'Cliente',
+                'last_name' => 'Balcão'
             ]
         ];
 
+        // Aqui adicionamos o Cabeçalho X-Idempotency-Key exigido em produção
         $response = Http::withToken($this->accessToken)
+            ->withHeaders([
+                'X-Idempotency-Key' => (string) Str::uuid() // Gera um código único seguro
+            ])
             ->post('https://api.mercadopago.com/v1/payments', $payload);
 
         if ($response->failed()) {
             Log::error('Erro ao gerar PIX MP (PDV): ', $response->json());
-            throw new \Exception('Falha ao gerar o PIX no Mercado Pago.');
+            throw new \Exception('Falha ao gerar o PIX. Verifique os logs para mais detalhes.');
         }
 
         $data = $response->json();
@@ -47,14 +56,10 @@ class PDVMercadoPagoService
         ];
     }
 
-    /**
-     * Busca os detalhes de um pagamento no MP (Usado pelo Webhook)
-     */
     public function getPayment($id)
     {
-        $response = Http::withToken($this->accessToken)
-            ->get("https://api.mercadopago.com/v1/payments/{$id}");
-
-        return $response->json();
+        return Http::withToken($this->accessToken)
+            ->get("https://api.mercadopago.com/v1/payments/{$id}")
+            ->json();
     }
 }
