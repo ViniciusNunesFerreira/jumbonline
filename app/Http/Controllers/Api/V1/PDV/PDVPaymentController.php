@@ -52,21 +52,35 @@ class PDVPaymentController extends Controller
 
         // === SE FOR PIX ===
         if (strtolower($requestedMethod) === 'pix') {
-            \Log::info('entrei no pix');
             try {
                 $pixData = $mpService->generatePix($payment, $order, $order->customer);
                 
                 $payment->update(['reference' => $pixData['mp_payment_id']]);
 
+                // RETORNO CORRIGIDO PARA O TYPESCRIPT DO PDV
                 return response()->json([
                     'success' => true,
-                    'is_pix' => true,
+                    'message' => 'PIX gerado com sucesso.',
                     'data' => [
-                        'id' => $payment->id,
-                        'qr_code' => $pixData['qr_code'],
-                        'qr_code_base64' => $pixData['qr_code_base64'],
+                        'id' => (string) $payment->id, 
+                        'order_id' => (string) $order->id,
+                        'amount' => (float) $payment->amount,
+                        'payment_method' => 'pix',
+                        'status' => 'pending',
+                        'is_pix' => true,
+                        'is_approved' => false,
+                        'is_pending' => true,
+                        // Aqui está o segredo: A chave "pix" precisa envolver os dados!
+                        'pix' => [
+                            'qr_code' => $pixData['qr_code'],
+                            'qr_code_base64' => $pixData['qr_code_base64'],
+                            // Tempo fake de 10 min. (Opcional, mas trava o React se tiver bug)
+                            'expires_in_seconds' => 600, 
+                            'expiration' => now()->addMinutes(10)->toIso8601String(),
+                        ]
                     ]
-                ]);
+                ], 200);
+
             } catch (\Exception $e) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
             }
@@ -81,13 +95,18 @@ class PDVPaymentController extends Controller
 
         return response()->json([
             'success' => true,
-            'is_pix' => false,
             'message' => 'Pagamento processado com sucesso.',
             'data' => [
-                'payment_id' => $payment->id,
-                'status' => 'paid'
+                'id' => (string) $payment->id,
+                'order_id' => (string) $order->id,
+                'amount' => (float) $payment->amount,
+                'payment_method' => $requestedMethod,
+                'status' => 'approved',
+                'is_pix' => false,
+                'is_approved' => true,
+                'is_pending' => false,
             ]
-        ]);
+        ], 200);
     }
     
     // Rota que o PDV fica fazendo "polling" para saber se o PIX foi pago
