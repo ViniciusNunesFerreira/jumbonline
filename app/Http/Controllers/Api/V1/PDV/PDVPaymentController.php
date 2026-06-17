@@ -102,10 +102,25 @@ class PDVPaymentController extends Controller
         
         if ($payment) {
             $payment->delete(); 
+            
             if ($payment->order) {
+
                 foreach ($payment->order->orderItems as $item) {
                     $product = \App\Models\Product::find($item->product_id);
-                    if ($product) $product->increment('stock', $item->quantity);
+                    
+                    if ($product) {
+                        
+                        $product->increment('stock_quantity', $item->quantity);
+                        
+                        // OPCIONAL: Se o Jumbonline deduzir também das variantes, estorna nelas.
+                        if ($item->variant_id) {
+                            $variant = \App\Models\Variant::find($item->variant_id);
+                            if ($variant) {
+                                // Assume que o campo na Variant chama-se stock_quantity também (ou comente esta linha)
+                                // $variant->increment('stock_quantity', $item->quantity);
+                            }
+                        }
+                    }
                 }
                 $payment->order->delete();
             }
