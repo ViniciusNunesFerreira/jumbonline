@@ -17,7 +17,7 @@ class PrisonUnit extends Model
     use HasSlug;
 
     protected $fillable = [
-       'name', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'cep', 'slug', 'phone'
+       'name', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'cep', 'slug', 'phone', 'prison_category_id'
     ];
 
     protected $casts = [

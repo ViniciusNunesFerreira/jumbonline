@@ -9,6 +9,10 @@ use App\Http\Controllers\Api\V1\PDV\ProductController;
 use App\Http\Controllers\Api\V1\PDV\PDVCashSessionController;
 use App\Http\Controllers\Api\V1\PDV\AuthController as PDVAuthController;
 
+use App\Http\Controllers\Api\V1\PDV\PDVOrderController;
+use App\Http\Controllers\Api\V1\PDV\PDVPaymentController;
+use App\Http\Controllers\Api\V1\Webhook\PDVMercadoPagoWebhookController;
+
 
 
 /*
@@ -53,6 +57,30 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/movement', [PDVCashSessionController::class, 'movement']); // Sangria/Suprimento
             Route::post('/close', [PDVCashSessionController::class, 'close']);
         });
+
+        // --- Pedidos ---
+        Route::prefix('orders')->group(function () {
+            Route::post('/', [PDVOrderController::class, 'store']);
+        });
+
+        // --- Pagamentos ---
+        Route::prefix('payments')->group(function () {
+            Route::post('/process', [PDVPaymentController::class, 'process']);
+        });
+        
+        // Rota que o Front do PDV consulta a cada 3 segundos para ver se o PIX caiu
+        //Route::get('/payment-intents/{paymentId}/check', [PDVPaymentController::class, 'checkStatus']);
+
+        Route::prefix('payment-intents')->group(function () {
+            // Cria a intenção (Gera o PIX)
+            Route::post('/', [PDVPaymentController::class, 'process']);
+            
+            // Front-end checa de 3 em 3 segundos se o cliente já pagou
+            Route::post('/{intent}/check', [PDVPaymentController::class, 'checkStatus']);
+            
+            // Se o operador clicar em "Cancelar PIX" na tela
+            Route::delete('/{intent}', [PDVPaymentController::class, 'cancel']);
+        });
       
 
     });
@@ -74,6 +102,10 @@ Route::prefix('v1/pdv/auth')->name('pdv.auth.')->group(function () {
         Route::get('/validate', [PDVAuthController::class, 'validateToken'])->name('validate');
         
     });
+});
+
+Route::prefix('v1/webhooks')->group(function () {
+    Route::post('/mercadopago', [PDVMercadoPagoWebhookController::class, 'handle']);
 });
 
 
