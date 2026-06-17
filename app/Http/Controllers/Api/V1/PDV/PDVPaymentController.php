@@ -113,23 +113,24 @@ class PDVPaymentController extends Controller
         return response()->json(['success' => true, 'message' => 'Cancelado']);
     }
 
-    /**
+   /**
      * Formatador para a interface do PDV React
      */
     private function formatIntent($payment, $pixData = null)
     {
-        $statusStr = is_object($payment->status) ? $payment->status->value : $payment->status;
+        // LÊ DIRETO DO BANCO DE DADOS: Ignora a classe Enum e evita o erro "Undefined property"
+        $statusStr = (string) $payment->getRawOriginal('status');
         $isPaid = in_array(strtolower($statusStr), ['paid', 'approved', 'completed']);
 
-        // DEDUZIR O MÉTODO: Busca o método lá na tabela de Orders!
+        // DEDUZIR O MÉTODO
         $method = 'cash';
-        $payment->loadMissing('order.paymentMethod'); // Garante que a relação exista na memória
+        $payment->loadMissing('order.paymentMethod'); 
         
         if ($payment->order && $payment->order->paymentMethod) {
-            $name = strtolower($payment->order->paymentMethod->identifier);
+            $name = strtolower($payment->order->paymentMethod->name);
             if (str_contains($name, 'pix')) $method = 'pix';
-            elseif (str_contains($name, 'credit_card') || str_contains($name, 'credit_card')) $method = 'credit_card';
-            elseif (str_contains($name, 'debit_card') || str_contains($name, 'debit_card')) $method = 'debit_card';
+            elseif (str_contains($name, 'crédito') || str_contains($name, 'credito')) $method = 'credit_card';
+            elseif (str_contains($name, 'débito') || str_contains($name, 'debito')) $method = 'debit_card';
         }
 
         $pdvStatus = $isPaid ? 'approved' : 'pending';
