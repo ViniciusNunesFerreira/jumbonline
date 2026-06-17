@@ -69,6 +69,59 @@ class ProcessMercadoPagoWebhookJob extends ProcessWebhookJob implements ShouldQu
 
     public function processOrderPaidEvent($data)
     {
+
+        $pdvPayment = \App\Models\Payment::find($data->external_reference);
+
+        if ($pdvPayment) {
+            
+            // VALIDAÇÃO DE SEGURANÇA: Checa o status real vindo do Mercado Pago
+            if ($data->status === 'approved') {
+                if ($pdvPayment->status !== PaymentStatus::PAID) {
+                    
+                    $pdvPayment->update(['status' => PaymentStatus::PAID]);
+
+                    if ($pdvPayment->order) {
+                        $pdvPayment->order->update([
+                            'order_status' => \App\Enums\OrderStatus::COMPLETED,
+                            'payment_status' => PaymentStatus::PAID
+                        ]);
+                    }
+                    \Log::info("✅ Webhook Jumbonline interceptou PIX APROVADO do PDV: Pagamento ID {$pdvPayment->id}");
+                }
+            }elseif (in_array($data->status, ['rejected', 'cancelled', 'refunded'])) {
+                
+                // Marca o pagamento como cancelado/rejeitado no Jumbonline
+                if ((string) $pdvPayment->getRawOriginal('status') !== 'cancelled') {
+                    
+                    // Como a Enum pode variar, usamos um delete ou alteramos o status
+                    $pdvPayment->delete(); 
+
+                    if ($pdvPayment->order) {
+                        // Devolve o estoque para a prateleira do Jumbonline
+                        foreach ($pdvPayment->order->orderItems as $item) {
+                            $product = \App\Models\Product::find($item->product_id);
+                            if ($product) {
+                                $product->increment('stock_quantity', $item->quantity);
+                            }
+                        }
+                        // Deleta o pedido órfão
+                        $pdvPayment->order->delete();
+                    }
+                    \Log::warning("❌ Webhook interceptou PIX CANCELADO/REJEITADO do PDV: Pagamento ID {$pdvPayment->id} (Estoque devolvido)");
+                }
+            } else {
+                \Log::info("⏳ Webhook notificação ignorada (Status em processamento): {$data->status}");
+            }
+            
+            // Retorna para NÃO executar a lógica do E-commerce abaixo
+            return; 
+        }
+
+        if ($data->status !== 'approved') {
+            return;
+        }
+
+
         $order = Order::query()->where('idempotency_key', $data->external_reference)->where('order_status', 'OPEN')->firstOrFail();
 
         $order->payments()->create([
