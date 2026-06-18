@@ -41,6 +41,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/search', [CustomerController::class, 'search']);
             Route::get('/cpf/{identifier}', [CustomerController::class, 'showByCpf']);
         });
+
+        // Categorias
+        Route::get('/categories', [ProductController::class, 'categories']);
         
         // Produtos
         Route::prefix('products')->group(function () {
@@ -48,8 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/check-stock', [ProductController::class, 'checkStock']);
         });
         
-        // Categorias
-        Route::get('/categories', [ProductController::class, 'categories']);
+
 
         Route::prefix('cash')->group(function () {
             Route::get('/status', [PDVCashSessionController::class, 'status']);
