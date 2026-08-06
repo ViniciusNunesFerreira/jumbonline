@@ -97,6 +97,15 @@ class ProductController extends Controller
         $response['data'] = $formattedProducts;
         $response['success'] = true;
 
+        $response['meta'] = [
+            'current_page' => $products->currentPage(),
+            'from' => $products->firstItem(),
+            'last_page' => $products->lastPage(),
+            'per_page' => $products->perPage(),
+            'to' => $products->lastItem(),
+            'total' => $products->total(),
+        ];
+
         return response()->json($response);
     }
 
