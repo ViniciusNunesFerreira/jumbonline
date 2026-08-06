@@ -47,6 +47,11 @@
                         :variant="$product->variants->first()"
                     />
 
+                    <livewire:employee.product.components.product-variant-inventory
+                        :product="$product"
+                        :variant="$product->variants->first()"
+                    />
+
                     <livewire:employee.product.components.product-variant-shipping
                         :product="$product"
                         :variant="$product->variants->first()"

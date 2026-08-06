@@ -32,11 +32,19 @@ class ProductList extends Component
 
     public function newProduct()
     {
-        $product = new Product();
+        $product = Product::create([
+            'name' => 'New product',
+            'status' => 'draft',
+            'is_active' => false, 
+        ]);
 
-        $product->name = 'New product';
-
-        $product->save();
+        // 2. Garante a criação da Variante Primária (resolvendo o erro de estoque nulo no PDV)
+        $product->variants()->create([
+            'stock_value' => 0,
+            'weight_value' => 0,
+            'weight_unit' => 'kg',
+            'stock_tracking' => true,
+        ]);
 
         $this->redirect(route('employee.products.detail', $product));
     }

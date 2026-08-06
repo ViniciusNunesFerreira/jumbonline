@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Variant;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 
@@ -46,7 +47,19 @@ class ProductVariantInventory extends Component
     {
         $this->validate();
 
-        $this->variant->save();
+        DB::transaction(function () {
+            // lockForUpdate() impede que o PDV ou site atualizem este registro durante esta transação
+            $lockedVariant = Variant::lockForUpdate()->find($this->variant->id);
+            
+            // Forçamos o preenchimento com os dados que vieram do formulário (validados)
+            $lockedVariant->stock_value = $this->variant->stock_value;
+            $lockedVariant->weight_value = $this->variant->weight_value;
+            $lockedVariant->weight_unit = $this->variant->weight_unit;
+            $lockedVariant->sku = $this->variant->sku;
+            $lockedVariant->barcode = $this->variant->barcode;
+            
+            $lockedVariant->save();
+        });
 
         $this->dispatchBrowserEvent('variant-inventory-updated');
 
