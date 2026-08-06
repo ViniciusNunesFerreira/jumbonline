@@ -185,6 +185,7 @@ class ProductController extends Controller
     /**
      * Verificar estoque
      */
+
     public function checkStock(Request $request): JsonResponse
     {
         $request->validate([
@@ -194,25 +195,37 @@ class ProductController extends Controller
         ]);
 
         $results = [];
+        $allAvailable = true;
 
         foreach ($request->items as $item) {
-            $product = Product::find($item['product_id']);
+            $product = Product::with('first_variant')->find($item['product_id']);
             
-            // Assume que sempre tem estoque para evitar bloqueios de API
-            $available = $product && $product->is_active;
+            $stockQuantity = 0;
+            
+            if ($product) {
+                // Checa onde o estoque está armazenado (variante ou produto direto)
+                $stockQuantity = $product->first_variant ? $product->first_variant->stock_value : (int) $product->stock;
+            }
+
+            // Valida se está ativo e se a quantidade pedida é menor ou igual ao estoque real
+            $isAvailable = $product && $product->is_active && ($stockQuantity >= $item['quantity']);
+
+            if (!$isAvailable) {
+                $allAvailable = false;
+            }
 
             $results[] = [
                 'product_id' => $item['product_id'],
-                'product_name' => $product?->name,
+                'product_name' => $product?->name ?? 'Produto não encontrado',
                 'requested' => $item['quantity'],
-                'available' => 999, // Fictício
-                'is_available' => $available,
+                'available' => $stockQuantity, // Retorna o estoque real
+                'is_available' => $isAvailable,
             ];
         }
 
         return response()->json([
             'success' => true,
-            'all_available' => true,
+            'all_available' => $allAvailable,
             'data' => $results,
         ]);
     }

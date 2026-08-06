@@ -53,7 +53,7 @@ class PDVOrderController extends Controller
                 $itemsData[] = [
                     'product_id' => $product->id,
                     'name' => $product->name,
-                    'variant_id' => $product->first_variant ? $product->first_variant->id : null, // <--- RESOLVE O ERRO 1364
+                    'variant_id' => $product->first_variant ? $product->first_variant->id : null,
                     'quantity' => $quantity,
                     'price' => $price, // Mapeado como 'price' conforme o erro do SQL
                 ];
@@ -106,9 +106,25 @@ class PDVOrderController extends Controller
                 OrderItem::create($itemData);
 
                 // Baixa de estoque na tabela products
-                $product = Product::find($itemData['product_id']);
-                if ($product && $product->stock >= $itemData['quantity']) {
-                    $product->decrement('stock', $itemData['quantity']);
+                $productToUpdate = Product::with('first_variant')
+                    ->lockForUpdate()
+                    ->find($itemData['product_id']);
+
+                if ($productToUpdate) {
+                    // Verifica se o produto usa controle de estoque pela variante
+                    if ($productToUpdate->first_variant) {
+                        if ($productToUpdate->first_variant->stock_value < $itemData['quantity']) {
+                            throw new \Exception("Estoque insuficiente para a variação do produto: {$productToUpdate->name}");
+                        }
+                        $productToUpdate->first_variant->decrement('stock_value', $itemData['quantity']);
+                    } 
+                    // Caso contrário, desconta do produto principal
+                    else {
+                        if ($productToUpdate->stock < $itemData['quantity']) {
+                            throw new \Exception("Estoque insuficiente para o produto: {$productToUpdate->name}");
+                        }
+                        $productToUpdate->decrement('stock', $itemData['quantity']);
+                    }
                 }
             }
 
