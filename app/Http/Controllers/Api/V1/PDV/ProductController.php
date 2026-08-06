@@ -57,7 +57,7 @@ class ProductController extends Controller
             $track_stock = $product->first_variant ? $product->first_variant->stock_tracking : true;
             $stock_quantity = $product->first_variant ? $product->first_variant->stock_value : (int) $product->stock;
 
-            $firstCategory = $product->category;
+            $firstCategory = $product->categories->first();
 
            
             
