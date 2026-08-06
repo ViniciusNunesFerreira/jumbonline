@@ -18,7 +18,7 @@ class ProductController extends Controller
     {
         // Pega produtos ativos
         $query = Product::with(['first_variant', 'categories', 'media'])
-            ->where('status', ['active', 'ACTIVE', 1]);
+            ->whereIn('status', ['active', 'ACTIVE', '1', 1]);
 
 
         // 1. Filtro de Busca Robusto (Nome, ou SKU/Barcode)
@@ -45,8 +45,7 @@ class ProductController extends Controller
 
 
         // 3. Filtro por Tipo de Loja (Site vs Balcão)
-        $storeType = $request->input('type', 'site'); // Se não enviar, assume site
-        // O PDV quer ver Site? Mostra 'site' e 'ambos'. Quer ver Balcão? Mostra 'balcao' e 'ambos'.
+        $storeType = $request->input('type', 'site'); 
         $query->whereIn('sales_channel', [$storeType, 'ambos']);
 
         $products = $query->paginate(20);
@@ -56,9 +55,9 @@ class ProductController extends Controller
             // Fallback de preço (caso use variant ou preço direto no produto)
             $price = $product->first_variant ? $product->first_variant->price : $product->price;
             $track_stock = $product->first_variant ? $product->first_variant->stock_tracking : true;
-            $stock_quantity = $product->first_variant ? $product->first_variant->stock_value : 9999;
+            $stock_quantity = $product->first_variant ? $product->first_variant->stock_value : (int) $product->stock;
 
-            $firstCategory = $product->categories->first();
+            $firstCategory = $product->category;
 
            
             
@@ -68,8 +67,11 @@ class ProductController extends Controller
                 'sku' => $product->sku ?? '',
                 'barcode' => $product->barcode ?? '',
                 'price' => (float) $price,
+
+                'stock' => $stock_quantity,
                 'track_stock' => $track_stock,
                 'stock_quantity' => $stock_quantity,
+
                 'min_stock_alert' => 4,
                 'is_low_stock' => $stock_quantity <= 4,
                 'category_id' => $firstCategory ? (string) $firstCategory->id : '',
@@ -78,7 +80,7 @@ class ProductController extends Controller
                 'image_url' => $product->getFirstMediaUrl(
                     $product->hasMedia('cover') ? 'cover' : 'gallery'
                 ), 
-                'is_active' => $product->is_active,
+                'is_active' => true,
                 'type' => $product->sales_channel === 'balcao' ? 'balcao' : 'site',
                 'available_pdv' => true,
                 'category' => $firstCategory ? [
@@ -89,15 +91,13 @@ class ProductController extends Controller
             ];
         });
 
-        return response()->json([
-            'success' => true,
-            'data' => $formattedProducts,
-            'meta' => [
-                'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage(),
-                'total' => $products->total(),
-            ]
-        ]);
+        $response = $products->toArray();
+        
+        // Substituímos os dados puros pelos nossos dados formatados
+        $response['data'] = $formattedProducts;
+        $response['success'] = true;
+
+        return response()->json($response);
     }
 
 
