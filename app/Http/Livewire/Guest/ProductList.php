@@ -122,7 +122,16 @@ class ProductList extends Component
 
     public function getRowsQueryProperty()
     {
-        return $this->prison->collections()->with('categoriesPublished.products')->get();
+       return $this->prison->collections()->with([
+            'categoriesPublished' => function ($query) {
+                $query->whereHas('products', function ($q) {
+                    $q->where('sales_channel', '!=', ProductSaleChannel::BALCAO->name);
+                });
+            },
+            'categoriesPublished.products' => function ($query) {
+                $query->where('sales_channel', '!=', ProductSaleChannel::BALCAO->name);
+            }
+        ])->get();
     }
 
     public function getRowsProperty()
