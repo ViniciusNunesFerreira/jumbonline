@@ -55,7 +55,7 @@ class ProductController extends Controller
 
         $query->where(function ($q) use ($storeType) {
             $q->where('sales_channel', $storeType)
-            ->orWhere('sales_channel', 'AMBOS');
+            ->orWhere('sales_channel', 'SITE');
         });
 
        // $products = $query->paginate(20);
