@@ -55,7 +55,7 @@
                     class="sm:text-sm"
                 >
                     @foreach(\App\Enums\ProductStatus::cases() as $status)
-                        <option value="{{ $status->name }}">{{ $status->label() }}</option>
+                        <option value="{{ strtolower($status->name) }}">{{ $status->label() }}</option>
                     @endforeach
                 </x-select>
 
