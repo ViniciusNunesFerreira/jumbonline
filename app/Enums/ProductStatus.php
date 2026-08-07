@@ -4,9 +4,9 @@ namespace App\Enums;
 
 enum ProductStatus
 {
-    case DRAFT = 'draft';
-    case ACTIVE = 'active';
-    case ARCHIVED = 'archived';
+    case DRAFT;
+    case ACTIVE;
+    case ARCHIVED;
 
     public function label(): string
     {

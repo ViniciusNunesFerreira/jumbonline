@@ -34,7 +34,7 @@ class ProductList extends Component
     {
         $product = Product::create([
             'name' => 'New product',
-            'status' => 'draft',
+            'status' => 'DRAFT',
             'is_active' => false, 
         ]);
 
