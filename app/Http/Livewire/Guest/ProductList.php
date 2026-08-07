@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Guest;
 
 use Livewire\Component;
 
+use App\Enums\ProductSaleChannel;
 use App\Models\PrisonUnit;
 use Artesaos\SEOTools\Traits\SEOTools;
 use App\Models\Cart;
