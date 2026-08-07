@@ -9,7 +9,7 @@
                 <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
                     <div class="ml-4 mt-2">
                         <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('Inventory') }}
+                            {{ __('Controle de Estoque') }}
                         </h3>
                     </div>
                     <div
@@ -34,7 +34,7 @@
                     <div class="col-span-1">
                         <x-input-label
                             for="stock"
-                            :value="__('Stock')"
+                            :value="__('Estoque')"
                         />
                         <x-input
                             x-on:change="$nextTick(() => $el.value !== '{{ $variant->getOriginal('stock_value') }}' ? dirty.add('stock_value') : dirty.delete('stock_value'))"
@@ -51,7 +51,7 @@
                     <div class="col-span-1">
                         <x-input-label
                             for="weight"
-                            :value="__('Weight')"
+                            :value="__('Peso')"
                         />
                         <div class="mt-1 relative">
                             <x-input
@@ -67,7 +67,7 @@
                                     for="weight_unit"
                                     class="sr-only"
                                 >
-                                    {{ __('Weight Unit') }}
+                                    {{ __('Unid do Peso') }}
                                 </label>
                                 <select
                                     x-on:change="$nextTick(() => $el.value !== '{{ $variant->getOriginal('weight_unit') }}' ? dirty.add('weight_unit') : dirty.delete('weight_unit'))"
@@ -91,7 +91,7 @@
                     <div class="col-span-2 sm:col-span-1">
                         <x-input-label
                             for="sku"
-                            :value="__('SKU (Stock Keeping Unit)')"
+                            :value="__('SKU (COD. VARIAÇÃO)')"
                         />
                         <x-input
                             x-on:change="$nextTick(() => $el.value !== '{{ $variant->getOriginal('sku') }}' ? dirty.add('sku') : dirty.delete('sku'))"
@@ -108,7 +108,7 @@
                     <div class="col-span-2 sm:col-span-1">
                         <x-input-label
                             for="barcode"
-                            :value="__('Barcode (ISBN, UPC, GTIN, etc.)')"
+                            :value="__('COD. de Barras (ISBN, UPC, GTIN, etc.)')"
                         />
                         <x-input
                             x-on:change="$nextTick(() => $el.value !== '{{ $variant->getOriginal('barcode') }}' ? dirty.add('barcode') : dirty.delete('barcode'))"
