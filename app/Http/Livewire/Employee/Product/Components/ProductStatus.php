@@ -18,7 +18,7 @@ class ProductStatus extends Component
         return [
             'product.status' => ['required', new Enum(\App\Enums\ProductStatus::class)],
             'product.type' => ['required', new Enum(\App\Enums\ProductType::class)],
-            'sales_channel' => ['required', new Enum(\App\Enums\ProductSaleChannel::class)]
+            'product.sales_channel' => ['required', new Enum(\App\Enums\ProductSaleChannel::class)]
         ];
     }
 
