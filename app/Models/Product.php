@@ -19,6 +19,10 @@ class Product extends Model implements HasMedia
     use HasSlug;
     use InteractsWithMedia;
 
+    protected $fillable = [
+       'name', 'slug', 'status', 'excerpt', 'description', 'price', 'seo_title', 'seo_description', 'sales_channel'
+       ];
+
     protected $attributes = ['price' => 0];
 
     protected $casts = [
