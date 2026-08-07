@@ -105,13 +105,13 @@
 
                     <x-input-label> Canal de Vendas </x-input-label>
                         <x-select
-                            x-on:change="$nextTick(() => $el.value !== '{{ $product->sales_channel }}' ? dirty.add('sales_channel') : dirty.delete('sales_channel'))"
+                            x-on:change="$nextTick(() => $el.value !== '{{ $product->sales_channel->value ?? $product->sales_channel }}' ? dirty.add('sales_channel') : dirty.delete('sales_channel'))"
                             wire:model="product.sales_channel"
                             class="sm:text-sm mt-2"
                         >
 
                             @foreach(\App\Enums\ProductSaleChannel::cases() as $sale_channel)
-                                <option value="{{ $sale_channel->name }}">{{ $sale_channel->label() }}</option>
+                                <option value="{{ $sale_channel->value }}">{{ $sale_channel->label() }}</option>
                             @endforeach
 
                         </x-select>
