@@ -102,10 +102,10 @@
                 </div>
 
                 <div class="mt-2">
-                    
+
                     <x-input-label> Canal de Vendas </x-input-label>
                         <x-select
-                            x-on:change="$nextTick(() => $el.value !== '{{ product.sales_channel }}' ? dirty.add('sales_channel') : dirty.delete('sales_channel'))"
+                            x-on:change="$nextTick(() => $el.value !== '{{ $product.sales_channel }}' ? dirty.add('sales_channel') : dirty.delete('sales_channel'))"
                             wire:model="product.sales_channel"
                             class="sm:text-sm mt-2"
                         >
