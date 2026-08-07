@@ -46,12 +46,22 @@ class ProductController extends Controller
 
         // 3. Filtro por Tipo de Loja (Site vs Balcão)
         $storeType = $request->input('type', 'BALCAO'); 
-        $query->whereIn('sales_channel', [$storeType, 'AMBOS']);
 
-        $products = $query->paginate(20);
+        if (!in_array($storeType, ['BALCAO', 'SITE', 'AMBOS'])) {
+            $storeType = 'BALCAO';
+        }
+
+       // $query->whereIn('sales_channel', [$storeType, 'AMBOS']);
+
+        $query->where(function ($q) use ($storeType) {
+            $q->where('sales_channel', $storeType)
+            ->orWhere('sales_channel', 'AMBOS');
+        });
+
+       // $products = $query->paginate(20);
 
         // Formatação limpa para o React entender sem quebrar
-        $formattedProducts = $products->map(function ($product) {
+        $formattedProducts = $query->get()->map(function ($product) {
             // Fallback de preço (caso use variant ou preço direto no produto)
             $price = $product->first_variant ? $product->first_variant->price : $product->price;
             $track_stock = $product->first_variant ? $product->first_variant->stock_tracking : true;
@@ -91,22 +101,15 @@ class ProductController extends Controller
             ];
         });
 
-        $response = $products->toArray();
-        
-        // Substituímos os dados puros pelos nossos dados formatados
-        $response['data'] = $formattedProducts;
-        $response['success'] = true;
+      
 
-        $response['meta'] = [
-            'current_page' => $products->currentPage(),
-            'from' => $products->firstItem(),
-            'last_page' => $products->lastPage(),
-            'per_page' => $products->perPage(),
-            'to' => $products->lastItem(),
-            'total' => $products->total(),
-        ];
-
-        return response()->json($response);
+        return response()->json([
+            'success' => true,
+            'data' => $formattedProducts, 
+            'meta' => [
+                'total' => $formattedProducts->count(),
+            ],
+        ]);
     }
 
 
