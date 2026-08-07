@@ -45,8 +45,8 @@ class ProductController extends Controller
 
 
         // 3. Filtro por Tipo de Loja (Site vs Balcão)
-        $storeType = $request->input('type', 'site'); 
-        $query->whereIn('sales_channel', [$storeType, 'ambos']);
+        $storeType = $request->input('type', 'BALCAO'); 
+        $query->whereIn('sales_channel', [$storeType, 'AMBOS']);
 
         $products = $query->paginate(20);
 
@@ -81,7 +81,7 @@ class ProductController extends Controller
                     $product->hasMedia('cover') ? 'cover' : 'gallery'
                 ), 
                 'is_active' => true,
-                'type' => $product->sales_channel === 'balcao' ? 'balcao' : 'site',
+                'type' => $product->sales_channel === 'BALCAO' ? 'balcao' : 'ambos',
                 'available_pdv' => true,
                 'category' => $firstCategory ? [
                     'id' => $firstCategory->id,
