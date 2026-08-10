@@ -39,6 +39,8 @@ class PDVOrderController extends Controller
             $total = 0;
             $itemsData = [];
 
+            $employee = $request->user();
+
             // 1. Cálculo seguro dos itens
             
             foreach ($request->items as $item) {
@@ -58,8 +60,7 @@ class PDVOrderController extends Controller
                     'name' => $product->name,
                     'variant_id' => $product->first_variant ? $product->first_variant->id : null,
                     'quantity' => $quantity,
-                    'price' => $price, // Mapeado como 'price' conforme o erro do SQL
-                ];
+                    'price' => $price,
             }
 
             // 2. Unidade Prisional de Balcão
@@ -98,7 +99,7 @@ class PDVOrderController extends Controller
                 'notes' => 'Pedido de balcão (PDV Desktop)',
                 'meta' => [
                     'origin' => 'pdv_desktop',
-                    'operator_id' => $request->user()->id
+                    'operator_id' => $employee->id
                 ],
                 'tax_breakdown' => [],
             ]);
@@ -135,7 +136,7 @@ class PDVOrderController extends Controller
             if (strtolower($requestedMethod) !== 'pix') {
 
                 Log::info('Entrei, Meio de Pagamento é: '.$requestedMethod );
-
+                
                 $cashSession = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
 
                 // 2. CRIA O PAGAMENTO
