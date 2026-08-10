@@ -18,11 +18,15 @@ class PDVPaymentController extends Controller
 {
     public function process(Request $request, PDVMercadoPagoService $mpService)
     {
+
+        \Log::debug((array) $request);
+
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string' 
         ]);
+
 
         \Log::info('Passou na validação');
 
