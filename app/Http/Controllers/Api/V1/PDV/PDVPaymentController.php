@@ -49,6 +49,8 @@ class PDVPaymentController extends Controller
             'reference' => 'PDV-' . uniqid(),
         ]);
 
+        \Log::info('Pagamento criado no PDV id: '.$payment->id);
+
         // === SE FOR PIX ===
         if (strtolower($requestedMethod) === 'pix') {
             try {
