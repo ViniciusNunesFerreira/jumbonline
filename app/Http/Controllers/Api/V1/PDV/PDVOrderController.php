@@ -162,11 +162,9 @@ class PDVOrderController extends Controller
                     
                     CashMovement::create([
                         'cash_session_id' => $cashSession->id,
-                        'order_id' => $order->id,
-                        'user_id' => auth()->id(),
+                        'employee_id' => auth()->id(),
                         'type' => 'sale',
                         'amount' => $order->total, 
-                        'payment_method' => $method, 
                         'description' => "Venda #{$order->id}"." Balcão"
                     ]);
                 }
