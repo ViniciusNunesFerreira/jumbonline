@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\CashSession;
+use App\Models\CashMovement;
 use App\Services\PDVMercadoPagoService;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
@@ -26,7 +27,7 @@ class PDVPaymentController extends Controller
         $order = Order::findOrFail($request->order_id);
         $employee = $request->user();
         
-        $session = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
+        $cashSession = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
         $requestedMethod = $request->input('payment_method');
 
         $paymentMethod = PaymentMethod::where('identifier', 'like', "%{$requestedMethod}%")
@@ -41,7 +42,7 @@ class PDVPaymentController extends Controller
         // 2. CRIA O PAGAMENTO (Sem o payment_method_id, pois essa coluna não existe aqui)
         $payment = Payment::create([
             'order_id' => $order->id,
-            'cash_session_id' => $session ? $session->id : null,
+            'cash_session_id' => $cashSession ? $cashSession->id : null,
             'amount' => $request->amount,
             'currency' => 'BRL',
             'status' => PaymentStatus::PENDING,
@@ -72,6 +73,23 @@ class PDVPaymentController extends Controller
             'order_status' => OrderStatus::COMPLETED,
             'payment_status' => PaymentStatus::PAID
         ]);
+
+        //Atuaizando movimento de caixa
+        if ($cashSession) {
+            $method = strtolower($requestedMethod);
+            
+            CashMovement::create([
+                'cash_session_id' => $cashSession->id,
+                'order_id' => $order->id,
+                'user_id' => auth()->id(),
+                'type' => 'sale',
+                'amount' => $order->total, 
+                'payment_method' => $method, 
+                'description' => "Venda #{$order->id}"." Balcão"
+            ]);
+        }
+
+
 
         return response()->json([
             'success' => true,

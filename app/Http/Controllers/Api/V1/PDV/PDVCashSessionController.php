@@ -187,15 +187,14 @@ class PDVCashSessionController extends Controller
             $expectedCard = Payment::where('cash_session_id', $session->id)
                 ->whereHas('order.paymentMethod', fn($q) => 
                     $q->where('name', 'like', '%Cartão%')
-                      ->orWhere('display_name', 'like', '%Cartão%')
-                      ->orWhere('name', 'like', '%Crédito%')
-                      ->orWhere('name', 'like', '%Débito%')
+                      ->orWhere('name', 'like', '%Credito%')
+                      ->orWhere('name', 'like', '%Debito%')
                 )->sum('amount');
                 
             $expectedPix = Payment::where('cash_session_id', $session->id)
                 ->whereHas('order.paymentMethod', fn($q) => 
-                    $q->where('name', 'like', '%PIX%')
-                      ->orWhere('display_name', 'like', '%PIX%')
+                    $q->where('name', 'like', '%Pix%')
+                      ->orWhere('display_name', 'like', '%Pix%')
                 )->sum('amount');
 
             // Valores digitados
