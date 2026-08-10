@@ -24,8 +24,12 @@ class PDVPaymentController extends Controller
             'payment_method' => 'required|string' 
         ]);
 
+        \Log::info('Passou na validação');
+
         $order = Order::findOrFail($request->order_id);
         $employee = $request->user();
+
+        \Log::info('Encontrou a ordem: '.$order->id);
         
         $cashSession = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
         $requestedMethod = $request->input('payment_method');
@@ -39,7 +43,9 @@ class PDVPaymentController extends Controller
             $order->update(['payment_method_id' => $paymentMethod->id]);
         }
 
-        // 2. CRIA O PAGAMENTO (Sem o payment_method_id, pois essa coluna não existe aqui)
+        \Log::info('Meio de pagamento: '.$paymentMethod->id);
+
+        // 2. CRIA O PAGAMENTO
         $payment = Payment::create([
             'order_id' => $order->id,
             'cash_session_id' => $cashSession ? $cashSession->id : null,
