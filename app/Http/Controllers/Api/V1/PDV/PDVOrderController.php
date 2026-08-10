@@ -39,11 +39,9 @@ class PDVOrderController extends Controller
             $total = 0;
             $itemsData = [];
 
-            $employee = $request->user();
-            Log::debug((array) $employee);
-
+            $employee = $request->user()->id;
+            Log::debug($employee);
             Log::info('user auth é: '.auth()->id() );
-            Log::info('user auth pode ser é: '.$employee->id );
 
             // 1. Cálculo seguro dos itens
             
@@ -104,7 +102,7 @@ class PDVOrderController extends Controller
                 'notes' => 'Pedido de balcão (PDV Desktop)',
                 'meta' => [
                     'origin' => 'pdv_desktop',
-                    'operator_id' => $employee->id
+                    'operator_id' => $employee
                 ],
                 'tax_breakdown' => [],
             ]);
@@ -143,7 +141,7 @@ class PDVOrderController extends Controller
                 Log::info('Entrei, Meio de Pagamento é: '.$requestedMethod );
                 
                 
-                $cashSession = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
+                $cashSession = CashSession::where('employee_id', $employee)->where('status', 'open')->first();
 
                 // 2. CRIA O PAGAMENTO
                 $payment = Payment::create([
