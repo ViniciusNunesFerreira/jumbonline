@@ -40,6 +40,10 @@ class PDVOrderController extends Controller
             $itemsData = [];
 
             $employee = $request->user();
+            Log::debug((array) $employee);
+
+            Log::info('user auth é: '.auth()->id() );
+            Log::info('user auth pode ser é: '.$employee->id );
 
             // 1. Cálculo seguro dos itens
             
