@@ -138,6 +138,7 @@ class PDVOrderController extends Controller
 
                 Log::info('Entrei, Meio de Pagamento é: '.$requestedMethod );
                 
+                
                 $cashSession = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
 
                 // 2. CRIA O PAGAMENTO
