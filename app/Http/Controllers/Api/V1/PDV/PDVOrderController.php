@@ -9,8 +9,12 @@ use App\Models\Product;
 use App\Models\PrisonUnit;
 use App\Models\PrisonCategory;
 use App\Models\PaymentMethod; // <--- Importante!
+use App\Models\Payment;
+use App\Models\CashSession;
+use App\Models\CashMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 // Importando os Enums
 use App\Enums\OrderStatus;
@@ -37,7 +41,6 @@ class PDVOrderController extends Controller
 
             // 1. Cálculo seguro dos itens
             
-
             foreach ($request->items as $item) {
                 // Trazemos o produto já com sua primeira variante carregada
                 $product = Product::with('first_variant')->find($item['product_id']);
@@ -127,6 +130,48 @@ class PDVOrderController extends Controller
                     }
                 }
             }
+
+
+            if (strtolower($requestedMethod) !== 'pix') {
+
+                Log::info('Entrei, Meio de Pagamento é: '.$requestedMethod );
+
+                $cashSession = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
+
+                // 2. CRIA O PAGAMENTO
+                $payment = Payment::create([
+                    'order_id' => $order->id,
+                    'cash_session_id' => $cashSession ? $cashSession->id : null,
+                    'amount' => $order->total,
+                    'currency' => 'BRL',
+                    'status' => PaymentStatus::PAID,
+                    'reference' => 'PDV-' . uniqid(),
+                ]);
+
+
+                $order->update([
+                    'order_status' => OrderStatus::COMPLETED,
+                    'payment_status' => PaymentStatus::PAID
+                ]);
+
+                //Atuaizando movimento de caixa
+                if ($cashSession) {
+
+                    $method = strtolower($requestedMethod);
+                    
+                    CashMovement::create([
+                        'cash_session_id' => $cashSession->id,
+                        'order_id' => $order->id,
+                        'user_id' => auth()->id(),
+                        'type' => 'sale',
+                        'amount' => $order->total, 
+                        'payment_method' => $method, 
+                        'description' => "Venda #{$order->id}"." Balcão"
+                    ]);
+                }
+
+            }
+
 
             return response()->json([
                 'success' => true,

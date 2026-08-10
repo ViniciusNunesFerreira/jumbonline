@@ -19,8 +19,6 @@ class PDVPaymentController extends Controller
     public function process(Request $request, PDVMercadoPagoService $mpService)
     {
 
-        \Log::debug((array) $request);
-
         $request->validate([
             'order_id' => 'required|exists:orders,id',
             'amount' => 'required|numeric|min:0.01',
@@ -28,13 +26,11 @@ class PDVPaymentController extends Controller
         ]);
 
 
-        \Log::info('Passou na validação');
 
         $order = Order::findOrFail($request->order_id);
         $employee = $request->user();
 
-        \Log::info('Encontrou a ordem: '.$order->id);
-        
+
         $cashSession = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
         $requestedMethod = $request->input('payment_method');
 
