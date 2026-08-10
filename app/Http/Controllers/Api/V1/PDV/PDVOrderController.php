@@ -60,7 +60,8 @@ class PDVOrderController extends Controller
                     'name' => $product->name,
                     'variant_id' => $product->first_variant ? $product->first_variant->id : null,
                     'quantity' => $quantity,
-                    'price' => $price,
+                    'price' => $price
+                ]
             }
 
             // 2. Unidade Prisional de Balcão
