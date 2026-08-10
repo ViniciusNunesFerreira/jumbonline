@@ -76,7 +76,12 @@ class PDVPaymentController extends Controller
 
         //Atuaizando movimento de caixa
         if ($cashSession) {
+
+
             $method = strtolower($requestedMethod);
+
+            \Log::info('Entrei no cash session do lançamento');
+            \Log::info('Meio de Pagamento: '.$method);
             
             CashMovement::create([
                 'cash_session_id' => $cashSession->id,
