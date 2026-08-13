@@ -11,6 +11,9 @@ use App\Http\Controllers\Api\V1\PDV\AuthController as PDVAuthController;
 
 use App\Http\Controllers\Api\V1\PDV\PDVOrderController;
 use App\Http\Controllers\Api\V1\PDV\PDVPaymentController;
+use App\Http\Controllers\Api\V1\PDV\PrisonUnitController;
+use App\Http\Controllers\Api\V1\PDV\CepController;
+use App\Http\Controllers\Api\V1\PDV\ShippingController;
 use App\Http\Controllers\Api\V1\Webhook\PDVMercadoPagoWebhookController;
 
 
@@ -40,7 +43,19 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [CustomerController::class, 'index']);
             Route::get('/search', [CustomerController::class, 'search']);
             Route::get('/cpf/{identifier}', [CustomerController::class, 'showByCpf']);
+            Route::post('/', [CustomerController::class, 'store']);
+            Route::get('/{id}', [CustomerController::class, 'show']); // Detalhe completo p/ revisão no PDV
+            Route::put('/{id}', [CustomerController::class, 'update']); // Edição no PDV antes do pagamento
         });
+
+        // Unidades Prisionais (combobox do cadastro de cliente)
+        Route::get('/prison-units', [PrisonUnitController::class, 'index']);
+
+        // Consulta de CEP (autofill do endereço do visitante no cadastro de cliente)
+        Route::get('/cep/{cep}', [CepController::class, 'lookup']);
+
+        // Cotação de frete (PAC/SEDEX) para venda com destino a Unidade Prisional
+        Route::post('/shipping/quote', [ShippingController::class, 'quote']);
 
         // Categorias
         Route::get('/categories', [ProductController::class, 'categories']);

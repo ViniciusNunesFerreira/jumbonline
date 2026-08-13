@@ -9,6 +9,7 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class PDVCashSessionController extends Controller
 {
@@ -41,20 +42,20 @@ class PDVCashSessionController extends Controller
             
             'cartao_credito' => Payment::where('cash_session_id', $session->id)
                 ->whereHas('order.paymentMethod', fn($q) => 
-                    $q->where('name', 'like', '%Crédito%')
-                      ->orWhere('display_name', 'like', '%Crédito%')
+                    $q->where('name', 'like', '%Credito%')
+                      ->orWhere('display_name', 'like', '%Cartão de Credito%')
                 )->sum('amount'),
                 
             'cartao_debito' => Payment::where('cash_session_id', $session->id)
                 ->whereHas('order.paymentMethod', fn($q) => 
-                    $q->where('name', 'like', '%Débito%')
-                      ->orWhere('display_name', 'like', '%Débito%')
+                    $q->where('name', 'like', '%Debito%')
+                      ->orWhere('display_name', 'like', '%Debito%')
                 )->sum('amount'),
                 
             'pix' => Payment::where('cash_session_id', $session->id)
                 ->whereHas('order.paymentMethod', fn($q) => 
-                    $q->where('name', 'like', '%PIX%')
-                      ->orWhere('display_name', 'like', '%PIX%')
+                    $q->where('name', 'like', '%Pix%')
+                      ->orWhere('display_name', 'like', '%Pix%')
                 )->sum('amount'),
         ];
 
@@ -101,13 +102,13 @@ class PDVCashSessionController extends Controller
             ]);
 
             // Registra movimento de abertura
-            CashMovement::create([
-                'cash_session_id' => $session->id,
-                'employee_id' => $employee->id,
-                'type' => 'in',
-                'amount' => $request->opening_balance,
-                'description' => 'Abertura de Caixa - Fundo de Troco'
-            ]);
+           // CashMovement::create([
+           //     'cash_session_id' => $session->id,
+           //     'employee_id' => $employee->id,
+           //     'type' => 'in',
+           //     'amount' => $request->opening_balance,
+           //     'description' => 'Abertura de Caixa - Fundo de Troco'
+           // ]);
 
             // Devolve 'user_id' para compatibilidade do App
             $sessionData = $session->toArray();
@@ -180,9 +181,12 @@ class PDVCashSessionController extends Controller
                 ->firstOrFail();
 
             // Totalizações (Ajuste a busca do PaymentMethod de acordo com o padrão de nomes no seu DB)
-            $expectedCash = $session->opening_balance 
+            // 
+            $expectedCash = $session->opening_balance
                           + $session->movements()->where('type', 'in')->sum('amount') 
                           - $session->movements()->where('type', 'out')->sum('amount');
+
+            
                           
             $expectedCard = Payment::where('cash_session_id', $session->id)
                 ->whereHas('order.paymentMethod', fn($q) => 
@@ -219,6 +223,7 @@ class PDVCashSessionController extends Controller
                 'message' => 'Caixa fechado com sucesso',
                 'data' => [
                     'difference' => $totalDiff,
+                    'total_expected' => $totalExpected,
                     'expected_cash' => $expectedCash,
                     'counted_cash'  => $countedCash,
                     'cash_difference' => $countedCash - $expectedCash,

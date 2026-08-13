@@ -8,6 +8,8 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\PrisonUnit;
 use App\Models\PrisonCategory;
+use App\Models\Detento;
+use App\Models\Visitante;
 use App\Models\PaymentMethod; // <--- Importante!
 use App\Models\Payment;
 use App\Models\CashSession;
@@ -31,7 +33,11 @@ class PDVOrderController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'customer_id' => 'nullable|exists:customers,id',
             'filho_id' => 'nullable|exists:customers,id',
-            'payment_method_chosen' => 'required'
+            'payment_method_chosen' => 'required',
+            // Frete (PAC/SEDEX), somente quando a venda tem Unidade
+            // Prisional real como destino — ver resolução abaixo.
+            'shipping_carrier' => 'nullable|string|in:pac,sedex',
+            'shipping_price' => 'nullable|numeric|min:0',
         ]);
 
 
@@ -62,21 +68,60 @@ class PDVOrderController extends Controller
                 ];
             }
 
-            // 2. Unidade Prisional de Balcão
-            $pdvCategory = PrisonCategory::firstOrCreate(['name' => 'Vendas Balcão / PDV']);
-            $pdvUnit = PrisonUnit::firstOrCreate(
-                ['name' => 'Venda Presencial PDV'],
-                [
-                    'prison_category_id' => $pdvCategory->id,
-                    'logradouro' => 'Loja Física (Balcão)',
-                    'numero' => 'S/N',
-                    'bairro' => 'Centro',
-                    'cidade' => 'Local',
-                    'uf' => 'SP',
-                    'cep' => '00000000',
-                    'phone' => '+5511999999999'
-                ]
-            );
+            // 2. Unidade Prisional do pedido
+            $customerId = $request->input('filho_id') ?? $request->input('customer_id');
+            $detento = null;
+            $visitante = null;
+            $detentoId = null;
+            $visitanteId = null;
+            $resolvedPrisonUnitId = null;
+
+            if ($customerId) {
+                $detento = Detento::where('customer_id', $customerId)->first();
+                $visitante = Visitante::where('customer_id', $customerId)->first();
+
+                $detentoId = optional($detento)->id;
+                $visitanteId = optional($visitante)->id;
+
+                $resolvedPrisonUnitId = optional($detento)->prison_unit_id
+                    ?? optional($visitante)->prison_unit_id;
+            }
+
+            $shippingCarrier = null;
+            $shippingPrice = 0.00;
+
+            if ($resolvedPrisonUnitId) {
+                // Venda com destino real a uma Unidade Prisional: usa o
+                // frete calculado/escolhido pelo operador na tela de
+                // cadastro do cliente (ShippingController@quote).
+                $requestedCarrier = $request->input('shipping_carrier');
+                if ($requestedCarrier) {
+                    $shippingCarrier = $requestedCarrier;
+                    $shippingPrice = (float) $request->input('shipping_price', 0);
+                }
+            } else {
+                // Fallback: sem cliente cadastrado com unidade prisional
+                // vinculada — mantém o comportamento histórico de venda de
+                // balcão (retirada no local, sem frete), criando a
+                // Unidade/Categoria "mock" somente quando realmente
+                // necessário (lazy).
+                $pdvCategory = PrisonCategory::firstOrCreate(['name' => 'Vendas Balcão / PDV']);
+                $pdvUnit = PrisonUnit::firstOrCreate(
+                    ['name' => 'Venda Presencial PDV'],
+                    [
+                        'prison_category_id' => $pdvCategory->id,
+                        'logradouro' => 'Loja Física (Balcão)',
+                        'numero' => 'S/N',
+                        'bairro' => 'Centro',
+                        'cidade' => 'Local',
+                        'uf' => 'SP',
+                        'cep' => '00000000',
+                        'phone' => '+5511999999999'
+                    ]
+                );
+
+                $resolvedPrisonUnitId = $pdvUnit->id;
+            }
 
             // 3. BUSCA O MÉTODO DE PAGAMENTO (Fallback para dinheiro)
             // Tenta pegar o que veio do app do PDV, se não vier nada, usa 'dinheiro'
@@ -88,14 +133,19 @@ class PDVOrderController extends Controller
 
             // 4. Cria a Order resolvendo o erro do payment_method_id
             $order = Order::create([
-                'customer_id' => $request->input('filho_id') ?? $request->input('customer_id'),
-                'prison_unit_id' => $pdvUnit->id,
+                'customer_id' => $customerId,
+                'detento_id' => $detentoId,
+                'visitante_id' => $visitanteId,
+                'prison_unit_id' => $resolvedPrisonUnitId,
                 'payment_method_id' => $paymentMethod ? $paymentMethod->id : 1, // <--- RESOLVE O ERRO 1364
                 'order_status' => OrderStatus::PENDING, 
                 'payment_status' => PaymentStatus::PENDING,
-                'shipping_price' => 0.00,
+                'shipping_rate' => $shippingCarrier,
+                'shipping_price' => $shippingPrice,
                 'shipping_status' => ShippingStatus::UNSHIPPED ?? null, 
-                'notes' => 'Pedido de balcão (PDV Desktop)',
+                'notes' => $shippingCarrier
+                    ? "Pedido PDV com envio para Unidade Prisional (frete: {$shippingCarrier})"
+                    : 'Pedido de balcão (PDV Desktop)',
                 'meta' => [
                     'origin' => 'pdv_desktop',
                     'operator_id' => $request->user()->id
@@ -134,9 +184,6 @@ class PDVOrderController extends Controller
 
             if (strtolower($requestedMethod) !== 'pix') {
 
-                Log::info('Entrei, Meio de Pagamento é: '.$requestedMethod );
-                
-                
                 $cashSession = CashSession::where('employee_id', $request->user()->id )->where('status', 'open')->first();
 
                 // 2. CRIA O PAGAMENTO
@@ -163,7 +210,7 @@ class PDVOrderController extends Controller
                     CashMovement::create([
                         'cash_session_id' => $cashSession->id,
                         'employee_id' => auth()->id(),
-                        'type' => 'sale',
+                        'type' => $method === 'dinheiro' ? 'in' : 'sale',
                         'amount' => $order->total, 
                         'description' => "Venda #{$order->id}"." Balcão"
                     ]);
@@ -177,7 +224,11 @@ class PDVOrderController extends Controller
                 'message' => 'Pedido criado com sucesso.',
                 'data' => [
                     'id' => $order->id,
-                    'total' => $total,
+                    'subtotal' => $total,
+                    'shipping_price' => (float) $order->shipping_price,
+                    'shipping_carrier' => $shippingCarrier,
+                    // Total real cobrado do cliente, já incluindo o frete
+                    'total' => $order->total,
                     'status' => 'pending'
                 ]
             ], 201);

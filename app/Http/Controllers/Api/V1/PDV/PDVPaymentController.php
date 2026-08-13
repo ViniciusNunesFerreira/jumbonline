@@ -26,10 +26,8 @@ class PDVPaymentController extends Controller
         ]);
 
 
-
         $order = Order::findOrFail($request->order_id);
         $employee = $request->user();
-
 
         $cashSession = CashSession::where('employee_id', $employee->id)->where('status', 'open')->first();
         $requestedMethod = $request->input('payment_method');
@@ -43,7 +41,6 @@ class PDVPaymentController extends Controller
             $order->update(['payment_method_id' => $paymentMethod->id]);
         }
 
-        \Log::info('Meio de pagamento: '.$paymentMethod->id);
 
         // 2. CRIA O PAGAMENTO
         $payment = Payment::create([
@@ -55,7 +52,6 @@ class PDVPaymentController extends Controller
             'reference' => 'PDV-' . uniqid(),
         ]);
 
-        \Log::info('Pagamento criado no PDV id: '.$payment->id);
 
         // === SE FOR PIX ===
         if (strtolower($requestedMethod) === 'pix') {
@@ -88,9 +84,6 @@ class PDVPaymentController extends Controller
 
             $method = strtolower($requestedMethod);
 
-            \Log::info('Entrei no cash session do lançamento');
-            \Log::info('Meio de Pagamento: '.$method);
-            
             CashMovement::create([
                 'cash_session_id' => $cashSession->id,
                 'order_id' => $order->id,

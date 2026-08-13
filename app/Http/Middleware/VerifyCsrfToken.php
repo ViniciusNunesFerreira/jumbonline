@@ -16,6 +16,7 @@ class VerifyCsrfToken extends Middleware
         'account/order/*/payment',
         'account/order/*',
         'purchase',
-        'api/v1/webhooks/*'
+        'api/v1/webhooks/*',
+        'api/v1/pdv/*'
     ];
 }
