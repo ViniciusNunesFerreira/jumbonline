@@ -9,8 +9,7 @@ use App\Models\Refund;
 use App\Models\RefundItem;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
-use Razorpay\Api\Api;
-use Stripe\StripeClient;
+
 
 class OrderRefundCreate extends Component
 {
@@ -89,34 +88,6 @@ class OrderRefundCreate extends Component
     public function refund()
     {
         $this->validate();
-
-        if ($this->order->paymentMethod->identifier == 'stripe') {
-            try {
-                $stripe_refund_response = $this->processStripeRefund();
-
-                $this->refund->meta = [
-                    'stripe_refund_id' => $stripe_refund_response->id,
-                ];
-            } catch (\Exception $e) {
-                $this->addError('refund.amount', $e->getMessage());
-
-                return;
-            }
-        }
-
-        if ($this->order->paymentMethod->identifier == 'razorpay') {
-            try {
-                $razorpay_refund_response = $this->processRazorpayRefund();
-
-                $this->refund->meta = [
-                    'razorpay_refund_id' => $razorpay_refund_response->id,
-                ];
-            } catch (\Exception $e) {
-                $this->addError('refund.amount', $e->getMessage());
-
-                return;
-            }
-        }
 
         $this->order->refunds()->save($this->refund);
 
@@ -218,36 +189,6 @@ class OrderRefundCreate extends Component
         ]);
     }
 
-    protected function processStripeRefund()
-    {
-        $stripe = new StripeClient($this->stripe->meta['secret_key']);
-
-        return $stripe->refunds->create([
-            'payment_intent' => $this->order->meta['stripe_payment_intent'],
-            'amount' => $this->refund->amount * 100,
-        ]);
-    }
-
-    protected function processRazorpayRefund()
-    {
-        $api = new Api($this->razorpay->meta['api_key'], $this->razorpay->meta['api_secret']);
-
-        return $api->payment->fetch($this->order->meta['razorpay_payment_id'])->refund([
-            'amount' => $this->refund->amount * 100,
-            'speed' => 'normal',
-            'receipt' => $this->order->id,
-        ]);
-    }
-
-    public function getStripeProperty(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
-    {
-        return PaymentMethod::query()->where('identifier', 'stripe')->firstOrFail();
-    }
-
-    public function getRazorpayProperty(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
-    {
-        return PaymentMethod::query()->where('identifier', 'razorpay')->firstOrFail();
-    }
 
     public function render()
     {

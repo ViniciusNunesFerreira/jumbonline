@@ -9,11 +9,18 @@ use App\Models\Payment;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use Illuminate\Support\Facades\Log;
+use App\Services\MercadoPagoWebhookSignature;
 
 class PDVMercadoPagoWebhookController extends Controller
 {
     public function handle(Request $request, PDVMercadoPagoService $mpService)
     {
+        
+        if (! MercadoPagoWebhookSignature::isValid($request, config('services.mercadopago.webhook_secret'))) {
+            Log::warning('Webhook PDV MP rejeitado: assinatura inválida.');
+            return response()->json(['error' => 'Invalid signature'], 401);
+        }
+
         // MP envia { "action": "payment.updated", "data": { "id": "123456" } }
         if ($request->input('action') === 'payment.updated' || $request->input('type') === 'payment') {
             

@@ -30,11 +30,6 @@ class Review extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function kit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Kit::class);
-    }
-
     protected function isPublished(): Attribute
     {
         return Attribute::make(

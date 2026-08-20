@@ -15,7 +15,6 @@ class Cart extends Model
         'session_id',
         'customer_id',
         'customer_email',
-        'shipping_method',
         'payment_method',
         'notes',
         'meta',

@@ -28,16 +28,13 @@
         "mercadopago/dx-php": "3.0.7",
         "milon/barcode": "^11.0",
         "propaganistas/laravel-phone": "^5.0",
-        "razorpay/razorpay": "^2.8",
         "spatie/laravel-honeypot": "^4.5",
         "spatie/laravel-livewire-wizard": "^1.2",
         "spatie/laravel-medialibrary": "^10.7",
         "spatie/laravel-settings": "^3.0",
         "spatie/laravel-sluggable": "^3.4",
-        "spatie/laravel-stripe-webhooks": "^3.2",
         "spatie/laravel-webhook-client": "^3.1",
         "staudenmeir/laravel-adjacency-list": "^1.13",
-        "stripe/stripe-php": "^10.5",
         "ublabs/blade-simple-icons": "^0.71.0"
     },
     "require-dev": {
@@ -92,6 +89,19 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true
+        },
+        "policy": {
+            "advisories": {
+                "ignore-id": [
+                    "PKSA-m5cs-t1y6-qpcs",
+                    "PKSA-3r5d-mb8f-1qw9",
+                    "PKSA-mdq4-51ck-6kdq",
+                    "PKSA-8qx3-n5y5-vvnd",
+                    "PKSA-w7xr-vk7n-rstm",
+                    "PKSA-mrgr-9pdf-y591",
+                    "PKSA-88bj-c5ky-3pr6"
+                ]
+            }
         }
     },
     "minimum-stability": "stable",

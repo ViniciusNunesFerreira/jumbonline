@@ -7,8 +7,6 @@ use App\Models\Order;
 use App\Models\Review;
 use App\Models\Variant;
 use Livewire\Component;
-use Razorpay\Api\Api;
-use Stripe\StripeClient;
 use App\Http\Livewire\Traits\MercadopagoPayment;
 
 class OrderDetail extends Component
@@ -122,50 +120,6 @@ class OrderDetail extends Component
         ]);
 
         return $variant->getFirstMedia('attachment');
-    }
-
-    public function processStripePayment()
-    {
-        $stripe = new StripeClient(config('services.stripe.secret_key'));
-
-        try {
-            $session = $stripe->checkout->sessions->retrieve($this->order->meta['stripe_session_id'], []);
-
-            return redirect($session->url);
-        } catch (\Exception $e) {
-            return logger($e->getMessage());
-        }
-    }
-
-    public function verifyRazorpayPayment($razorpay_payment_id, $razorpay_signature)
-    {
-        $api = new Api(config('services.razorpay.api_key'), config('services.razorpay.api_secret'));
-
-        $razorpay_order_id = $this->order->meta['razorpay_order_id'];
-
-        $attributes = [
-            'razorpay_order_id' => $razorpay_order_id,
-            'razorpay_payment_id' => $razorpay_payment_id,
-            'razorpay_signature' => $razorpay_signature,
-        ];
-
-        try {
-            $api->utility->verifyPaymentSignature($attributes);
-
-            if ($this->order->payment_status == PaymentStatus::UNPAID) {
-                $this->order->payment_status = PaymentStatus::PENDING;
-            }
-
-            $this->order->update([
-                'meta' => [
-                    'razorpay_order_id' => $razorpay_order_id,
-                    'razorpay_payment_id' => $razorpay_payment_id,
-                    'razorpay_signature' => $razorpay_signature,
-                ],
-            ]);
-        } catch (\Exception $e) {
-            logger($e->getMessage());
-        }
     }
 
     public function getCustomerProperty()

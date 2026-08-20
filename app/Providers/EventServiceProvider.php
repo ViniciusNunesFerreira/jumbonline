@@ -35,7 +35,7 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         Login::class => [
-           // SyncCartOnLogin::class,
+            SyncCartOnLogin::class,
             MergeGuestCartOnLogin::class,
         ],
         OrderCreated::class => [
