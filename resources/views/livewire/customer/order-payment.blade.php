@@ -126,11 +126,10 @@
 
             
             return new Promise((resolve, reject) => {
-                fetch("", {
+                fetch("{{ route('customer.purchase.post', $order) }}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    'Access-Control-Allow-Origin': '*',
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 body: JSON.stringify(formData),
@@ -139,10 +138,18 @@
                 .then((response) => {
                     // receber o resultado do pagamento
 
+                    if (!response.id) {
+                        console.error('Erro ao criar pagamento:', response);
+                        // troque por um toast/notify do seu design system quando formos polir a UI
+                        alert(response.message || 'Não foi possível processar o pagamento. Verifique os dados e tente novamente.');
+                        reject();
+                        return;
+                    }
+
                     const renderStatusScreenBrick = async (bricksBuilder) => {
                         const settings = {
                         initialization: {
-                            paymentId: response.id, // id do pagamento a ser mostrado
+                            paymentId: response.id, 
                         },
                         customization: {
                             visual: {

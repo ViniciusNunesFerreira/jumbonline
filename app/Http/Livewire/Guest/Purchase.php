@@ -42,7 +42,7 @@ class Purchase extends Component
     public $step = 1;
     public $currentTab = 'tabs-entrega';
     public $paymentMethod;
-    public Promotion $promotion;
+    public ?Promotion $promotion = null;
     public Order $order;
     public $prison;
   
@@ -270,8 +270,7 @@ class Purchase extends Component
     {
 
 
-        if( $this->promotion->count() == 0 || 
-            $this->promotion->count() > 0 && $this->cart->subtotal < $this->promotion->os_value ){
+        if( is_null($this->promotion) ||  $this->cart->subtotal < $this->promotion->os_value ){
 
                 $params = [
                     'cepDestino' => trim( preg_replace("/[^0-9]/", "",  $this->prisonUnit->cep) ),
@@ -321,13 +320,18 @@ class Purchase extends Component
 
         //valida se existe detento e visitante cadastrado
 
-        if($customer->detentos()->count() == 0 || $customer->visitantes()->count() == 0){
+        $detento = $customer->detentos()->first();
+        $visitante = $customer->visitantes()->first();
+
+        if (! $detento || ! $visitante) {
             $this->notify(trans('Reveja as Informações de Detento ou Visitante'));
-           return  $this->changeTab('tabs-detento');
+            return $this->changeTab('tabs-detento');
         }
 
-        $this->order->detento_id = $customer->detentos()->first()->id;
-        $this->order->visitante_id =  $customer->visitantes()->first()->id;
+        $this->order->detento_id = $detento->id;
+        $this->order->visitante_id = $visitante->id;
+        $this->order->detento_snapshot = \Illuminate\Support\Arr::only($detento->toArray(), ['name', 'matricula', 'raio', 'cela']);
+        $this->order->visitante_snapshot = \Illuminate\Support\Arr::only($visitante->toArray(), ['nome', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'cep']);
 
         //recupera e atualiza ordem
         $this->updateShippingPrice();

@@ -78,14 +78,14 @@ trait MercadopagoPayment
         return $lineItems;
     }
 
-    public function createPaymentOrder(Request $request)
+    public function createPaymentOrder(Request $request, Order $order)
     {
 
         MercadoPagoConfig::setAccessToken($this->mercadopago->meta['access_token']);
         $client = new PaymentClient();
 
         $request_options = new RequestOptions();
-        $request_options->setCustomHeaders(["X-Idempotency-Key: ".$this->order_service->idempotency_key.""]);
+        $request_options->setCustomHeaders(["X-Idempotency-Key: ".$order->idempotency_key.""]);
 
         
         if($request->payment_method_id == 'pix'){
@@ -93,7 +93,7 @@ trait MercadopagoPayment
             //Pagamentos Pix
             $this->createRequest = [
                 "transaction_amount" => $request->transaction_amount,
-                "external_reference" => $this->order_service->idempotency_key,
+                "external_reference" => $order->idempotency_key,
                 "notification_url" => env('APP_ENV') == 'local' ? 'https://jumbonline.com.br/webhooks/mercadopago' : route('webhook-client-mercadopago'),
                 "payment_method_id" => $request->payment_method_id,
                     "payer" => [
@@ -105,11 +105,29 @@ trait MercadopagoPayment
 
             //Pagamentos Boleto
 
+                $visitante = $order->visitante_snapshot;
+
                 $this->createRequest = [
                     "transaction_amount" => $request->transaction_amount,
                     "payment_method_id" => $request->payment_method_id,
+                    "external_reference" => $order->idempotency_key,
+                    "notification_url" => env('APP_ENV') == 'local' ? 'https://jumbonline.com.br/webhooks/mercadopago' : route('webhook-client-mercadopago'),
                     "payer" => [
+                        "first_name" => $request->payer['first_name'],
+                        "last_name" => $request->payer['last_name'],
                         "email" =>  $request->payer['email'],
+                         "identification" => [
+                            "type" => $request->payer['identification']['type'],
+                            "number" => $request->payer['identification']['number']
+                        ],
+                        "address" => [
+                            "zip_code" => preg_replace('/[^0-9]/', '', $visitante['cep'] ?? ''),
+                            "street_name" => $visitante['logradouro'] ?? '',
+                            "street_number" => $visitante['numero'] ?? '',
+                            "neighborhood" => $visitante['bairro'] ?? '',
+                            "city" => $visitante['cidade'] ?? '',
+                            "federal_unit" => $visitante['uf'] ?? '',
+                        ]
                     ]
                 ];
 
@@ -124,7 +142,7 @@ trait MercadopagoPayment
                     "issuer_id" => $request->issuer_id,
                     "token" => $request->token,
                     "installments"  => $request->installments,
-                    "external_reference" => $this->order_service->idempotency_key,
+                    "external_reference" => $order->idempotency_key,
                     "notification_url" => env('APP_ENV') == 'local' ? 'https://jumbonline.com.br/webhooks/mercadopago' : route('webhook-client-mercadopago'),
                     "payment_method_id" => $request->payment_method_id,
                     "payer" => [

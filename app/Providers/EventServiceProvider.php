@@ -12,6 +12,7 @@ use App\Listeners\SendOrderConfirmation;
 use App\Listeners\SendRefundNotification;
 use App\Listeners\SendShipmentConfirmation;
 use App\Listeners\SyncCartOnLogin;
+use App\Listeners\MergeGuestCartOnLogin;
 use App\Listeners\UpdateOrderPaymentStatus;
 use App\Listeners\UpdateOrderShippingStatus;
 use App\Settings\GeneralSetting;
@@ -34,7 +35,8 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         Login::class => [
-            SyncCartOnLogin::class,
+           // SyncCartOnLogin::class,
+            MergeGuestCartOnLogin::class,
         ],
         OrderCreated::class => [
             SendNewOrderNotification::class,

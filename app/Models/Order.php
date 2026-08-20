@@ -30,6 +30,8 @@ class Order extends Model
         'tax_breakdown',
         'meta',
         'notes',
+        'detento_snapshot',
+        'visitante_snapshot',
     ];
 
     protected $casts = [
@@ -39,6 +41,8 @@ class Order extends Model
         'shipping_status' => ShippingStatus::class,
         'tax_breakdown' => 'json',
         'meta' => 'json',
+        'detento_snapshot' => 'json',
+        'visitante_snapshot' => 'json',
     ];
 
     protected $attributes = [
