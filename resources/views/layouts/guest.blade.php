@@ -48,16 +48,27 @@
         <!-- Styles -->
 
         <script type="text/javascript">
-      window.onload = function(){
-      (function(d, script) {
-      script = d.createElement('script');
-      script.type = 'text/javascript';
-      script.async = true;
-      script.src = '{{ url('/whats.js') }}';
-      d.getElementsByTagName('head')[0].appendChild(script);
-      }(document));
-      };
-      </script>
+            window.onload = function(){
+            (function(d, script) {
+            script = d.createElement('script');
+            script.type = 'text/javascript';
+            script.async = true;
+            script.src = '{{ url('/whats.js') }}';
+            d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+            };
+        </script>
+
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'Organization',
+                'name' => 'Jumbonline',
+                'url' => url('/'),
+                'logo' => asset('img/logo.png'),
+                'description' => 'Envio de jumbo autorizado para unidades prisionais de São Paulo — CDP, Penitenciárias, CPP e CR.',
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+        </script>
       
         @livewireStyles
         @vite('resources/css/guest.css')

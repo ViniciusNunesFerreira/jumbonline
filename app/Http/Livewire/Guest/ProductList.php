@@ -37,6 +37,18 @@ class ProductList extends Component
         $this->weight = $this->cart->weight;
         $this->subTotal = $this->cart->subTotal;
 
+        $endereco = "{$this->prison->cidade}/{$this->prison->uf}";
+
+        $this->seo()->setTitle(
+            $this->prison->seo_title ?: "Jumbo para o {$this->prison->name} | Jumbonline"
+        );
+
+        $this->seo()->setDescription(
+            $this->prison->seo_description ?: "Envie o jumbo autorizado para o {$this->prison->name}, em {$endereco}. Itens dentro das normas da unidade, entrega rápida e direta. Monte o jumbo agora."
+        );
+
+        $this->seo()->setCanonical(route('guest.products.list', $this->prison->slug));
+
         if($this->prison->phone){
 
             $prison_phone = new PhoneNumber($this->prison->phone, 'BR');

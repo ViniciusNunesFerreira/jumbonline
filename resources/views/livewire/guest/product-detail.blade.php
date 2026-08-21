@@ -400,6 +400,24 @@
     </main>
 
     @push('scripts')
+
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $product->name,
+            'description' => $product->excerpt,
+            'image' => $product->getFirstMediaUrl('media'),
+            'offers' => [
+                '@type' => 'Offer',
+                'priceCurrency' => 'BRL',
+                'price' => number_format($product->price, 2, '.', ''),
+                'availability' => $product->is_active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                'url' => route('guest.products.detail', $product->slug),
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
+
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('tabs', () => ({
