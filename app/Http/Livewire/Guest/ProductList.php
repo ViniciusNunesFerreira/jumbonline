@@ -9,6 +9,7 @@ use Artesaos\SEOTools\Traits\SEOTools;
 use App\Models\Cart;
 use App\Models\Product;
 use Propaganistas\LaravelPhone\PhoneNumber;
+use Illuminate\Support\Facades\Cache;
 
 class ProductList extends Component
 {
@@ -20,7 +21,8 @@ class ProductList extends Component
     public $perPage = 10;
 
     protected $listeners = [
-        'refreshCart', 
+        'refreshCart',
+        'refreshCartSilently', 
         'addCart', 
         'updateCartItemQuantity', 
         'removeCategorySelection'
@@ -68,7 +70,7 @@ class ProductList extends Component
     {
         $this->cachedCart = null;
         $cart = $this->cart;
-        $cart->load(['items.variant', 'items.product']);
+       // $cart->load(['items.variant', 'items.product']);
 
         $this->cartCategories = $cart->items->keyBy('category_id')->map(function ($item) {
             return [
@@ -82,6 +84,22 @@ class ProductList extends Component
 
         $this->emitTo('guest.components.header', 'refreshCart');
         $this->emitTo('guest.components.cart-slide', 'refreshCart');
+    }
+
+    public function refreshCartSilently()
+    {
+        $this->cachedCart = null;
+        $cart = $this->cart; // Cart::$with e CartItem::$with já cobrem items/variant/category — sem load() extra
+
+        $this->cartCategories = $cart->items->keyBy('category_id')->map(function ($item) {
+            return [
+                'product_id' => $item->product_id,
+                'quantity'   => $item->quantity,
+            ];
+        })->toArray();
+
+        $this->weight = $cart->weight;
+        $this->subTotal = $cart->subTotal;
     }
 
     public function openCart()
@@ -150,17 +168,25 @@ class ProductList extends Component
 
     public function getRowsProperty()
     {
-        return $this->prison->collections()->with([
-            'categoriesPublished' => function ($query) {
-                $query->whereHas('products', function ($q) {
-                    $q->where('sales_channel', '!=', ProductSaleChannel::BALCAO->name);
-                });
-            },
-            'categoriesPublished.products' => function ($query) {
-                $query->where('sales_channel', '!=', ProductSaleChannel::BALCAO->name);
-            },
-            'categoriesPublished.products.variants'
-        ])->paginate($this->perPage);
+        $page = request()->get('page', 1);
+
+        return Cache::remember(
+            "prison-catalog:{$this->prison->id}:page:{$page}",
+            now()->addMinutes(10),
+            function () {
+                return $this->prison->collections()->with([
+                    'categoriesPublished' => function ($query) {
+                        $query->whereHas('products', function ($q) {
+                            $q->where('sales_channel', '!=', ProductSaleChannel::BALCAO->name);
+                        });
+                    },
+                    'categoriesPublished.products' => function ($query) {
+                        $query->where('sales_channel', '!=', ProductSaleChannel::BALCAO->name);
+                    },
+                    'categoriesPublished.products.variants'
+                ])->paginate($this->perPage);
+            }
+        );
     }
 
     public function render()

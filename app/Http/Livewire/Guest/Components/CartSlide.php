@@ -70,13 +70,10 @@ class CartSlide extends Component
             return;
         }
 
-        $this->emit('addCart', [
-            'product'  => $item->product_id,
-            'variant'  => $item->variant_id,
-            'category' => $item->category_id,
-            'quantity' => $item->quantity + 1,
-            'weight'   => $this->itemUnitWeight($item),
-        ])->to('guest.product-list');
+        $newQuantity = $item->quantity + 1;
+        $item->update(['quantity' => $newQuantity]);
+
+        $this->syncAfterChange($item, $newQuantity);
     }
 
     public function decrementItem($cartItemId): void
@@ -92,13 +89,10 @@ class CartSlide extends Component
             return;
         }
 
-        $this->emit('addCart', [
-            'product'  => $item->product_id,
-            'variant'  => $item->variant_id,
-            'category' => $item->category_id,
-            'quantity' => $item->quantity - 1,
-            'weight'   => $this->itemUnitWeight($item),
-        ])->to('guest.product-list');
+        $newQuantity = $item->quantity - 1;
+        $item->update(['quantity' => $newQuantity]);
+
+        $this->syncAfterChange($item, $newQuantity);
     }
 
     public function removeCartItem($cartItemId): void
@@ -108,27 +102,35 @@ class CartSlide extends Component
 
         $item?->delete();
 
-        $this->refresh();
+        // Atualiza a coleção já carregada em memória, sem recarregar mídia/atributos do zero
+        $this->cartItems = $this->cartItems->reject(fn($i) => $i->id == $cartItemId)->values();
+        $this->cart->setRelation('items', $this->cartItems);
 
         $this->emit('refresh')->to('guest.components.header');
-        $this->emit('refreshCart')->to('guest.product-list');
+        $this->emitTo('guest.product-list', 'refreshCartSilently');
 
         if ($categoryId) {
             $this->emit('categoryReset', $categoryId);
         }
     }
 
-    protected function itemUnitWeight($item): float
+    protected function syncAfterChange($item, int $newQuantity): void
     {
-        $variant = $item->variant;
+        // Atualiza a coleção local em memória — evita chamar loadCart() de novo
+        $this->cart->setRelation(
+            'items',
+            $this->cartItems->map(function ($i) use ($item, $newQuantity) {
+                if ($i->id === $item->id) {
+                    $i->quantity = $newQuantity;
+                }
+                return $i;
+            })
+        );
+        $this->cartItems = $this->cart->items;
 
-        if (! $variant) {
-            return 0;
-        }
-
-        return $variant->weight_unit === 'g'
-            ? ($variant->weight_value / 1000)
-            : $variant->weight_value;
+        $this->emit('refresh')->to('guest.components.header');
+        $this->emitTo('guest.product-list', 'refreshCartSilently');
+        $this->emit('categorySync', $item->category_id, $item->product_id, $newQuantity);
     }
 
     public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null
