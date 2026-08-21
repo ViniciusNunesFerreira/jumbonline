@@ -2,7 +2,7 @@
     
 
     <div class="bg-white">
-        <div class="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 
             <div class="relative overflow-hidden rounded-3xl border border-secondary bg-gradient-to-br from-complement-500 via-white to-secondary/30 p-6 sm:p-10">
                 <img src="{{ asset('img/estrelas.png') }}" alt="" class="pointer-events-none absolute -right-4 -top-4 w-20 opacity-70">
@@ -84,7 +84,7 @@
     </div>
 
     @if($weight > 0)
-        <div class="fixed bottom-4 left-4 z-40 w-72">
+        <div class="fixed bottom-4 left-4 z-30 w-72">
             <div class="rounded-2xl border border-secondary bg-white p-5 shadow-2xl shadow-primary/10">
                 <div class="flex items-center gap-2 text-accent">
                     <x-heroicon-s-shopping-bag class="h-5 w-5" />

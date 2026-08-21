@@ -18,7 +18,7 @@
     x-show="show"
     x-trap.noreturn.noscroll="show"
     x-on:keydown.escape.window="show = false"
-    class="relative z-10"
+    class="relative z-40"
     aria-labelledby="slide-over-title"
     role="dialog"
     aria-modal="true"
