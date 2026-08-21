@@ -4,92 +4,106 @@ namespace App\Http\Livewire\Guest\Components;
 
 use Livewire\Component;
 use App\Models\Category;
-use App\Models\Variant;
-use App\Models\Product;
 
 class CategoryProducts extends Component
 {
-
     public Category $category;
+    public ?int $selectedProductId = null;
+    public int $selectedQuantity = 0;
+    public bool $showProducts = false;
 
-    public Product $product;
-
-    public  $quantity = 0;
-
-    public int $maxQuantity;
-
-    public $showProducts = false;
-
-    public array $selectedOptionValues ;
-
-    public $product_id = null;
-
-    public array $add = [
-        'product' => null,
-        'variant' => null,
-        'category' => null,
-        'quantity' => 0,
-        'weight' => 0
+    protected $listeners = [
+        'categoryReset' => 'onCategoryReset',
+        'categorySync'  => 'onCategorySync',
     ];
 
-    public string $variantQuery = '';
-
-    protected $queryString = ['variantQuery' => ['except' => '', 'as' => 'variant']];
-
-    public function mount()
+    public function mount(?int $selectedProductId = null, int $selectedQuantity = 0)
     {
-        $this->maxQuantity = $this->category->quantity;
+        $this->selectedProductId = $selectedProductId;
+        $this->selectedQuantity = $selectedQuantity;
     }
 
+    // Escuta a remoção e reseta APENAS se o evento for referente a esta categoria
+    public function onCategoryReset(int $categoryId)
+    {
+        if ($this->category->id === $categoryId) {
+            $this->selectedProductId = null;
+            $this->selectedQuantity = 0;
+        }
+    }
+
+    public function onCategorySync(int $categoryId, int $productId, int $quantity)
+    {
+        if ($this->category->id === $categoryId) {
+            $this->selectedProductId = $productId;
+            $this->selectedQuantity = $quantity;
+        }
+    }
 
     public function selectCategory()
     {
         $this->showProducts = !$this->showProducts;
-        $this->showProducts ? ($this->quantity = $this->category->quantity) :  ($this->quantity = 0) ;
-
     }
 
-    public function incrementQuantity()
+    // Ao escolher, seleciona automaticamente a quantidade máxima permitida da categoria
+    public function selectProduct(int $productId, int $variantId, float $weight)
     {
-        if( $this->quantity < $this->category->quantity ){
-             $this->quantity++;   
+        $maxQuantity = $this->category->quantity;
+
+        $this->selectedProductId = $productId;
+        $this->selectedQuantity = $maxQuantity;
+
+        $this->emitUp('addCart', [
+            'product'  => $productId,
+            'variant'  => $variantId,
+            'category' => $this->category->id,
+            'quantity' => $maxQuantity,
+            'weight'   => $weight,
+        ]);
+    }
+
+    public function incrementQuantity(int $variantId, float $weight)
+    {
+        if (!$this->selectedProductId) return;
+
+        if ($this->selectedQuantity < $this->category->quantity) {
+            $this->selectedQuantity++;
+
+            $this->emitUp('addCart', [
+                'product'  => $this->selectedProductId,
+                'variant'  => $variantId,
+                'category' => $this->category->id,
+                'quantity' => $this->selectedQuantity,
+                'weight'   => $weight,
+            ]);
         }
     }
 
-
-
-    public function decrementQuantity()
+    public function decrementQuantity(int $variantId, float $weight)
     {
-        if($this->quantity > 0){
+        if (!$this->selectedProductId) return;
 
-            if($this->quantity == 1){
-                $this->showProducts = !$this->showProducts; 
-            }
+        if ($this->selectedQuantity > 1) {
+            $this->selectedQuantity--;
 
-            return $this->quantity--;
+            $this->emitUp('addCart', [
+                'product'  => $this->selectedProductId,
+                'variant'  => $variantId,
+                'category' => $this->category->id,
+                'quantity' => $this->selectedQuantity,
+                'weight'   => $weight,
+            ]);
+        } else {
+            $this->removeSelection();
         }
-        
     }
 
-
-
-    public function addToCart($product)
+    public function removeSelection()
     {
-       if( $this->quantity > $this->maxQuantity) {
-            abort(403);
-       }
+        $this->selectedProductId = null;
+        $this->selectedQuantity = 0;
 
-       $this->product = $this->category->products()->with('variants')->find($product);
-       $variant = $this->product->variants()->first();
-       
-       $this->add['product'] =  $this->product->id;
-       $this->add['variant'] =  $variant->id;
-       $this->add['quantity'] = $this->quantity;
-       $this->add['category'] = $this->category->id;
-       $this->add['weight'] =   $variant->weight_unit == 'g' ? ($variant->weight_value / 1000) : $variant->weight_value;
-
-       $this->emit('addCart', $this->add)->to('guest.product-list');
-
+        $this->emitUp('removeCategorySelection', $this->category->id);
     }
 
     public function render()

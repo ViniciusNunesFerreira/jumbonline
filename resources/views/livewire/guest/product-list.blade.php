@@ -1,120 +1,111 @@
 <div>
     
-    <livewire:guest.components.guest-carousel />
 
-    <div class="bg-white relative">
-        <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+    <div class="bg-white">
+        <div class="mx-auto max-w-5xl px-4 py-12 sm:px-6">
 
-            <div class="max-w-7xl">
+            <div class="relative overflow-hidden rounded-3xl border border-secondary bg-gradient-to-br from-complement-500 via-white to-secondary/30 p-6 sm:p-10">
+                <img src="{{ asset('img/estrelas.png') }}" alt="" class="pointer-events-none absolute -right-4 -top-4 w-20 opacity-70">
+                <img src="{{ asset('img/maskote.png') }}" alt="" class="pointer-events-none absolute -bottom-6 right-4 hidden h-40 w-auto opacity-90 sm:block lg:h-48">
 
-                <h1 class="my-2 text-2xl font-bold tracking-tight sm:text-5xl text-center text-primary">
-                    {{ $prison->name }}
-                </h1>
+                <div class="relative max-w-xl">
+                    <div class="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent">
+                        <x-heroicon-s-check-badge class="h-4 w-4" /> Unidade confirmada
+                    </div>
 
-                <a href="/" class=" flex space-x-2">   Trocar unidade &nbsp; <x-heroicon-s-arrow-path class="h-5 w-5 flex-shrink-0 text-accent" /></a>
+                    <h1 class="mt-3 font-urbanist text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">
+                        {{ $prison->name }}
+                    </h1>
 
-                <ul class="mt-4 py-4 text-sm md:text-lg text-slate-500 leading-loose font-bold border-b border-indigo-500 space-y-2">
+                    <ul class="mt-3 space-y-2 text-sm text-slate-600">
+                        <li class="flex items-center gap-2">
+                            <x-heroicon-s-map-pin class="h-4 w-4 flex-shrink-0 text-accent" />
+                            {{ $prison->logradouro }}, {{ $prison->numero }}, {{ $prison->bairro }} — {{ $prison->cidade }}/{{ $prison->uf }} · CEP {{ $prison->cep }}
+                        </li>
+                        @if($prison_phone_format)
+                            <li class="flex items-center gap-2">
+                                <x-heroicon-s-phone class="h-4 w-4 flex-shrink-0 text-accent" />
+                                {{ $prison_phone_format }}
+                            </li>
+                        @endif
+                    </ul>
 
-                    <li class=" flex items-center leading-5">
-                        <x-heroicon-s-map-pin class="h-5 w-5 flex-shrink-0 text-accent m-2" />           
-                        {{ $prison->logradouro }} , {{ $prison->numero }}, {{$prison->bairro}} - {{ $prison->cidade }} / {{ $prison->uf }} - CEP: {{ $prison->cep }}
-                    </li>
-                    <li class=" flex items-center leading-5">
-                        <x-heroicon-s-phone class="h-5 w-5 flex-shrink-0 text-accent m-2" /> 
-                        Tel: {{  $prison_phone_format  }}
-                    </li>
-                    <li class="flex items-center leading-5">
-                        <x-heroicon-s-truck class="h-5 w-5 flex-shrink-0 text-accent m-2" /> 
-                        Enviamos o Jumbo nesta Unidade, com rapidez, segurança e economia para você.
-                    </li>
-                </ul>
+                    <a href="/" class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-purple hover:text-accent">
+                        <x-heroicon-s-arrow-path class="h-4 w-4" /> Trocar unidade
+                    </a>
+                </div>
 
-                <p class=" p-5 text-center font-bold text-accent font-urbanist text-xl tracking-tight">
-                    Monte o Jumbo escolhendo os produtos que deseja enviar. 
-                </p>
-
+                @php $weightPercent = $weight_max > 0 ? min(100, ($weight / $weight_max) * 100) : 0; @endphp
+                <div class="relative mt-8 max-w-xl">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="font-semibold text-primary">Peso do Jumbo</span>
+                        <span class="text-slate-500">{{ number_format($weight, 2) }}kg de {{ number_format($weight_max, 0) }}kg</span>
+                    </div>
+                    <div class="mt-2 h-3 w-full overflow-hidden rounded-full bg-white/70">
+                        <div class="h-full rounded-full bg-accent transition-all duration-300" style="width: {{ $weightPercent }}%"></div>
+                    </div>
+                </div>
             </div>
 
-        
-            <section class="grid grid-cols-1 gap-y-3">
+            <div class="mt-8 flex flex-col items-center gap-3 text-center">
+                <p class="font-urbanist text-lg font-bold text-primary sm:text-xl">
+                    Monte o Jumbo escolhendo os produtos que deseja enviar
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs text-slate-500">
+                    <span class="flex items-center gap-1"><x-heroicon-s-shield-check class="h-3.5 w-3.5 text-accent" /> Compra segura</span>
+                    <span class="flex items-center gap-1"><x-heroicon-s-truck class="h-3.5 w-3.5 text-accent" /> Entrega direta na unidade</span>
+                    <span class="flex items-center gap-1"><x-heroicon-s-check-circle class="h-3.5 w-3.5 text-accent" /> Dentro das normas</span>
+                </div>
+            </div>
 
-
+            <div class="mt-8 space-y-12">
                 @forelse($collections as $collection)
+                    <section>
+                        <div class="mb-4 flex items-center gap-3">
+                            <span class="h-8 w-1.5 rounded-full bg-accent"></span>
+                            <h2 class="font-urbanist text-2xl font-extrabold tracking-tight text-primary">{{ $collection->title }}</h2>
+                        </div>
 
-                <details open class="group py-1 text-lg">
-
-                    <summary class="flex cursor-pointer flex-row items-center justify-between py-2 font-bold text-gray-800 marker:[font-size:0px] text-xl">
-
-                        {{ $collection->title }}
-                    
-                        <svg class="h-6 w-6 rotate-0 transform text-gray-400 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-
-                    </summary>
-
-                    
-                    <section class="grid grid-cols-1 gap-y-3 divide-y">
-
-                        @forelse( $collection->categoriesPublished as $cat)
-                            <livewire:guest.components.category-products :category="$cat" :wire:key="time().$cat->id" :selectedOptionValues="$selectedOptions" />
-                        @empty
-                            sem categorias
-                        @endforelse
-
+                        <div class="overflow-hidden rounded-3xl border border-secondary bg-white">
+                            @forelse($collection->categoriesPublished as $cat)
+                                @php $itemData = $cartCategories[$cat->id] ?? null; @endphp
+                                <livewire:guest.components.category-products :category="$cat" :selectedProductId="$itemData['product_id'] ?? null" :selectedQuantity="$itemData['quantity'] ?? 0" :wire:key="'category-item-'.$collection->id.'-'.$cat->id" />
+                            @empty
+                                <p class="p-6 text-sm text-slate-500">Sem categorias disponíveis.</p>
+                            @endforelse
+                        </div>
                     </section>
-
-                </details>
-
                 @empty
-                    'sem grupos cadastrados'
+                    <p class="text-center text-slate-500">Nenhum grupo de produtos cadastrado para esta unidade.</p>
                 @endforelse
-
-            </section>
+            </div>
 
         </div>
-
-        @if($weight > 0)
-        <div class="fixed bottom-2 right-2">
-            <x:card class="!bg-secondary !ring-secondary !text-primary font-semibold text-center">
-
-                <x-slot:content class="!flex !items-center justify-center">
-
-                    <x-heroicon-s-shopping-bag class="h-5 w-5 flex-shrink-0 text-accent " /> 
-
-                    <div class="text-sm text-center text-balance">
-                        <span class="text-2xl font-bold p-2 rounded-full">{{ number_format( $weight_max - $weight, 2) }}kg</span> <br>
-                        restantes
-                    </div>
-
-                </x-slot:content>
-
-                <x-slot:footer>
-                    
-                    <div>
-                        <dl class="space-y-2">
-                            <div class="flex items-center justify-between">
-                                <dt class="text-sm font-medium text-slate-900">
-                                    {{ __('Subtotal') }}
-                                </dt>
-                                <dd class="ml-2 text-xl font-semibold text-slate-900">
-                                    <x-money
-                                        :amount="$subTotal"
-                                        :currency="config('app.currency')"
-                                    />
-                                </dd>
-                            </div>
-                        </dl>
-                        
-                    </div>
-
-                </x-slot:footer>
-
-            </x:card>
-        </div>
-        @endif
-
     </div>
 
-    
+    @if($weight > 0)
+        <div class="fixed bottom-4 left-4 z-40 w-72">
+            <div class="rounded-2xl border border-secondary bg-white p-5 shadow-2xl shadow-primary/10">
+                <div class="flex items-center gap-2 text-accent">
+                    <x-heroicon-s-shopping-bag class="h-5 w-5" />
+                    <span class="font-urbanist text-sm font-bold uppercase tracking-wide">Seu Jumbo</span>
+                </div>
+                <dl class="mt-3 space-y-1.5 text-sm">
+                    <div class="flex items-center justify-between">
+                        <dt class="text-slate-500">Itens escolhidos</dt>
+                        <dd class="font-semibold text-primary">{{ count($cartCategories) }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <dt class="text-slate-500">Subtotal</dt>
+                        <dd class="font-semibold text-primary">
+                            <x-money :amount="$subTotal" :currency="config('app.currency')" />
+                        </dd>
+                    </div>
+                </dl>
+                <button type="button" wire:click="openCart" class="mt-4 w-full rounded-full bg-accent py-3 text-sm font-semibold text-white transition-colors hover:bg-primary">
+                    Ver Jumbo completo
+                </button>
+            </div>
+        </div>
+    @endif
 </div>

@@ -1,121 +1,109 @@
-<div>
-    <details close class="group group-2 py-2 text-lg" @if($showProducts) open @endif wire:key="item-{{ $category->id }}">
+<div class="border-b border-secondary/60 last:border-b-0">
 
-        <summary class="relative flex cursor-pointer flex-row items-center space-x-2 p-1 font-semibold text-gray-800 marker:[font-size:0px]">
-            
-            <div   class="flex flex-row items-center grow"  wire:click.prevent="selectCategory" >
-                @if($category->hasMedia('cover'))
-                    <img
-                        class="h-14 w-14 rounded-md object-center m-2"
-                        src="{{ $category->getFirstMediaUrl('cover', 'thumb') }}"
-                        alt="{{ $category->title }}"
-                    >
-                @else
-                    <x-heroicon-o-camera class="absolute inset-0 h-full w-6 mx-auto text-slate-400 dark:text-slate-500" />
-                @endif
-                
-                <span class="ml-3 font-semibold line-clamp-2 text-lg p-2">
-                    {{ $category->title }}
-                </span>  
-            </div>
-
-            <div class="flex-col flex  {{$quantity > 0 ? '' : 'hidden' }} py-2">
-
-                <div class="relative flex items-center max-w-[8rem]">
-                    <button type="button" @if( $quantity <= 0 ) disabled @endif id="decrement-button" wire:click.prevent="decrementQuantity" wire:loading.attr="disabled" class="bg-gray-100  hover:bg-gray-200 border border-gray-300 rounded-s-lg p-2 h-8 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none">
-                        <svg class="w-2 h-2 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
-                        </svg>
-                    </button>
-                    
-                    <input  type="number" min="1" max="{{$category->quantity}}"  wire:model.live="quantity" class="input-number bg-gray-50 border-x-0 border-gray-300 h-8 text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
-                    
-                    <button type="button" wire:click.prevent="incrementQuantity" wire:loading.attr="disabled" id="increment-button"  class="bg-accent   hover:bg-primary border border-gray-300 rounded-e-lg p-2 h-8 focus:ring-accent-100 focus:ring-2 focus:outline-none">
-                        <svg class="w-2 h-2 text-white dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
-                        </svg>
-                    </button>
+    <button
+        type="button"
+        wire:click="selectCategory"
+        class="flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-secondary/10 sm:px-6"
+    >
+        <div class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl bg-complement-500">
+            @if($category->hasMedia('cover'))
+                <img class="h-full w-full object-cover" src="{{ $category->getFirstMediaUrl('cover', 'thumb') }}" alt="{{ $category->title }}">
+            @else
+                <div class="flex h-full w-full items-center justify-center">
+                    <x-heroicon-o-camera class="h-6 w-6 text-slate-400" />
                 </div>
-                <p id="helper-text-explanation" class="text-xs text-gray-500 ">máx. {{$category->quantity}} unid</p>
+            @endif
+        </div>
 
-            </div>
-            
-            
-        </summary>
+        <div class="flex-1">
+            <span class="font-urbanist text-base font-semibold text-primary">{{ $category->title }}</span>
+            @if($selectedProductId)
+                <span class="ml-2 inline-flex items-center rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent">
+                    {{ $selectedQuantity }} de {{ $category->quantity }} escolhido{{ $selectedQuantity > 1 ? 's' : '' }}
+                </span>
+            @else
+                <p class="text-sm text-slate-500">até {{ $category->quantity }} {{ $category->quantity > 1 ? 'unidades' : 'unidade' }}</p>
+            @endif
+        </div>
 
-          
-        <div x-data="{ current: 0 }" class="relative overflow-auto">
-                
-            <ul x-ref="slider" class="scroll-smooth scroll-no-bar snap-mandatory snap-x overflow-x-auto overflow-y-hidden space-x-4 flex flex-nowrap">
-                
-            
-                @forelse( $category->products as $prod)
+        <x-heroicon-s-chevron-down class="h-5 w-5 flex-shrink-0 text-purple transition-transform {{ $showProducts ? 'rotate-180' : '' }}" />
+    </button>
 
-                        <li  wire:key="{{time().$prod->id}}" class="  @if(isset($selectedOptionValues) && sizeof($selectedOptionValues) > 0 && in_array($prod->id, $selectedOptionValues)  ) border-primary @else border-slate-200 @endif snap-center z-0 shrink-0 w-44 group relative flex flex-col overflow-hidden rounded-lg border  hover:border-sky-300 hover:shadow-lg hover:shadow-sky-300/50 transition duration-150">
-                            
-                            <div class="aspect-w-3 aspect-h-4 group-hover:opacity-75 sm:aspect-none">
-                                @if($prod->hasMedia('gallery'))
-                                    {{ $prod->getFirstMedia('gallery')('responsive')->attributes(['alt' => $prod->name, 'class' => 'h-full w-full object-cover object-center sm:h-full sm:w-full p-2']) }}
+    @if($showProducts)
+        <div class="bg-complement-500/40 px-4 py-5 sm:px-6">
+            <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+                @forelse($category->products as $prod)
+                    @php
+                        $isSelected = ($selectedProductId == $prod->id);
+                        $variant = $prod->variants->first();
+                        $variantId = $variant?->id ?? 0;
+                        $unitWeight = $variant ? ($variant->weight_unit === 'g' ? ($variant->weight_value / 1000) : $variant->weight_value) : 0;
+                    @endphp
+                    <li wire:key="prod-{{ $category->id }}-{{ $prod->id }}" @class([
+                        'group relative flex flex-col overflow-hidden rounded-2xl border-2 transition duration-150',
+                        'border-accent shadow-lg shadow-accent/10 bg-accent/5' => $isSelected,
+                        'border-secondary hover:border-accent/50 hover:shadow-md' => !$isSelected,
+                    ])>
+                        <div class="aspect-square bg-complement-500">
+                            @if($prod->hasMedia('gallery'))
+                                {{ $prod->getFirstMedia('gallery')('responsive')->attributes(['alt' => $prod->name, 'class' => 'h-full w-full object-cover object-center p-2']) }}
+                            @else
+                                <img src="{{ $prod->getFirstMediaUrl('gallery') }}" alt="{{ $prod->name }}" class="h-full w-full object-cover object-center">
+                            @endif
+                        </div>
+
+                        <div class="flex flex-1 flex-col items-center gap-2 p-4 text-center">
+                            <h3 class="line-clamp-2 font-urbanist text-sm font-bold text-primary">{{ $prod->name }}</h3>
+                            <p class="text-base font-semibold text-primary">
+                                <x-money :amount="$prod->price" :currency="config('app.currency')" />
+                            </p>
+
+                            <div class="flex w-full flex-col items-center gap-2 pt-1">
+                                @if($isSelected)
+                                    <div class="flex items-center gap-3 rounded-full border border-accent bg-white px-3 py-1.5 shadow-sm">
+                                        <button type="button" 
+                                                wire:click="decrementQuantity({{ $variantId }}, {{ $unitWeight }})" 
+                                                wire:loading.attr="disabled"
+                                                class="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-primary shadow-sm hover:bg-slate-200 disabled:opacity-50">
+                                            −
+                                        </button>
+                                        <span class="w-4 text-center font-urbanist font-bold text-primary" wire:loading.class="opacity-40">
+                                            {{ $selectedQuantity }}
+                                        </span>
+                                        <button type="button" 
+                                                wire:click="incrementQuantity({{ $variantId }}, {{ $unitWeight }})" 
+                                                @disabled($selectedQuantity >= $category->quantity) 
+                                                wire:loading.attr="disabled"
+                                                class="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white shadow-sm hover:bg-primary disabled:opacity-30">
+                                            +
+                                        </button>
+                                    </div>
+                                    <button type="button" 
+                                            wire:click="removeSelection" 
+                                            wire:loading.attr="disabled"
+                                            class="text-xs text-slate-400 underline hover:text-accent disabled:opacity-50">
+                                        Remover
+                                    </button>
                                 @else
-                                    <img
-                                        src="{{ $prod->getFirstMediaUrl('gallery') }}"
-                                        alt="{{ $prod->name }}"
-                                        class="h-full w-full object-cover object-center sm:h-full sm:w-full"
-                                    >
+                                    <button type="button" 
+                                            wire:click="selectProduct({{ $prod->id }}, {{ $variantId }}, {{ $unitWeight }})" 
+                                            wire:loading.attr="disabled"
+                                            class="w-full rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent disabled:opacity-50">
+                                        <span wire:loading.remove wire:target="selectProduct({{ $prod->id }}, {{ $variantId }}, {{ $unitWeight }})">
+                                            {{ $selectedProductId ? __('Trocar por este') : __('Escolher') }}
+                                        </span>
+                                        <span wire:loading wire:target="selectProduct({{ $prod->id }}, {{ $variantId }}, {{ $unitWeight }})">
+                                            Aguarde...
+                                        </span>
+                                    </button>
                                 @endif
                             </div>
-                            <div class="flex flex-1 flex-col items-center text-center space-y-2 p-4">
-                                <h3 class="text-lg font-bold text-slate-900 line-clamp-2">
-                                    
-                                        <span
-                                            aria-hidden="true"
-                                            class="absolute inset-0"
-                                        ></span>
-                                        {{ $prod->name }}
-                                    
-                                </h3>
-                                
-                                <div class="pt-1 flex flex-1 flex-col justify-end">
-                                    <p class="text-base font-semibold text-slate-900">
-                                        <x-money
-                                            :amount="$prod->price"
-                                            :currency="config('app.currency')"
-                                        />
-                                    </p>
-                                </div>
-
-                                <div class="flex w-full">
-                                    
-                                
-                                    <button 
-                                        wire:click.prevent="addToCart({{$prod->id}})" 
-                                        class="z-10 btn btn-primary btn-xl w-full" 
-                                        @disabled( isset($selectedOptionValues) && sizeof($selectedOptionValues) > 0 && in_array($prod->id, $selectedOptionValues) )>
-                                        
-                                        @if(isset($selectedOptionValues) && sizeof($selectedOptionValues) > 0 && in_array($prod->id, $selectedOptionValues)  )
-                                             <x-heroicon-m-check class="h-5 w-5 text-white font-semibold" /> 
-                                        @else
-                                             {{ __('escolher') }}
-                                        @endif
-
-                                    </button>
-                                
-                                </div>
-
-                            </div>
-                        </li>
-                    
-
+                        </div>
+                    </li>
                 @empty
-                    sem produtos
+                    <li class="py-6 text-sm text-slate-500">Sem produtos disponíveis nesta categoria no momento.</li>
                 @endforelse
-
-
             </ul>
-       
-
-        </div>                                        
-
-    
-    </details>
+        </div>
+    @endif
 </div>

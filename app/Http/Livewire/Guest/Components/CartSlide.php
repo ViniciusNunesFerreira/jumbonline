@@ -9,13 +9,12 @@ use Livewire\Component;
 class CartSlide extends Component
 {
     public Cart $cart;
-
     public Collection $cartItems;
-
     public $isShown = false;
 
     protected $listeners = [
         'show' => 'show',
+        'refreshCart' => 'refresh',
     ];
 
     public function mount()
@@ -26,13 +25,21 @@ class CartSlide extends Component
     public function show()
     {
         $this->cart = $this->loadCart();
-
         $this->cartItems = $this->loadCartItems();
-
         $this->isShown = true;
     }
 
-    public function loadCart(): \App\Models\Cart|\Illuminate\Database\Eloquent\Model
+    public function refresh()
+    {
+        if (! $this->isShown) {
+            return;
+        }
+
+        $this->cart = $this->loadCart();
+        $this->cartItems = $this->loadCartItems();
+    }
+
+    public function loadCart(): Cart
     {
         $cart = $this->customer
             ? Cart::query()->firstOrCreate(['customer_id' => $this->customer->id])
@@ -44,6 +51,7 @@ class CartSlide extends Component
             'items.variant.media',
             'items.variant.variantAttributes.option',
             'items.variant.variantAttributes.optionValue',
+            'items.category',
         ]);
 
         return $cart;
@@ -54,16 +62,73 @@ class CartSlide extends Component
         return $this->cart->items;
     }
 
+    public function incrementItem($cartItemId): void
+    {
+        $item = $this->cart->items->find($cartItemId);
+
+        if (! $item || ! $item->category || $item->quantity >= $item->category->quantity) {
+            return;
+        }
+
+        $this->emit('addCart', [
+            'product'  => $item->product_id,
+            'variant'  => $item->variant_id,
+            'category' => $item->category_id,
+            'quantity' => $item->quantity + 1,
+            'weight'   => $this->itemUnitWeight($item),
+        ])->to('guest.product-list');
+    }
+
+    public function decrementItem($cartItemId): void
+    {
+        $item = $this->cart->items->find($cartItemId);
+
+        if (! $item) {
+            return;
+        }
+
+        if ($item->quantity <= 1) {
+            $this->removeCartItem($cartItemId);
+            return;
+        }
+
+        $this->emit('addCart', [
+            'product'  => $item->product_id,
+            'variant'  => $item->variant_id,
+            'category' => $item->category_id,
+            'quantity' => $item->quantity - 1,
+            'weight'   => $this->itemUnitWeight($item),
+        ])->to('guest.product-list');
+    }
+
     public function removeCartItem($cartItemId): void
     {
-        $this->cart->items->find($cartItemId)->delete();
+        $item = $this->cart->items->find($cartItemId);
+        $categoryId = $item?->category_id;
 
-        $this->cart = $this->loadCart();
+        $item?->delete();
 
-        $this->cartItems = $this->loadCartItems();
+        $this->refresh();
 
         $this->emit('refresh')->to('guest.components.header');
         $this->emit('refreshCart')->to('guest.product-list');
+
+        if ($categoryId) {
+            $this->emit('categoryReset', $categoryId);
+        }
+    }
+
+    protected function itemUnitWeight($item): float
+    {
+        $variant = $item->variant;
+
+        if (! $variant) {
+            return 0;
+        }
+
+        return $variant->weight_unit === 'g'
+            ? ($variant->weight_value / 1000)
+            : $variant->weight_value;
     }
 
     public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null

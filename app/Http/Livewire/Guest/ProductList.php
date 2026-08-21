@@ -3,7 +3,6 @@
 namespace App\Http\Livewire\Guest;
 
 use Livewire\Component;
-
 use App\Enums\ProductSaleChannel;
 use App\Models\PrisonUnit;
 use Artesaos\SEOTools\Traits\SEOTools;
@@ -11,62 +10,83 @@ use App\Models\Cart;
 use App\Models\Product;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
-
 class ProductList extends Component
 {
     use SEOTools;
 
     public PrisonUnit $prison;
     public Product $product;
-
     public $prison_phone_format;
-
     public $perPage = 10;
 
-    protected $listeners = ['refreshCart', 'addCart', 'updateCartItemQuantity'];
+    protected $listeners = [
+        'refreshCart', 
+        'addCart', 
+        'updateCartItemQuantity', 
+        'removeCategorySelection'
+    ];
 
-    public array $selectedOptions = [];
-
+    public array $cartCategories = []; 
     public $subTotal = 0;
     public $weight_max = 12;
     public $weight = 0;
 
+    protected ?Cart $cachedCart = null;
+
     public function mount()
     {
-        $this->selectedOptions = $this->cart->items()->pluck('product_id')->toArray();
-        $this->weight = $this->cart->weight;
-        $this->subTotal = $this->cart->subTotal;
-
         $endereco = "{$this->prison->cidade}/{$this->prison->uf}";
 
         $this->seo()->setTitle(
             $this->prison->seo_title ?: "Jumbo para o {$this->prison->name} | Jumbonline"
         );
-
         $this->seo()->setDescription(
             $this->prison->seo_description ?: "Envie o jumbo autorizado para o {$this->prison->name}, em {$endereco}. Itens dentro das normas da unidade, entrega rápida e direta. Monte o jumbo agora."
         );
-
         $this->seo()->setCanonical(route('guest.products.list', $this->prison->slug));
 
-        if($this->prison->phone){
-
+        if ($this->prison->phone) {
             $prison_phone = new PhoneNumber($this->prison->phone, 'BR');
-
             $this->prison_phone_format = $prison_phone->formatNational();
-
         }
+
+        $this->refreshCart();
+    }
+
+    public function getCartProperty(): Cart
+    {
+        if ($this->cachedCart === null) {
+            $this->cachedCart = $this->customer
+                ? Cart::firstOrCreate(['customer_id' => $this->customer->id])
+                : Cart::firstOrCreate(['session_id' => session()->getId()]);
+        }
+
+        return $this->cachedCart;
     }
 
     public function refreshCart()
     {
-        $this->selectedOptions = $this->cart->items()->pluck('product_id')->toArray();
-        $this->cart->load('items');
-        $this->weight = $this->cart->weight;
-        $this->subTotal = $this->cart->subTotal;
+        $this->cachedCart = null;
+        $cart = $this->cart;
+        $cart->load(['items.variant', 'items.product']);
 
-        $this->emit('refresh')->to('guest.components.header');
-        $this->emit('show')->to('guest.components.cart-slide');
+        $this->cartCategories = $cart->items->keyBy('category_id')->map(function ($item) {
+            return [
+                'product_id' => $item->product_id,
+                'quantity'   => $item->quantity,
+            ];
+        })->toArray();
+
+        $this->weight = $cart->weight;
+        $this->subTotal = $cart->subTotal;
+
+        $this->emitTo('guest.components.header', 'refreshCart');
+        $this->emitTo('guest.components.cart-slide', 'refreshCart');
+    }
+
+    public function openCart()
+    {
+        $this->emitTo('guest.components.cart-slide', 'show');
     }
 
     public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null
@@ -74,68 +94,63 @@ class ProductList extends Component
         return \Auth::user();
     }
 
-    public function getCartProperty(): \App\Models\Cart|\Illuminate\Database\Eloquent\Model
+    public function addCart(array $items)
     {
-        return $this->customer
-            ? Cart::query()->firstOrCreate(['customer_id' => $this->customer->id])
-            : Cart::query()->firstOrCreate(['session_id' => session()->getId()]);
-    }
+        $cart = $this->cart;
+        $cart->load('items.variant');
 
-    public function addCart(Array $items)
-    {
-        if( ($this->cart->weight+$items['weight']) <= $this->weight_max){
+        $otherItemsWeight = 0;
+        foreach ($cart->items as $item) {
+            if ($item->category_id != $items['category']) {
+                $variant = $item->variant;
+                if ($variant) {
+                    $unitWeight = $variant->weight_unit === 'g' 
+                        ? ($variant->weight_value / 1000) 
+                        : $variant->weight_value;
+                    $otherItemsWeight += ($unitWeight * $item->quantity);
+                }
+            }
+        }
 
-            $this->cart->items()->updateOrCreate([
-                'category_id' => $items['category'],
-            ], [
-                'product_id' => $items['product'],
-                'variant_id' => $items['variant'],
-                'quantity' => $items['quantity'],
-            ]);
+        $newItemTotalWeight = $items['weight'] * $items['quantity'];
+        $projectedWeight = $otherItemsWeight + $newItemTotalWeight;
 
-            $this->cart->load('items');
+        if ($projectedWeight <= $this->weight_max) {
+            $cart->items()->updateOrCreate(
+                ['category_id' => $items['category']],
+                [
+                    'product_id' => $items['product'],
+                    'variant_id' => $items['variant'],
+                    'quantity'   => $items['quantity'],
+                ]
+            );
+
             $this->refreshCart();
+            
+            $this->emit('categorySync', $items['category'], $items['product'], $items['quantity']);
 
-        }else{
-            $this->notify(trans('Peso máximo do Jumbo: '.$this->weight_max.' kg!'));
+        } else {
+            // Se exceder o peso máximo da unidade, cancela e reseta o card visualmente
+            $this->emit('categoryReset', $items['category']);
+
+            $this->dispatchBrowserEvent('notify', [
+                'message' => 'Peso máximo do Jumbo excedido (' . $this->weight_max . ' kg)!'
+            ]);
         }
-
-        
     }
 
-
-    public function updateCartItemQuantity($categoryId, $quantity)
+    public function removeCategorySelection($categoryId)
     {
-        
-        $item =  $this->cartItems->where('category_id', $categoryId)->firstOrFail();
-        $item->load('category');
-       
-        $max_quantity = $item->category->quantity;
+        $this->cart->items()->where('category_id', $categoryId)->delete();
+        $this->refreshCart();
 
-        if ($quantity < 1) {
-            $this->cartItems->find($item->id)->delete();
-        }
-
-        if($max_quantity >= $quantity){
-            $this->cartItems->find($item->id)->update(['quantity' => $quantity]);
-        }else{
-            return  $this->notify('A quantidade máxima é: '.$max_quantity);
-        }
-        
-        $this->emit('refresh')->self();
-
-       
+        // Notifica o componente da categoria correspondente para resetar os botões na tela
+        $this->emit('categoryReset', $categoryId);
     }
 
-    public function getCartItemsProperty()
+    public function getRowsProperty()
     {
-        return $this->cart->items;
-    }
-
-
-    public function getRowsQueryProperty()
-    {
-       return $this->prison->collections()->with([
+        return $this->prison->collections()->with([
             'categoriesPublished' => function ($query) {
                 $query->whereHas('products', function ($q) {
                     $q->where('sales_channel', '!=', ProductSaleChannel::BALCAO->name);
@@ -143,19 +158,15 @@ class ProductList extends Component
             },
             'categoriesPublished.products' => function ($query) {
                 $query->where('sales_channel', '!=', ProductSaleChannel::BALCAO->name);
-            }
-        ])->get();
+            },
+            'categoriesPublished.products.variants'
+        ])->paginate($this->perPage);
     }
-
-    public function getRowsProperty()
-    {
-        return $this->rowsQuery->paginate($this->perPage);
-    }
-
-    
 
     public function render()
     {
-        return view('livewire.guest.product-list', ['collections' => $this->rows, 'selectedOptions' => $this->selectedOptions ])->layout('layouts.guest');
+        return view('livewire.guest.product-list', [
+            'collections' => $this->rows
+        ])->layout('layouts.guest');
     }
 }
