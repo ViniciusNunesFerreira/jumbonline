@@ -60,14 +60,27 @@
         </script>
 
         <script type="application/ld+json">
-            {!! json_encode([
-                '@context' => 'https://schema.org',
-                '@type' => 'Organization',
-                'name' => 'Jumbonline',
-                'url' => url('/'),
-                'logo' => asset('img/logo.png'),
-                'description' => 'Envio de jumbo autorizado para unidades prisionais de São Paulo — CDP, Penitenciárias, CPP e CR.',
-            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'LocalBusiness',
+            'name' => 'Jumbonline',
+            'url' => url('/'),
+            'logo' => asset('img/mascote-logo-mark.png'),
+            'image' => asset('img/social-card.jpg'),
+            'description' => 'Envio de jumbo autorizado para unidades prisionais de São Paulo — CDP, Penitenciárias, CPP e CR. Única empresa do ramo com atendimento presencial no Estado de São Paulo.',
+            'telephone' => '+5511957923791',
+            'email' => 'contato@jumbonline.com.br',
+            'address' => [
+                '@type' => 'PostalAddress',
+                'streetAddress' => 'Rua Alice Garcia Vega, 82',
+                'addressLocality' => 'São Paulo',
+                'addressRegion' => 'SP',
+                'postalCode' => '02737-050',
+                'addressCountry' => 'BR',
+            ],
+            'areaServed' => 'Estado de São Paulo',
+            'sameAs' => collect($brandSettings->social_links ?? [])->pluck('url')->filter()->values(),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
         </script>
       
         @livewireStyles

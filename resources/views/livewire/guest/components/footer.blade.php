@@ -1,80 +1,67 @@
-<footer
-    class="bg-primary"
-    aria-labelledby="footer-heading"
->
-    <h2
-        id="footer-heading"
-        class="sr-only"
-    >
-        {{ __('Footer') }}
-    </h2>
-    <div @class(['mx-auto max-w-7xl px-6', 'pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32' => $this->layoutSettings->footer_bottom_bar_enabled, 'mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32' => !$this->layoutSettings->footer_bottom_bar_enabled])>
-        <div class="xl:grid xl:grid-cols-3 xl:gap-8">
-            <div class="space-y-8">
-                <a href="/">
-                    <span class="sr-only">{{ config('app.name') }}</span>
-                    <img
-                        src="{{ $brandSettings->logo_path ? Storage::url($brandSettings->logo_path) : asset('img/logo.png') }}"
-                        alt="{{ config('app.name') }}"
-                        class="h-16 w-auto"
-                        height="32"
-                        width="32"
-                        
-                    />
-                </a>
-                <p class="text-sm leading-6 text-slate-300">
+<footer class="bg-primary" aria-labelledby="footer-heading">
+    <h2 id="footer-heading" class="sr-only">{{ __('Footer') }}</h2>
+
+    <div class="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-14">
+        <div class="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 lg:grid-cols-4">
+            <div class="col-span-2 sm:col-span-4 lg:col-span-2">
+                <x-site-logo :brand-settings="$brandSettings" size="md" variant="light" />
+                <p class="mt-3 max-w-xs text-sm leading-relaxed text-slate-300">
                     {{ $brandSettings->slogan }}
                 </p>
+
+                <div class="mt-5 space-y-2.5 text-sm text-slate-300">
+                    <div class="flex items-start gap-2">
+                        <x-heroicon-s-map-pin class="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
+                        <span>Rua Alice Garcia Vega, 82 — Itaberaba, São Paulo/SP — CEP 02737-050</span>
+                    </div>
+                    <a href="tel:+5511957923791" class="flex items-center gap-2 transition-colors hover:text-white">
+                        <x-heroicon-s-phone class="h-4 w-4 flex-shrink-0 text-accent" />
+                        (11) 95792-3791
+                    </a>
+                    <a href="mailto:contato@jumbonline.com.br" class="flex items-center gap-2 transition-colors hover:text-white">
+                        <x-heroicon-s-envelope class="h-4 w-4 flex-shrink-0 text-accent" />
+                        contato@jumbonline.com.br
+                    </a>
+                </div>
+
+                <div class="mt-4 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent">
+                    <x-heroicon-s-map-pin class="h-3.5 w-3.5" />
+                    Única com atendimento presencial em todo o Estado de SP
+                </div>
             </div>
-            <div class="mt-16 grid grid-cols-2 gap-8 sm:grid-cols-4 xl:col-span-2 xl:mt-0">
-                @if($this->footerMenu)
-                    @foreach($this->footerMenu->menuItems as $menuItem)
-                        <div @class(['' => !$loop->first])>
-                            <h3 class="text-sm font-semibold leading-6 text-white">
-                                {{ $menuItem->name }}
-                            </h3>
-                            @if($menuItem->children->count())
-                                <ul
-                                    role="list"
-                                    class="mt-6 space-y-4"
-                                >
-                                    @foreach($menuItem->children as $child)
-                                        <li>
-                                            <a
-                                                href="{{ $child->url }}"
-                                                class="text-sm leading-6 text-slate-300 hover:text-white"
-                                            >
-                                                {{ $child->name }}
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @endif
-                        </div>
+
+
+            <div>
+                <h3 class="font-urbanist text-xs font-semibold uppercase tracking-wide text-accent">
+                    Unidades Atendidas
+                </h3>
+                <ul role="list" class="mt-3 space-y-2.5">
+                    @foreach($this->featuredPrisonUnits as $unit)
+                        <li>
+                            <a href="{{ route('guest.products.list', $unit->slug) }}" class="text-sm text-slate-300 transition-colors hover:text-white">
+                                {{ $unit->name }}
+                            </a>
+                        </li>
                     @endforeach
-                @endif
+                </ul>
             </div>
+
         </div>
-        <div class="mt-16 border-t border-white/10 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
-            <div class="flex space-x-6 md:order-2">
+
+        <div class="mt-10 flex flex-col items-center gap-4 border-t border-white/10 pt-6 sm:flex-row sm:justify-between">
+            <p class="text-xs text-slate-400">
+                {!! $layoutSettings->footer_bottom_bar_message !!}
+            </p>
+            <div class="flex items-center gap-4">
                 @foreach($brandSettings->social_links as $socialLink)
                     @if($socialLink['url'])
-                        <a
-                            href="{{ $socialLink['url'] }}"
-                            class="text-slate-500 hover:text-slate-400"
-                        >
+                        <a href="{{ $socialLink['url'] }}" class="text-slate-400 transition-colors hover:text-accent">
                             <span class="sr-only">{{ $socialLink['name'] }}</span>
-                            <x-icon
-                                name="simpleicon-{{ Str::lower($socialLink['name']) }}"
-                                class="h-6 w-6"
-                            />
+                            <x-icon name="simpleicon-{{ Str::lower($socialLink['name']) }}" class="h-5 w-5" />
                         </a>
                     @endif
                 @endforeach
             </div>
-            <p class="mt-8 text-xs leading-5 text-gray-400 md:order-1 md:mt-0">
-                {!! $layoutSettings->footer_bottom_bar_message !!} 
-            </p>
         </div>
     </div>
 </footer>

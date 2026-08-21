@@ -151,16 +151,7 @@
                     </div>
 
                     {{-- Logo --}}
-                    <a href="/">
-                        <span class="sr-only">{{ config('app.name') }}</span>
-                        <img
-                            src="{{ $brandSettings->logo_path ? Storage::url($brandSettings->logo_path) : asset('img/logo.png') }}"
-                            alt="{{ config('app.name') }}"
-                            class="h-12 w-auto"
-                            height="32"
-                            width="32"
-                        >
-                    </a>
+                    <x-site-logo :brand-settings="$brandSettings" size="md" />
 
                     {{-- Flyout menus --}}
                     <div class="hidden lg:ml-12 lg:block lg:self-stretch">
@@ -178,7 +169,7 @@
                                                     x-on:click="open = !open"
                                                     type="button"
                                                     class="relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out"
-                                                    x-bind:class="{ 'border-sky-600 text-sky-600': open, 'border-transparent text-primary hover:text-accent': !open }"
+                                                    x-bind:class="{ 'border-accent text-accent': open, 'border-transparent text-primary hover:text-accent': !open }"
                                                     x-bind:aria-expanded="open.toString()"
                                                 >
                                                     <span>{{ $menuItem->name }}</span>
@@ -311,13 +302,14 @@
                        
                         <!-- Cart -->
                         <div class="ml-4 flow-root lg:ml-6">
-                            <a
-                                href="{{ route('guest.cart') }}"
-                                class="group -m-2 flex items-center p-2"
-                            >
-                                <x-heroicon-o-shopping-cart class="h-6 w-6 flex-shrink-0 text-slate-400 group-hover:text-slate-500" />
-                                <span class="ml-2 text-sm font-medium text-primary group-hover:text-accent">{{ $itemsCount ?? 0 }}</span>
-                                <span class="sr-only">{{ __('ver carrinho') }}</span>
+                            <a href="{{ route('guest.cart') }}" class="group relative -m-2 flex items-center p-2">
+                                <x-heroicon-o-shopping-cart class="h-6 w-6 flex-shrink-0 text-primary group-hover:text-accent transition-colors" />
+                                @if(($itemsCount ?? 0) > 0)
+                                    <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
+                                        {{ $itemsCount }}
+                                    </span>
+                                @endif
+                                <span class="sr-only">{{ __('ver carrinho, :count itens', ['count' => $itemsCount ?? 0]) }}</span>
                             </a>
                         </div>
                        

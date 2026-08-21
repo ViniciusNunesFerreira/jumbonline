@@ -6,12 +6,18 @@ use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Settings\LayoutSetting;
 use Livewire\Component;
+use App\Models\PrisonUnit;
 
 class Footer extends Component
 {
     public function getLayoutSettingsProperty()
     {
         return app(LayoutSetting::class);
+    }
+
+    public function getFeaturedPrisonUnitsProperty()
+    {
+        return PrisonUnit::query()->orderBy('name')->limit(8)->get(['name', 'slug']);
     }
 
     public function getFooterMenuProperty()
