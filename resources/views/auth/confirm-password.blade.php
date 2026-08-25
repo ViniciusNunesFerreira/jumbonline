@@ -1,46 +1,16 @@
 <x-guest-layout>
-    <div class="py-32">
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <x-card class="!rounded-none sm:!rounded-lg">
-                <x-slot:content class="!py-8 sm:!px-10">
-                    <div class="mb-6 text-sm text-gray-600">
-                        {{ __('Esta é uma área segura do aplicativo. Por favor, confirme sua senha antes de continuar.') }}
-                    </div>
+    <h1 class="font-urbanist text-2xl font-extrabold tracking-tight text-primary">Confirme sua senha</h1>
+    <p class="mt-2 text-sm text-slate-500">Esta é uma área segura — confirme sua senha antes de continuar.</p>
 
-                    <form
-                        method="POST"
-                        action="{{ route('password.confirm') }}"
-                    >
-                        @csrf
-
-                        <!-- Password -->
-                        <div>
-                            <x-input-label
-                                for="password"
-                                :value="__('Password')"
-                            />
-
-                            <x-input
-                                id="password"
-                                class="block mt-1 w-full"
-                                type="password"
-                                required
-                            />
-
-                            <x-input-error
-                                for="password"
-                                class="mt-2"
-                            />
-                        </div>
-
-                        <div class="mt-6">
-                            <button class="btn btn-primary w-full">
-                                {{ __('Confirmar') }}
-                            </button>
-                        </div>
-                    </form>
-                </x-slot:content>
-            </x-card>
+    <form method="POST" action="{{ route('password.confirm') }}" class="mt-8 space-y-5">
+        @csrf
+        <div>
+            <x-input-label for="password" value="Senha" />
+            <x-input id="password" type="password" name="password" required autofocus class="mt-1.5 block w-full" />
+            <x-input-error for="password" class="mt-2" />
         </div>
-    </div>
+        <button type="submit" class="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 hover:bg-primary">
+            Confirmar
+        </button>
+    </form>
 </x-guest-layout>

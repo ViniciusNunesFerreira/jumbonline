@@ -8,8 +8,9 @@ use Illuminate\Notifications\Notifiable;
 use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-class Customer extends Authenticatable implements HasMedia
+class Customer extends Authenticatable implements HasMedia, MustVerifyEmail
 {
     use HasFactory;
     use Notifiable;

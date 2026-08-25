@@ -1,125 +1,40 @@
 <x-guest-layout>
-    <div class="py-32">
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <h1 class="text-center text-3xl font-bold tracking-tight text-slate-900">
-                {{ __('Faça login em sua conta') }}
-            </h1>
-            <p class="mt-2 text-center text-sm text-slate-600">
-                {{ __('Ou') }}
-                <a
-                    href="{{ route('register') }}"
-                    class="btn btn-link"
-                >
-                    {{ __('Criar uma conta para começar') }}
-                </a>
-            </p>
+    <h1 class="font-urbanist text-2xl font-extrabold tracking-tight text-primary">Entrar</h1>
+    <p class="mt-1 text-sm text-slate-500">
+        Ainda não tem conta?
+        <a href="{{ route('register') }}" class="font-semibold text-accent hover:text-primary">Criar agora</a>
+    </p>
+
+    @if(session('status'))
+        <div class="mt-6 rounded-xl bg-accent/10 px-4 py-3 text-sm font-medium text-accent">{{ session('status') }}</div>
+    @endif
+
+    <form method="POST" action="{{ route('login') }}" class="mt-8 space-y-5">
+        @csrf
+        <div>
+            <x-input-label for="email" value="E-mail" />
+            <x-input id="email" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" class="mt-1.5 block w-full" />
+            <x-input-error  class="mt-2" for="email"/>
         </div>
-
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-            <x-card>
-                <x-slot:content class="!py-8 sm:!px-10">
-                    <!-- Session Status -->
-                    @if(session('status'))
-                        <x-alert
-                            class="mb-6"
-                            type="success"
-                            message="{{ session('status') }}"
-                        />
-                    @endif
-
-                    <form
-                        method="POST"
-                        action="{{ route('login') }}"
-                    >
-                        @csrf
-
-                        <!-- Email Address -->
-                        <div>
-                            <x-input-label
-                                for="email"
-                                :value="__('Email')"
-                            />
-
-                            <x-input
-                                id="email"
-                                class="block mt-1 w-full sm:text-sm"
-                                type="email"
-                                name="email"
-                                :value="old('email')"
-                                required
-                                autofocus
-                            />
-
-                            <x-input-error
-                                for="email"
-                                class="mt-2"
-                            />
-                        </div>
-
-                        <!-- Password -->
-                        <div class="mt-6">
-                            <x-input-label
-                                for="password"
-                                :value="__('Senha')"
-                            />
-
-                            <x-input
-                                id="password"
-                                class="block mt-1 w-full sm:text-sm"
-                                type="password"
-                                name="password"
-                                required
-                                autocomplete="current-password"
-                            />
-
-                            <x-input-error
-                                for="password"
-                                class="mt-2"
-                            />
-                        </div>
-
-                        <div class="mt-6 flex items-center justify-center flex-col">
-                            {!! NoCaptcha::renderJs() !!}
-                            {!! NoCaptcha::display() !!}
-                            @error('g-recaptcha-response')
-                                <span class="text-warning mt-1">@lang($message)</span>
-                            @enderror
-                        </div>
-
-                        <!-- Remember Me -->
-                        <div class="mt-6 flex items-center justify-between">
-                            <div class="flex items-center">
-                                <x-input
-                                    type="checkbox"
-                                    name="remember_me"
-                                    id="remember_me"
-                                    class="h-4 w-4 !rounded !shadow-none"
-                                />
-
-                                <x-input-label
-                                    for="remember_me"
-                                    :value="__('Lembrar de mim')"
-                                    class="ml-2"
-                                />
-                            </div>
-                            <div class="text-sm">
-                                <a
-                                    href="{{ route('password.request') }}"
-                                    class="btn btn-link"
-                                >
-                                    {{ __('Esqueceu sua senha?') }}
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="mt-6">
-                            <button class="btn btn-primary w-full">
-                                {{ __('Entrar') }}
-                            </button>
-                        </div>
-                    </form>
-                </x-slot:content>
-            </x-card>
+        <div>
+            <x-input-label for="password" value="Senha" />
+            <x-input id="password" type="password" name="password" required autocomplete="current-password" class="mt-1.5 block w-full" />
+            <x-input-error  class="mt-2" for="password" />
         </div>
-    </div>
+        <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center gap-2 text-slate-600">
+                <x-input type="checkbox" name="remember_me" class="h-4 w-4 rounded !shadow-none" />
+                Lembrar de mim
+            </label>
+            <a href="{{ route('password.request') }}" class="font-medium text-purple hover:text-accent">Esqueceu a senha?</a>
+        </div>
+        <div class="flex justify-center pt-1">
+            {!! NoCaptcha::renderJs() !!}
+            {!! NoCaptcha::display() !!}
+            @error('g-recaptcha-response')<span class="text-sm text-warning">{{ $message }}</span>@enderror
+        </div>
+        <button type="submit" class="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 transition-transform hover:scale-[1.01] hover:bg-primary">
+            Entrar
+        </button>
+    </form>
 </x-guest-layout>

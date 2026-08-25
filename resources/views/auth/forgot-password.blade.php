@@ -1,67 +1,27 @@
 <x-guest-layout>
-    <div class="py-32">
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <x-card>
-                <x-slot:content class="!py-8 sm:!px-10">
-                    <div class="mb-6 text-sm text-gray-600">
-                        {{ __('Esqueceu sua senha? Sem problemas. Basta nos informar seu endereço de e-mail e enviaremos por e-mail um link de redefinição de senha que permitirá que você escolha uma nova.') }}
-                    </div>
+    <h1 class="font-urbanist text-2xl font-extrabold tracking-tight text-primary">Esqueceu a senha?</h1>
+    <p class="mt-2 text-sm text-slate-500">
+        Sem problemas. Informe seu e-mail e mandamos um link pra você escolher uma nova.
+    </p>
 
-                    <!-- Session Status -->
-                    @if(session('status'))
-                        <x-alert
-                            class="mb-6"
-                            type="success"
-                            message="{{ session('status') }}"
-                        />
-                    @endif
+    @if(session('status'))
+        <div class="mt-6 rounded-xl bg-accent/10 px-4 py-3 text-sm font-medium text-accent">{{ session('status') }}</div>
+    @endif
 
-                    <form
-                        method="POST"
-                        action="{{ route('password.email') }}"
-                    >
-                        @csrf
-
-                        <!-- Email Address -->
-                        <div>
-                            <x-input-label
-                                for="email"
-                                :value="__('Seu Email')"
-                            />
-
-                            <x-input
-                                id="email"
-                                class="block mt-1 w-full sm:text-sm"
-                                type="email"
-                                name="email"
-                                :value="old('email')"
-                                required
-                                autofocus
-                            />
-
-                            <x-input-error
-                                for="email"
-                                class="mt-2"
-                            />
-                        </div>
-
-                        <div class="mt-6 flex items-center justify-center flex-col">
-                            {!! NoCaptcha::renderJs() !!}
-                            {!! NoCaptcha::display() !!}
-                            @error('g-recaptcha-response')
-                                <span class="text-warning mt-1">@lang($message)</span>
-                            @enderror
-                        </div>
-
-
-                        <div class="mt-6">
-                            <button class="btn btn-primary w-full">
-                                {{ __('Link de redefinição de senha') }}
-                            </button>
-                        </div>
-                    </form>
-                </x-slot:content>
-            </x-card>
+    <form method="POST" action="{{ route('password.email') }}" class="mt-8 space-y-5">
+        @csrf
+        <div>
+            <x-input-label for="email" value="Seu e-mail" />
+            <x-input id="email" type="email" name="email" :value="old('email')" required autofocus class="mt-1.5 block w-full" />
+            <x-input-error for="email" class="mt-2" />
         </div>
-    </div>
+        <div class="flex justify-center pt-1">
+            {!! NoCaptcha::renderJs() !!}
+            {!! NoCaptcha::display() !!}
+            @error('g-recaptcha-response')<span class="text-sm text-warning">{{ $message }}</span>@enderror
+        </div>
+        <button type="submit" class="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 hover:bg-primary">
+            Enviar link de redefinição
+        </button>
+    </form>
 </x-guest-layout>

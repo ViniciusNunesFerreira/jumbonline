@@ -13,6 +13,7 @@ use Livewire\Livewire;
 use App\Observers\CartItemObserver;
 use App\Observers\CartObserver;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -59,6 +60,8 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Exception $e) {
             return;
         }
+
+        Password::defaults(fn () => Password::min(8)->mixedCase()->numbers());
 
         Model::preventLazyLoading(! app()->isProduction());
 

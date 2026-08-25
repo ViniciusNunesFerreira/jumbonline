@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Propaganistas\LaravelPhone\Rules\Phone;
 
 class RegisteredUserController extends Controller
 {
@@ -39,14 +40,18 @@ class RegisteredUserController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . Customer::class],
+            'email' => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:' . Customer::class],
+            'phone' => ['required', 'string', (new Phone())->country($request->phone_country ?: 'BR'), 'unique:' . Customer::class . ',phone'],
+            'phone_country' => ['required', 'string', 'size:2'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'g-recaptcha-response' => ['sometimes','required','captcha']
+            'g-recaptcha-response' => ['required','captcha']
         ], $msg);
 
         $customer = Customer::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'phone_country' => $request->phone_country,
             'password' => Hash::make($request->password),
         ]);
 

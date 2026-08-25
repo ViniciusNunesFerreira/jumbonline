@@ -79,8 +79,13 @@ class Purchase extends Component
     public function mount(Request $request)
     {
         if ($this->cartItems->isEmpty()) return redirect()->route('guest.welcome');
+
         if ($this->checkout_settings->requires_login && ! auth()->check()) {
             return redirect()->route('login');
+        }
+        
+        if (auth()->check() && ! auth()->user()->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
         }
         
         /*if(!$request->session()->has('prison')) {

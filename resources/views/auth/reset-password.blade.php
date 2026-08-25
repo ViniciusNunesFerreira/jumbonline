@@ -1,104 +1,31 @@
 <x-guest-layout>
-    <div class="py-32">
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-            <x-card>
-                <x-slot:content class="!py-8 sm:!px-10">
-                    <form
-                        method="POST"
-                        action="{{ route('password.store') }}"
-                    >
-                        @csrf
+    <h1 class="font-urbanist text-2xl font-extrabold tracking-tight text-primary">Redefinir senha</h1>
 
-                        <!-- Password Reset Token -->
-                        <input
-                            type="hidden"
-                            name="token"
-                            value="{{ $request->route('token') }}"
-                        >
-
-                        <!-- Email Address -->
-                        <div>
-                            <x-input-label
-                                for="email"
-                                :value="__('Email')"
-                            />
-
-                            <x-input
-                                id="email"
-                                class="block mt-1 w-full sm:text-sm"
-                                type="email"
-                                name="email"
-                                :value="old('email', $request->email)"
-                                required
-                                readonly
-                            />
-
-                            <x-input-error
-                                for="email"
-                                class="mt-2"
-                            />
-                        </div>
-
-                        <!-- Password -->
-                        <div class="mt-6">
-                            <x-input-label
-                                for="password"
-                                :value="__('Nova Senha')"
-                            />
-
-                            <x-input
-                                id="password"
-                                class="block mt-1 w-full sm:text-sm"
-                                type="password"
-                                name="password"
-                                required
-                                autofocus
-                            />
-
-                            <x-input-error
-                                for="password"
-                                class="mt-2"
-                            />
-                        </div>
-
-                        <!-- Confirm Password -->
-                        <div class="mt-6">
-                            <x-input-label
-                                for="password_confirmation"
-                                :value="__('Confirme a nova senha')"
-                            />
-
-                            <x-input
-                                id="password_confirmation"
-                                class="block mt-1 w-full sm:text-sm"
-                                type="password"
-                                name="password_confirmation"
-                                required
-                            />
-
-                            <x-input-error
-                                for="password_confirmation"
-                                class="mt-2"
-                            />
-                        </div>
-
-
-                        <div class="mt-6 flex items-center justify-center flex-col">
-                            {!! NoCaptcha::renderJs() !!}
-                            {!! NoCaptcha::display() !!}
-                            @error('g-recaptcha-response')
-                                <span class="text-warning mt-1">@lang($message)</span>
-                            @enderror
-                        </div>
-
-                        <div class="mt-6">
-                            <button class="btn btn-primary w-full">
-                                {{ __('Redefinir Senha') }}
-                            </button>
-                        </div>
-                    </form>
-                </x-slot:content>
-            </x-card>
+    <form method="POST" action="{{ route('password.store') }}" class="mt-8 space-y-5">
+        @csrf
+        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+        <div>
+            <x-input-label for="email" value="E-mail" />
+            <x-input id="email" type="email" name="email" :value="old('email', $request->email)" required readonly class="mt-1.5 block w-full" />
+            <x-input-error for="email" class="mt-2" />
         </div>
-    </div>
+        <div>
+            <x-input-label for="password" value="Nova senha" />
+            <x-input id="password" type="password" name="password" required autofocus class="mt-1.5 block w-full" />
+            <x-input-error for="password" class="mt-2" />
+        </div>
+        <div>
+            <x-input-label for="password_confirmation" value="Confirme a nova senha" />
+            <x-input id="password_confirmation" type="password" name="password_confirmation" required class="mt-1.5 block w-full" />
+            <x-input-error for="password_confirmation" class="mt-2" />
+        </div>
+        <div class="flex justify-center pt-1">
+            {!! NoCaptcha::renderJs() !!}
+            {!! NoCaptcha::display() !!}
+            @error('g-recaptcha-response')<span class="text-sm text-warning">{{ $message }}</span>@enderror
+        </div>
+        <button type="submit" class="w-full rounded-full bg-accent py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 hover:bg-primary">
+            Redefinir senha
+        </button>
+    </form>
 </x-guest-layout>

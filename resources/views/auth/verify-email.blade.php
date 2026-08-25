@@ -1,50 +1,25 @@
 <x-guest-layout>
-    <div class="py-32">
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-            <x-card>
-                <x-slot:content class="!py-8 sm:!px-10">
-                    <div class="mb-6 text-sm text-gray-600">
-                        {{ __('Obrigado por se inscrever! Antes de começar, você poderia verificar seu endereço de e-mail clicando no link que acabamos de enviar para você? Se você não recebeu o e-mail, teremos prazer em lhe enviar outro.') }}
-                    </div>
+    <h1 class="font-urbanist text-2xl font-extrabold tracking-tight text-primary">Confirme seu e-mail</h1>
+    <p class="mt-3 text-sm leading-relaxed text-slate-500">
+        Antes de finalizar uma compra, precisamos confirmar seu e-mail. Clicamos no link que te enviamos — se não chegou, reenviamos abaixo.
+    </p>
 
-                    @if (session('status') == 'verification-link-sent')
-                        <x-alert
-                            class="mb-6"
-                            type="success"
-                            message="{{ __('Um novo link de verificação foi enviado para o endereço de e-mail que você forneceu durante o registro.') }}"
-                        />
-                    @endif
-
-                    <div class="mt-6 flex items-center justify-between">
-                        <form
-                            method="POST"
-                            action="{{ route('verification.send') }}"
-                        >
-                            @csrf
-
-                            <div>
-                                <button class="btn btn-primary w-full">
-                                    {{ __('Reenviar e-mail de verificação') }}
-                                </button>
-                            </div>
-                        </form>
-
-                        <form
-                            method="POST"
-                            action="{{ route('logout') }}"
-                        >
-                            @csrf
-
-                            <button
-                                type="submit"
-                                class="btn btn-link"
-                            >
-                                {{ __('Sair') }}
-                            </button>
-                        </form>
-                    </div>
-                </x-slot:content>
-            </x-card>
+    @if (session('status') == 'verification-link-sent')
+        <div class="mt-6 rounded-xl bg-accent/10 px-4 py-3 text-sm font-medium text-accent">
+            Novo link de verificação enviado para o e-mail cadastrado.
         </div>
+    @endif
+
+    <div class="mt-8 flex items-center justify-between gap-4">
+        <form method="POST" action="{{ route('verification.send') }}">
+            @csrf
+            <button type="submit" class="rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-accent/30 hover:bg-primary">
+                Reenviar e-mail
+            </button>
+        </form>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="text-sm font-medium text-slate-400 hover:text-accent">Sair</button>
+        </form>
     </div>
 </x-guest-layout>
