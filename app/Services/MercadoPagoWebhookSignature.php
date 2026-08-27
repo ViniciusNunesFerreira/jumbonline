@@ -54,7 +54,12 @@ class MercadoPagoWebhookSignature
             'has_x_signature' => (bool) $xSignature,
             'has_x_request_id' => (bool) $xRequestId,
             'data_id' => $dataId,
-            'is_valid' => $isValid,  // agora sabemos se passou ou não, sem precisar adivinhar
+            'ts' => $ts,
+            'x_request_id' => $xRequestId,
+            'manifest' => $manifest,
+            'hash_recebido' => $hash,
+            'hash_calculado' => $computedSignature,
+            'is_valid' => $isValid,
         ]);
 
         return $isValid;
