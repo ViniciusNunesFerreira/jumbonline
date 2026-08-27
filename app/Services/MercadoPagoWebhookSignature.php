@@ -17,11 +17,6 @@ class MercadoPagoWebhookSignature
         $xRequestId = $request->header('x-request-id');
         $dataId = $request->query('data.id') ?? $request->query('id') ?? $request->input('data.id');
 
-        \Log::debug('MP webhook signature check', [
-            'has_x_signature' => (bool) $xSignature,
-            'has_x_request_id' => (bool) $xRequestId,
-            'data_id' => $dataId,
-        ]);
 
         if (! $xSignature || ! $dataId) {
             return false;
@@ -53,6 +48,15 @@ class MercadoPagoWebhookSignature
 
         $computedSignature = hash_hmac('sha256', $manifest, $secret);
 
-        return hash_equals($computedSignature, $hash);
+        $isValid = hash_equals($computedSignature, $hash);
+
+        \Log::debug('MP webhook signature check', [
+            'has_x_signature' => (bool) $xSignature,
+            'has_x_request_id' => (bool) $xRequestId,
+            'data_id' => $dataId,
+            'is_valid' => $isValid,  // agora sabemos se passou ou não, sem precisar adivinhar
+        ]);
+
+        return $isValid;
     }
 }

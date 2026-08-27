@@ -57,7 +57,7 @@ class PDVPaymentController extends Controller
         if (strtolower($requestedMethod) === 'pix') {
             try {
                 $pixData = $mpService->generatePix($payment, $order, $order->customer);
-                $payment->update(['reference' => $pixData['mp_payment_id']]);
+               // $payment->update(['reference' => $pixData['mp_payment_id']]);
 
                 return response()->json([
                     'success' => true,

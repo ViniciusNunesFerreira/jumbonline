@@ -24,7 +24,10 @@ class PDVMercadoPagoWebhookController extends Controller
         // MP envia { "action": "payment.updated", "data": { "id": "123456" } }
         if ($request->input('action') === 'payment.updated' || $request->input('type') === 'payment') {
             
-            $mpPaymentId = $request->input('data.id');
+            $mpPaymentId = $request->query('data.id')
+                ?? $request->query('id')
+                ?? data_get($request->all(), 'data.id')
+                ?? $request->input('id');
             
             try {
                 $mpData = $mpService->getPayment($mpPaymentId);
