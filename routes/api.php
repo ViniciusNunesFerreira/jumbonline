@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\V1\PDV\PDVPaymentController;
 use App\Http\Controllers\Api\V1\PDV\PrisonUnitController;
 use App\Http\Controllers\Api\V1\PDV\CepController;
 use App\Http\Controllers\Api\V1\PDV\ShippingController;
-use App\Http\Controllers\Api\V1\Webhook\PDVMercadoPagoWebhookController;
+//use App\Http\Controllers\Api\V1\Webhook\PDVMercadoPagoWebhookController;
 
 
 
@@ -121,9 +121,9 @@ Route::prefix('v1/pdv/auth')->name('pdv.auth.')->group(function () {
     });
 });
 
-Route::prefix('v1/webhooks')->group(function () {
+/*Route::prefix('v1/webhooks')->group(function () {
     Route::post('/mercadopago', [PDVMercadoPagoWebhookController::class, 'handle']);
-});
+});*/
 
 
 

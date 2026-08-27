@@ -27,7 +27,8 @@ class PDVMercadoPagoService
             'transaction_amount' => (float) $payment->amount,
             'description' => 'Venda Balcão PDV #' . $order->id,
             'payment_method_id' => 'pix',
-            'external_reference' => (string) $payment->id, 
+            'external_reference' => (string) $payment->id,
+            'notification_url' => route('webhook-client-mercadopago'), 
             'payer' => [
                 'email' => $customer ? $customer->email : 'pdv@jumbonline.com.br',
                 'first_name' => $customer ? $customer->name : 'Cliente',
