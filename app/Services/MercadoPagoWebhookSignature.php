@@ -8,12 +8,6 @@ class MercadoPagoWebhookSignature
 {
     public static function isValid(Request $request, ?string $secret): bool
     {
-        
-        \Log::debug('MP webhook signature check', [
-            'has_x_signature' => (bool) $xSignature,
-            'has_x_request_id' => (bool) $xRequestId,
-            'data_id' => $dataId,
-        ]);
 
         if (empty($secret)) {
             return false;
@@ -22,6 +16,12 @@ class MercadoPagoWebhookSignature
         $xSignature = $request->header('x-signature');
         $xRequestId = $request->header('x-request-id');
         $dataId = $request->query('data.id') ?? $request->query('id') ?? $request->input('data.id');
+
+        \Log::debug('MP webhook signature check', [
+            'has_x_signature' => (bool) $xSignature,
+            'has_x_request_id' => (bool) $xRequestId,
+            'data_id' => $dataId,
+        ]);
 
         if (! $xSignature || ! $dataId) {
             return false;
