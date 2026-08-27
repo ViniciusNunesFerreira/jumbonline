@@ -17,8 +17,13 @@
         units: {{ Illuminate\Support\Js::from($flatUnits->values()) }},
         get filtered() {
             if (this.search.length < 2) return this.units;
-            const term = this.search.toLowerCase();
-            return this.units.filter(u => u.name.toLowerCase().includes(term) || u.category.toLowerCase().includes(term));
+            const normalize = (str) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            const searchTerms = normalize(this.search).split(/\s+/).filter(Boolean);
+            return this.units.filter(unit => {
+                const targetText = normalize(`${unit.name} ${unit.category}`);
+                
+                return searchTerms.every(term => targetText.includes(term));
+            });
         },
         select(unit) {
             $wire.set('{{ $model }}', unit.slug);
