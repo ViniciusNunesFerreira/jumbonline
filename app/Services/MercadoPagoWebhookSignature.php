@@ -8,13 +8,20 @@ class MercadoPagoWebhookSignature
 {
     public static function isValid(Request $request, ?string $secret): bool
     {
+        
+        \Log::debug('MP webhook signature check', [
+            'has_x_signature' => (bool) $xSignature,
+            'has_x_request_id' => (bool) $xRequestId,
+            'data_id' => $dataId,
+        ]);
+
         if (empty($secret)) {
             return false;
         }
 
         $xSignature = $request->header('x-signature');
         $xRequestId = $request->header('x-request-id');
-        $dataId = $request->query('data.id') ?? $request->input('data.id');
+        $dataId = $request->query('data.id') ?? $request->query('id') ?? $request->input('data.id');
 
         if (! $xSignature || ! $dataId) {
             return false;
@@ -37,7 +44,13 @@ class MercadoPagoWebhookSignature
             return false;
         }
 
-        $manifest = "id:" . strtolower($dataId) . ";request-id:{$xRequestId};ts:{$ts};";
+        // Monta o manifesto só com as partes que realmente vieram — conforme a doc oficial da MP
+        $manifest = "id:" . strtolower($dataId) . ";";
+        if ($xRequestId) {
+            $manifest .= "request-id:{$xRequestId};";
+        }
+        $manifest .= "ts:{$ts};";
+
         $computedSignature = hash_hmac('sha256', $manifest, $secret);
 
         return hash_equals($computedSignature, $hash);
