@@ -31,6 +31,13 @@ class PDVMercadoPagoWebhookController extends Controller
             
             try {
                 $mpData = $mpService->getPayment($mpPaymentId);
+
+                \Log::debug('MP webhook payment data', [
+                    'mp_payment_id_usado' => $mpPaymentId,
+                    'external_reference_recebido' => $mpData['external_reference'] ?? 'AUSENTE',
+                    'status_recebido' => $mpData['status'] ?? 'AUSENTE',
+                    'payment_encontrado' => Payment::find($mpData['external_reference'] ?? null) ? 'sim' : 'não',
+                ]);
                 
                 // O MP devolve a referência externa que mandamos (nosso Payment ID)
                 $paymentId = $mpData['external_reference'];
