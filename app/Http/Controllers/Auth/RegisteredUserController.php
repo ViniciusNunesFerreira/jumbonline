@@ -41,8 +41,8 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:' . Customer::class],
-            'phone' => ['required', 'string', (new Phone())->country($request->phone_country ?: 'BR'), 'unique:' . Customer::class . ',phone'],
             'phone_country' => ['required', 'string', 'size:2'],
+            'phone' => ['required', 'string', (new Phone())->country($request->phone_country ?: 'BR'), 'unique:' . Customer::class . ',phone'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'g-recaptcha-response' => ['required','captcha']
         ], $msg);
@@ -50,8 +50,8 @@ class RegisteredUserController extends Controller
         $customer = Customer::create([
             'name' => $request->name,
             'email' => $request->email,
-            'phone' => $request->phone,
             'phone_country' => $request->phone_country,
+            'phone' => $request->phone,
             'password' => Hash::make($request->password),
         ]);
 

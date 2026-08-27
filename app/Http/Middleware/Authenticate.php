@@ -18,5 +18,8 @@ class Authenticate extends Middleware
             }
             return route('login');
         }
+
+        return null; // linha que faltava
     }
+    
 }
