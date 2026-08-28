@@ -1,103 +1,61 @@
 <div>
     <div x-data="{ selected: @entangle('selected') }">
-        <x-card class="overflow-hidden">
-            <x-slot:header>
-                <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
-                    <div class="ml-4 mt-2">
-                        <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                            Fotos da Carteirinha (Frente x Verso)
-                        </h3>
+        <div class="rounded-2xl border border-secondary bg-complement-500 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <h3 class="font-urbanist text-sm font-semibold text-primary">Fotos da Carteirinha (Frente e Verso)</h3>
+                <button
+                    x-show="selected.length"
+                    x-cloak
+                    wire:click="$set('confirmingMediaDeletion', true)"
+                    type="button"
+                    class="text-sm font-semibold text-warning hover:text-primary"
+                >
+                    {{ trans_choice('Excluir :count arquivo|Excluir :count arquivos', count($selected)) }}
+                </button>
+            </div>
+
+            <x-input-error for="media.*" class="mt-2" />
+
+            <div class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+                @foreach($visitante->getMedia('gallery') as $medium)
+                    <div class="group relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-xl border border-secondary bg-white">
+                        <img src="{{ $medium->getUrl() }}" alt="{{ $medium->name }}" class="h-full w-full object-contain transition group-hover:scale-105" />
+                        <div class="absolute inset-0 bg-primary/0 transition-colors group-hover:bg-primary/10"></div>
+                        <x-input
+                            wire:model="selected"
+                            type="checkbox"
+                            class="absolute left-2 top-2 !rounded !border-secondary !shadow-sm checked:!bg-accent"
+                            value="{{ $medium->id }}"
+                        />
                     </div>
-                    <div class="ml-4 mt-2 flex-shrink-0">
-                        <button
-                            x-show="selected.length"
-                            x-cloak
-                            wire:click="$set('confirmingMediaDeletion', true)"
-                            type="button"
-                            class="btn p-0 text-red-500 hover:text-red-600 dark:hover:text-red-400"
-                        >
-                            {{ trans_choice('Delete :count file|Delete :count files', count($selected)) }}
-                        </button>
+                @endforeach
+
+                <label for="mediaUpload" class="relative flex aspect-[3/4] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-secondary bg-white text-center transition hover:border-accent">
+                    <div wire:target="media" wire:loading.flex class="absolute inset-0 hidden items-center justify-center bg-white/90">
+                        <x-loading-spinner class="h-8 w-8 text-accent" />
                     </div>
-                </div>
-            </x-slot:header>
-            <x-slot:content class="-mt-5">
-                <x-input-error
-                    for="media.*"
-                    class="mb-2"
-                />
-                <div @class(['grid  grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr' => $visitante->hasMedia('gallery')])>
-                    @foreach($visitante->getMedia('gallery') as $medium)
-                        <div @class(['relative overflow-hidden border w-60 h-80 border-slate-200 group rounded-md flex items-center justify-center dark:border-slate-200/20'])>
-                            <img
-                                src="{{ $medium->getUrl() }}"
-                                alt="{{ $medium->name }}"
-                                class="h-full w-full object-contain object-center transition group-hover:scale-125"
-                            />
-                            <div class="absolute inset-0 group-hover:bg-opacity-50 group-hover:bg-slate-600 rounded-md transition-all"></div>
-                            <x-input
-                                wire:model="selected"
-                                type="checkbox"
-                                class="absolute top-2 left-2 !rounded !shadow-none dark:!bg-slate-900 dark:checked:!bg-sky-500"
-                                x-bind:class="{ 'opacity-0 group-hover:opacity-100': !selected.length }"
-                                value="{{ $medium->id }}"
-                            />
-                        </div>
-                    @endforeach
-                    <label
-                        for="mediaUpload"
-                        class="py-4 relative flex items-center justify-center border-2 border-slate-300 border-dashed rounded-md hover:border-slate-400 cursor-pointer transition group dark:border-slate-700 dark:hover:border-slate-600"
-                    >
-                        <div
-                            wire:target="media"
-                            wire:loading.flex
-                            class="hidden absolute inset-0 flex items-center justify-center bg-white dark:bg-slate-850"
-                        >
-                            <x-loading-spinner class="h-10 w-10 text-sky-500" />
-                        </div>
-                        <div class="space-y-1 text-center">
-                            <x-heroicon-m-arrow-up-tray class="mx-auto h-10 w-10 text-slate-400" />
-                            <div class="flex text-sm text-slate-600">
-                                <span class="font-medium text-sky-600 group-hover:text-sky-500 group-hover:underline dark:group-hover:text-sky-400">{{ __('Upload') }}</span>
-                                <x-input
-                                    wire:model="media"
-                                    type="file"
-                                    id="mediaUpload"
-                                    class="sr-only"
-                                    accept="image/*"
-                                    multiple
-                                />
-                            </div>
-                        </div>
-                    </label>
-                </div>
-            </x-slot:content>
-        </x-card>
+                    <x-heroicon-o-arrow-up-tray class="h-8 w-8 text-accent" />
+                    <span class="px-2 text-xs font-semibold text-primary">Enviar foto</span>
+                    <x-input wire:model="media" type="file" id="mediaUpload" class="sr-only" accept="image/*" multiple />
+                </label>
+            </div>
+        </div>
     </div>
+
     <x-modal-alert wire:model.defer="confirmingMediaDeletion">
-        <x-slot:title>
-            {{ __('Por favor, confirme sua ação!') }}
-        </x-slot:title>
+        <x-slot:title>Confirme sua ação</x-slot:title>
         <x-slot:content>
-            <p class="text-sm text-slate-500 dark:text-slate-400">
-                {{ trans_choice('Tem certeza de que deseja excluir :count arquivo?|Tem certeza de que deseja excluir :count arquivos?', count($selected)) }}
-                {{ __('Esta ação não pode ser desfeita!') }}
+            <p class="text-sm text-slate-500">
+                {{ trans_choice('Tem certeza que deseja excluir :count arquivo?|Tem certeza que deseja excluir :count arquivos?', count($selected)) }}
+                Esta ação não pode ser desfeita.
             </p>
         </x-slot:content>
         <x-slot:footer>
-            <button
-                wire:click.prevent="delete"
-                type="button"
-                class="btn btn-primary w-full sm:ml-3 sm:w-auto"
-            >
-                {{ __('Deletar') }}
+            <button wire:click.prevent="delete" type="button" class="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary sm:ml-3">
+                Excluir
             </button>
-            <button
-                wire:click="$set('confirmingMediaDeletion', false)"
-                type="button"
-                class="mt-3 btn btn-invisible w-full sm:mt-0 sm:w-auto"
-            >
-                {{ __('Cancelar') }}
+            <button wire:click="$set('confirmingMediaDeletion', false)" type="button" class="mt-3 rounded-full border border-secondary px-6 py-2.5 text-sm font-semibold text-primary hover:bg-complement-500 sm:mt-0">
+                Cancelar
             </button>
         </x-slot:footer>
     </x-modal-alert>

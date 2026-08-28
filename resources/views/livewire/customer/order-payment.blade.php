@@ -1,214 +1,186 @@
-<div>
+<div x-data="{ showError: false, errorMessage: '' }" x-on:payment-error.document="showError = true; errorMessage = $event.detail.message">
+    <x-slot:title>{{ __('Pedido - :orderId', ['orderId' => $order->id]) }}</x-slot:title>
 
-    <x-slot:title>
-        {{ __('Pedido - :orderId', ['orderId' => $order->id]) }}
-    </x-slot:title>
+    <div class="bg-complement-500 w-full py-10">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6">
 
+            <div class="mb-6 flex items-center justify-center gap-2 text-sm font-semibold text-purple">
+                <x-heroicon-s-lock-closed class="h-4 w-4 text-accent" /> Etapa final — pagamento seguro
+            </div>
 
-    <div class="bg-complement-500 w-full ">
-        <div class="mx-auto max-w-7xl p-5">
-            <x-card>
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-5">
 
-                <x-slot:header>
-                    
-
-                    <dl class="space-y-6 border-b border-primary p-5 text-md mt-5">
-
-                        <p class="text-lg text-primary text-center ">
+                <!-- Pagamento - foco principal -->
+                <div class="order-2 lg:order-1 lg:col-span-3">
+                    <div class="rounded-3xl border border-secondary bg-white p-6 sm:p-8">
+                        <div @class([
+                            'flex items-start gap-3 rounded-2xl p-4 text-sm',
+                            'bg-complement-500 text-slate-600' => $order->payment_status === \App\Enums\PaymentStatus::UNPAID,
+                            'bg-warning/10 text-primary' => $order->payment_status === \App\Enums\PaymentStatus::PENDING,
+                            'bg-success/10 text-primary' => !in_array($order->payment_status, [\App\Enums\PaymentStatus::UNPAID, \App\Enums\PaymentStatus::PENDING]),
+                        ])>
                             @if($order->payment_status === \App\Enums\PaymentStatus::UNPAID)
-                                {{ __('Para finalizar o seu pedido, pedimos a gentileza de efetuar o pagamento.
-                                    Por favor, escolha uma das opções disponível abaixo para concluir sua compra.') }}
+                                <x-heroicon-s-credit-card class="h-5 w-5 flex-shrink-0 text-accent" />
+                                <span>Escolha uma das opções abaixo pra finalizar seu pedido.</span>
                             @elseif($order->payment_status === \App\Enums\PaymentStatus::PENDING)
-                                {{ __('Estamos aguardando a confirmação do seu pagamento. Enviaremos um e-mail de confirmação assim que seu pagamento for confirmado.') }}
-                            @elseif($order->payment_status === \App\Enums\PaymentStatus::PAID && $order->shipping_status === \App\Enums\ShippingStatus::UNSHIPPED)
-                                {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
-                            @elseif($order->payment_status === \App\Enums\PaymentStatus::PAID && $order->shipping_status === \App\Enums\ShippingStatus::SHIPPED)
-                                {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
+                                <x-heroicon-s-clock class="h-5 w-5 flex-shrink-0 text-warning" />
+                                <span>Aguardando confirmação — avisaremos assim que for aprovado.</span>
                             @else
-                                {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
+                                <x-heroicon-s-check-circle class="h-5 w-5 flex-shrink-0 text-success" />
+                                <span>Pagamento recebido! Já estamos processando seu jumbo.</span>
                             @endif
-                        </p>
-                        
-                        <div class="flex justify-between">
-                            <dt class="font-semibold text-primary-900">{{ __('Subtotal') }}</dt>
-                            <dd class="text-primary">
-                                <x-money
-                                    :amount="$order->subtotal"
-                                    :currency="config('app.currency')"
-                                />
-                            </dd>
                         </div>
 
-                        <div class="flex justify-between">
-                            <dt class="font-semibold text-primary-900">{{ __('Envio') }}</dt>
-                            <dd class="text-primary">
-                                <x-money
-                                    :amount="$order->shipping_price"
-                                    :currency="config('app.currency')"
-                                />
-                            </dd>
+                        <h2 class="mt-6 font-urbanist text-lg font-bold text-primary">Forma de Pagamento</h2>
+                        <div id="paymentBrick_container" class="mt-4"></div>
+                        <div id="statusScreenBrick_container"></div>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-400">
+                        <span class="flex items-center gap-1.5"><x-heroicon-s-shield-check class="h-4 w-4 text-accent" /> Pagamento seguro via Mercado Pago</span>
+                        <span class="flex items-center gap-1.5"><x-heroicon-s-lock-closed class="h-4 w-4 text-accent" /> Dados criptografados</span>
+                    </div>
+                </div>
+
+                <!-- Resumo - painel de apoio -->
+                <div class="order-1 lg:order-2 lg:col-span-2">
+                    <div class="sticky top-6 rounded-3xl border border-secondary bg-white p-6">
+                        <div class="flex items-center gap-2 text-accent">
+                            <x-heroicon-s-shopping-bag class="h-5 w-5" />
+                            <span class="font-urbanist text-sm font-bold uppercase tracking-wide">Pedido #{{ $order->id }}</span>
                         </div>
 
-                        <div class="flex justify-between">
-                            <dt class="font-semibold text-primary-900">{{ __('Total') }}</dt>
-                            <dd class="text-primary font-bold ">
-                                <x-money
-                                    :amount="$order->total - $order->total_refunded"
-                                    :currency="config('app.currency')"
-                                />
-                            </dd>
+                        <dl class="mt-4 space-y-3 border-t border-secondary pt-4 text-sm">
+                            <div class="flex justify-between">
+                                <dt class="text-slate-500">Subtotal</dt>
+                                <dd class="font-medium text-primary"><x-money :amount="$order->subtotal" :currency="config('app.currency')" /></dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-slate-500">Envio</dt>
+                                <dd class="font-medium text-primary"><x-money :amount="$order->shipping_price" :currency="config('app.currency')" /></dd>
+                            </div>
+                            <div class="flex justify-between border-t border-secondary pt-3 text-base">
+                                <dt class="font-bold text-primary">Total</dt>
+                                <dd class="font-bold text-primary"><x-money :amount="$order->total - $order->total_refunded" :currency="config('app.currency')" /></dd>
+                            </div>
+                        </dl>
+
+                        <div class="mt-6 flex flex-col items-center gap-2 border-t border-secondary pt-6 text-center">
+                            <img src="{{ asset('img/mascote-logo-mark.png') }}" alt="" class="h-16 w-auto opacity-90">
+                            <p class="text-xs text-slate-400">Quase lá! Assim que confirmar, cuidamos do resto.</p>
                         </div>
-                    </dl>
-                </x-slot:header>
-
-                <x-slot:content class="!py-5 sm:!px-10">
-
-        
-                    <div id="paymentBrick_container"></div>
-                    <div id="statusScreenBrick_container"></div>
-
-                </x-slot:content>
-            </x-card>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Modal de erro -->
+    <div x-show="showError" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 p-4">
+        <div class="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-warning/10">
+                <x-heroicon-s-exclamation-triangle class="h-6 w-6 text-warning" />
+            </div>
+            <h3 class="mt-4 font-urbanist text-lg font-bold text-primary">Não foi possível processar</h3>
+            <p class="mt-2 text-sm text-slate-500" x-text="errorMessage"></p>
+            <button type="button" @click="showError = false" class="mt-6 w-full rounded-full bg-accent py-3 text-sm font-semibold text-white hover:bg-primary">
+                Tentar novamente
+            </button>
+        </div>
+    </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        const mp = new MercadoPago('{{ $this->mercadopago->meta['public_key'] }}', { locale: 'pt-BR' });
+        const bricksBuilder = mp.bricks();
 
-
-<script>
-
-    const mp = new MercadoPago('{{ $this->mercadopago->meta['public_key'] }}', {
-          locale: 'pt-BR'
-        } );
-    const bricksBuilder = mp.bricks();
-
-    const renderPaymentBrick = async (bricksBuilder) => {
-        const settings = {
-        initialization: {
-            /*
-            "amount" é o valor total a ser pago por todos os meios de pagamento
-        com exceção da Conta Mercado Pago e Parcelamento sem cartão de crédito, que tem seu valor de processamento determinado no backend através do "preferenceId"
-            */
-            amount: parseFloat('{{$order->total}}'),
-            preferenceId: '{{$order->id}}',
-            
-        },
-        customization: {
-
-            paymentMethods: {
-                creditCard: "all",
-                ticket:'bolbradesco',
-                bankTransfer:'pix',
-                types: {
-                    excluded: ['debit_card', 'mercadoPago']
-                }, 
-                maxInstallments: 12,
-            },
-            visual: {
-                style: {
-                    customVariables: {
-                        textPrimaryColor: "#1B1850",
-                        baseColor: "#1B1850"
+        const renderPaymentBrick = async (bricksBuilder) => {
+            const settings = {
+                initialization: {
+                    amount: parseFloat('{{$order->total}}'),
+                },
+                customization: {
+                    paymentMethods: {
+                        creditCard: "all",
+                        ticket: "bolbradesco",
+                        bankTransfer: "pix",
+                        maxInstallments: 12,
                     },
-                },
-            }
-        },
-        callbacks: {
-            onReady: () => {
-            /*
-            Callback chamado quando o Brick estiver pronto.
-            Aqui você pode ocultar loadings do seu site, por exemplo.
-            */
-            },
-            onSubmit: ({ selectedPaymentMethod, formData }) => {
-            // callback chamado ao clicar no botão de submissão dos dados
-
-            
-            return new Promise((resolve, reject) => {
-                fetch("{{ route('customer.purchase.post', $order) }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                body: JSON.stringify(formData),
-                })
-                .then((response) => response.json())
-                .then((response) => {
-                    // receber o resultado do pagamento
-
-                    if (!response.id) {
-                        console.error('Erro ao criar pagamento:', response);
-                        // troque por um toast/notify do seu design system quando formos polir a UI
-                        alert(response.message || 'Não foi possível processar o pagamento. Verifique os dados e tente novamente.');
-                        reject();
-                        return;
+                    visual: {
+                        style: {
+                            customVariables: {
+                                textPrimaryColor: "#1B1850",
+                                baseColor: "#F1598F"
+                            },
+                        },
                     }
-
-                    const renderStatusScreenBrick = async (bricksBuilder) => {
-                        const settings = {
-                        initialization: {
-                            paymentId: response.id, 
-                        },
-                        customization: {
-                            visual: {
-                                style:{
-                                    textPrimaryColor: "#1B1850",
-                                    baseColor:"#1B1850"
+                },
+                callbacks: {
+                    onReady: () => {},
+                    onSubmit: ({ selectedPaymentMethod, formData }) => {
+                        return new Promise((resolve, reject) => {
+                            fetch("{{ route('customer.purchase.post', $order) }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify(formData),
+                            })
+                            .then((response) => response.json())
+                            .then((response) => {
+                                if (!response.id) {
+                                    console.error('Erro ao criar pagamento:', response);
+                                    document.dispatchEvent(new CustomEvent('payment-error', {
+                                        detail: { message: response.message === 'excludes_by_rule'
+                                            ? 'Este método de pagamento não pôde ser processado. Tente outro cartão ou forma de pagamento.'
+                                            : (response.message || 'Verifique os dados e tente novamente.') }
+                                    }));
+                                    reject();
+                                    return;
                                 }
-                            },
-                            backUrls: {
-                                'return': '{{route("customer.orders.list")}}',
-                            }
-                        },
-                        callbacks: {
-                            onReady: () => {
-                                $("#paymentBrick_container").hide();
-                                
-                            },
-                            onError: (error) => {
-                                // callback chamado para todos os casos de erro do Brick
-                                console.error(error);
-                            },
-                        },
-                        };
-                        window.statusScreenBrickController = await bricksBuilder.create(
-                        'statusScreen',
-                        'statusScreenBrick_container',
-                        settings,
-                        );  
-                    };
 
-                    renderStatusScreenBrick(bricksBuilder);
+                                const renderStatusScreenBrick = async (bricksBuilder) => {
+                                    const settings = {
+                                        initialization: { paymentId: response.id },
+                                        customization: {
+                                            visual: {
+                                                style: {
+                                                    textPrimaryColor: "#1B1850",
+                                                    baseColor: "#F1598F"
+                                                }
+                                            },
+                                            backUrls: { 'return': '{{route("customer.orders.list")}}' }
+                                        },
+                                        callbacks: {
+                                            onReady: () => {
+                                                document.getElementById('paymentBrick_container').style.display = 'none';
+                                            },
+                                            onError: (error) => console.error(error),
+                                        },
+                                    };
+                                    window.statusScreenBrickController = await bricksBuilder.create('statusScreen', 'statusScreenBrick_container', settings);
+                                };
 
-                    resolve();
-                })
-                .catch((error) => {
-                    // lidar com a resposta de erro ao tentar criar o pagamento
-                    console.error("erro "+ error);
-                    reject();
-                });
-            });
-            },
-            onError: (error) => {
-            // callback chamado para todos os casos de erro do Brick
-            console.error(error);
-            },
-        },
+                                renderStatusScreenBrick(bricksBuilder);
+                                resolve();
+                            })
+                            .catch((error) => {
+                                console.error("erro " + error);
+                                document.dispatchEvent(new CustomEvent('payment-error', {
+                                    detail: { message: 'Erro de conexão. Verifique sua internet e tente novamente.' }
+                                }));
+                                reject();
+                            });
+                        });
+                    },
+                    onError: (error) => console.error(error),
+                },
+            };
+            window.paymentBrickController = await bricksBuilder.create("payment", "paymentBrick_container", settings);
         };
-        window.paymentBrickController = await bricksBuilder.create(
-        "payment",
-        "paymentBrick_container",
-        settings
-        );
-    };
 
-    renderPaymentBrick(bricksBuilder);
-
-</script>
-
-
+        renderPaymentBrick(bricksBuilder);
+    </script>
 </div>
 
 @push('script_header')

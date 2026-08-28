@@ -1,259 +1,91 @@
 <div>
-    <!-- Meta title & description -->
-    <x-slot:title>
-        {{ __('Histórico de Pedidos') }}
-    </x-slot:title>
+    <x-slot:title>{{ __('Histórico de Pedidos') }}</x-slot:title>
 
-    <div class="py-16 sm:py-24">
-        <div class="mx-auto max-w-7xl sm:px-2 lg:px-8">
-            <div class="mx-auto max-w-2xl px-4 lg:max-w-4xl lg:px-0">
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                    {{ __('Histórico de Pedidos') }}
-                </h1>
-                <p class="mt-2 text-sm text-slate-500">
-                    {{ __('Verifique o status de pedidos recentes, gerencie devoluções e descubra produtos similares.') }}
-                </p>
-            </div>
-        </div>
-
-        <div class="mt-16">
-            <h2 class="sr-only">{{ __('Pedidos Recentes') }}</h2>
-            <div class="mx-auto max-w-7xl sm:px-2 lg:px-8">
-                <div class="mx-auto max-w-2xl space-y-8 sm:px-4 lg:max-w-4xl lg:px-0">
-                    @foreach($orders as $order)
-                        <div class="border-t border-b border-slate-200 bg-white shadow-sm sm:rounded-lg sm:border">
-                            <h2 class="sr-only">
-                                {{ __('Pedido realizado em') }}
-                                <time datetime="{{ $order->created_at->format('Y-m-d') }}">{{ $order->created_at->toFormattedDateString() }}</time>
-                            </h2>
-
-                            <div class="flex items-center border-b border-slate-200 p-4 sm:grid sm:grid-cols-4 sm:gap-x-6 sm:p-6">
-                                <dl class="grid flex-1 grid-cols-2 gap-x-6 text-sm sm:col-span-3 sm:grid-cols-3 lg:col-span-2">
-                                    <div>
-                                        <dt class="font-medium text-slate-900">
-                                            {{ __('Número do Pedido') }}
-                                        </dt>
-                                        <dd class="mt-1 text-slate-500 text-center font-bold">
-                                            {{ $order->id }}
-                                        </dd>
-                                    </div>
-                                    <div class="hidden sm:block">
-                                        <dt class="font-medium text-slate-900">
-                                            {{ __('Data da criação') }}
-                                        </dt>
-                                        <dd class="mt-1 text-slate-500">
-                                            <time datetime="{{ $order->created_at->format('Y-m-d') }}">{{ $order->created_at->toFormattedDateString() }}</time>
-                                        </dd>
-                                    </div>
-                                    <div>
-                                        <dt class="font-medium text-slate-900">{{ __('Valor Total') }}</dt>
-                                        <dd class="mt-1 font-medium text-slate-900">
-                                            <x-money
-                                                :amount="$order->total"
-                                                :currency="config('app.currency')"
-                                            />
-                                        </dd>
-                                    </div>
-                                </dl>
-
-                                <div class="relative flex justify-end lg:hidden">
-                                    <x-dropdown>
-                                        <x-slot:trigger>
-                                            <button
-                                                type="button"
-                                                class="-m-2 flex items-center p-2 text-slate-400 hover:text-slate-500"
-                                                id="menu-0-button"
-                                                aria-expanded="false"
-                                                aria-haspopup="true"
-                                            >
-                                                <span class="sr-only">{{ __('Opções para pedido :orderId', ['orderId' => $order->id]) }}</span>
-                                                <x-heroicon-o-ellipsis-vertical class="h-6 w-6" />
-                                            </button>
-                                        </x-slot:trigger>
-                                        <x-slot:content>
-                                            <x-dropdown-link href="{{ route('customer.orders.detail', $order) }}">
-                                                {{ __('Visualizar') }}
-                                            </x-dropdown-link>
-                                        </x-slot:content>
-                                    </x-dropdown>
-                                </div>
-
-                                <div class="hidden lg:col-span-2 lg:flex lg:items-center lg:justify-end lg:space-x-4">
-                                    <a
-                                        href="{{ route('customer.orders.detail', $order) }}"
-                                        class="btn btn-outline-primary"
-                                    >
-                                        <span>{{ __('Detalhes do Pedido') }}</span>
-                                        <span class="sr-only">{{ $order->id }}</span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- Products -->
-                            <h3 class="sr-only">
-                                {{ __('Itens') }}
-                            </h3>
-                            <ul
-                                role="list"
-                                class="divide-y divide-slate-200"
-                            >
-                                @foreach($order->orderItems as $item)
-                                    <li class="p-4 sm:p-6">
-                                        <div class="flex items-center sm:items-stretch">
-                                            <div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:h-40 sm:w-40">
-                                                <img
-                                                    src="{{ $item->variant->hasMedia('image') ? $item->variant->getFirstMediaUrl('image') : $item->product->getFirstMediaUrl('gallery') }}"
-                                                    alt="{{ $item->product->name }}"
-                                                    class="h-full w-full object-cover object-center"
-                                                >
-                                            </div>
-                                            <div class="ml-6 flex flex-col flex-1 justify-between text-sm">
-                                                <div>
-                                                    <div class="font-medium text-slate-900 sm:flex sm:justify-between">
-                                                        <h4>
-                                                            {{ $item->quantity }}x
-                                                            {{ $item->product->name }}
-                                                        </h4>
-                                                        <p class="mt-2 sm:mt-0">
-                                                            <x-money
-                                                                :amount="$item->price"
-                                                                :currency="config('app.currency')"
-                                                            />
-                                                        </p>
-                                                    </div>
-                                                    <p class="hidden text-slate-500 sm:mt-2 sm:block">
-                                                        {{ $item->product->excerpt }}
-                                                    </p>
-                                                    @if($item->variant->variantAttributes->count())
-                                                        <ul class="mt-2 space-x-2 divide-x divide-slate-200 text-slate-700">
-                                                            @foreach($item->variant->variantAttributes as $attribute)
-                                                                <li @class(['inline', 'pl-2' => !$loop->first])>{{ $attribute->optionValue->label }}</li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @endif
-                                                </div>
-                                                <div class="hidden mt-2 sm:flex">
-                                                    <div class="flex items-center space-x-4 divide-x divide-slate-200 text-sm font-medium">
-                                                        
-                                                        <div class="flex flex-1 justify-center pl-4">
-                                                            <button
-                                                                wire:click="writeReviewForProduct({{ $item->product->id }})"
-                                                                type="button"
-                                                                class="btn btn-primary whitespace-nowrap"
-                                                            >
-                                                                {{ $item->product->reviews->isEmpty() ? __('Avaliar Produto') : __('Editar Avaliação') }}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="mt-6 sm:hidden">
-                                            <div class="mt-6 flex items-center space-x-4 divide-x divide-slate-200 border-t border-slate-200 pt-4 text-sm font-medium">
-                                               
-                                                <div class="flex flex-1 justify-center pl-4">
-                                                    <button
-                                                        wire:click="writeReviewForProduct({{ $item->product->id }})"
-                                                        type="button"
-                                                        class="btn btn-primary whitespace-nowrap"
-                                                    >
-                                                        {{ $item->product->reviews->isEmpty() ? __('Avaliar Produto') : __('Editar Avaliação') }}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                @endforeach
-                            </ul>
+    <x-account-layout active="orders" title="Meus Pedidos" subtitle="Acompanhe o status, avalie produtos e reveja os jumbos que você já enviou.">
+        <div class="space-y-5">
+            @forelse($orders as $order)
+                <div class="overflow-hidden rounded-3xl border border-secondary bg-white">
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-secondary bg-complement-500/60 px-5 py-4 sm:px-6">
+                        <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
+                            <div><span class="text-slate-500">Pedido</span> <span class="ml-1 font-bold text-primary">#{{ $order->id }}</span></div>
+                            <div><span class="text-slate-500">Data</span> <span class="ml-1 font-medium text-primary">{{ $order->created_at->format('d/m/Y') }}</span></div>
+                            <div><span class="text-slate-500">Total</span> <span class="ml-1 font-bold text-primary"><x-money :amount="$order->total" :currency="config('app.currency')" /></span></div>
                         </div>
-                    @endforeach
 
-                    <div class="mt-8">
-                        {{ $orders->links() }}
+                        <div class="flex items-center gap-3">
+                            @if($order->payment_status === \App\Enums\PaymentStatus::PAID && $order->shipping_status === \App\Enums\ShippingStatus::SHIPPED)
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 text-xs font-semibold text-success"><x-heroicon-s-truck class="h-3.5 w-3.5" /> Enviado</span>
+                            @elseif($order->payment_status === \App\Enums\PaymentStatus::PAID)
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent"><x-heroicon-s-check-circle class="h-3.5 w-3.5" /> Em separação</span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1.5 text-xs font-semibold text-warning"><x-heroicon-s-clock class="h-3.5 w-3.5" /> Aguardando pagamento</span>
+                            @endif
+                            <a href="{{ route('customer.orders.detail', $order) }}" class="flex items-center gap-1 text-sm font-semibold text-purple hover:text-accent">Ver detalhes <x-heroicon-s-chevron-right class="h-4 w-4" /></a>
+                        </div>
                     </div>
+
+                    <ul role="list" class="divide-y divide-secondary/60">
+                        @foreach($order->orderItems as $item)
+                            <li class="flex items-center gap-4 px-5 py-4 sm:px-6">
+                                <div class="h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl border border-secondary bg-complement-500">
+                                    <img src="{{ $item->variant->hasMedia('image') ? $item->variant->getFirstMediaUrl('image') : $item->product->getFirstMediaUrl('gallery') }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover">
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-sm font-medium text-primary">{{ $item->quantity }}x {{ $item->product->name }}</p>
+                                    @if($item->variant->variantAttributes->count())
+                                        <p class="text-xs text-slate-500">@foreach($item->variant->variantAttributes as $attribute){{ $attribute->optionValue->label }}{{ !$loop->last ? ' · ' : '' }}@endforeach</p>
+                                    @endif
+                                </div>
+                                <button wire:click="writeReviewForProduct({{ $item->product->id }})" type="button" class="flex-shrink-0 rounded-full border border-secondary px-4 py-2 text-xs font-semibold text-primary hover:bg-complement-500">
+                                    {{ $item->product->reviews->isEmpty() ? 'Avaliar' : 'Editar avaliação' }}
+                                </button>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
-            </div>
+            @empty
+                <div class="rounded-3xl border border-secondary bg-white p-12 text-center">
+                    <img src="{{ asset('img/maskote.png') }}" alt="" class="mx-auto h-28 w-auto opacity-90">
+                    <h3 class="mt-4 font-urbanist text-lg font-semibold text-primary">Você ainda não tem pedidos</h3>
+                    <p class="mt-1 text-sm text-slate-500">Assim que montar seu primeiro jumbo, ele aparece aqui.</p>
+                    <a href="{{ route('guest.welcome') }}" class="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-primary">Montar meu Jumbo <x-heroicon-s-arrow-right class="h-4 w-4" /></a>
+                </div>
+            @endforelse
         </div>
-    </div>
+
+        @if($orders->hasPages())
+            <div class="mt-8">{{ $orders->links() }}</div>
+        @endif
+    </x-account-layout>
 
     <form wire:submit.prevent="saveReview">
         <x-modal-dialog wire:model="showReviewForm">
-            <x-slot:title>
-                {{ __('Escreva um comentário') }}
-            </x-slot:title>
+            <x-slot:title>Escreva uma avaliação</x-slot:title>
             <x-slot:content>
-                <div class="space-y-6">
+                <div class="space-y-5">
                     <div>
-                        <x-input-label
-                            for="review.rating"
-                            :value="__('Avaliação')"
-                        />
-                        <x-select
-                            wire:model.defer="review.rating"
-                            id="rating"
-                            class="block w-full mt-1 sm:text-sm"
-                        >
-                            <option value="">{{ __('Classifique o produto') }}</option>
-                            @for($i = 1; $i <= 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <x-input-label for="review.rating" value="Avaliação" />
+                        <x-select wire:model.defer="review.rating" id="rating" class="mt-1.5 block w-full">
+                            <option value="">Classifique o produto</option>
+                            @for($i = 1; $i <= 5; $i++)<option value="{{ $i }}">{{ $i }} {{ $i == 1 ? 'estrela' : 'estrelas' }}</option>@endfor
                         </x-select>
-                        <x-input-error
-                            for="review.rating"
-                            class="mt-2"
-                        />
+                        <x-input-error for="review.rating" class="mt-2" />
                     </div>
                     <div>
-                        <x-input-label
-                            for="review.title"
-                            :value="__('Resumo da Avaliação')"
-                        />
-                        <x-input
-                            wire:model.defer="review.title"
-                            id="title"
-                            type="text"
-                            class="block w-full mt-1 sm:text-sm"
-                        />
-                        <x-input-error
-                            for="review.title"
-                            class="mt-2"
-                        />
+                        <x-input-label for="review.title" value="Resumo" />
+                        <x-input wire:model.defer="review.title" id="title" type="text" class="mt-1.5 block w-full" />
+                        <x-input-error for="review.title" class="mt-2" />
                     </div>
                     <div>
-                        <x-input-label
-                            for="review.content"
-                            :value="__('Compartilhe sua opinião')"
-                        />
-                        <x-textarea
-                            wire:model="review.content"
-                            id="comment"
-                            class="block w-full mt-1 sm:text-sm"
-                        />
-                        <x-input-error
-                            for="review.content"
-                            class="mt-2"
-                        />
+                        <x-input-label for="review.content" value="Sua opinião" />
+                        <x-textarea wire:model="review.content" id="comment" class="mt-1.5 block w-full" />
+                        <x-input-error for="review.content" class="mt-2" />
                     </div>
                 </div>
             </x-slot:content>
             <x-slot:footer>
-                <button
-                    wire:target="save"
-                    wire:loading.attr="disabled"
-                    type="submit"
-                    class="btn btn-primary w-full sm:ml-3 sm:w-auto"
-                >
-                    {{ __('Salvar') }}
-                </button>
-                <button
-                    wire:click="$set('showReviewForm', false)"
-                    wire:target="save"
-                    wire:loading.attr="disabled"
-                    type="button"
-                    class="mt-3 btn btn-invisible w-full sm:mt-0 sm:w-auto"
-                >
-                    {{ __('Cancelar') }}
-                </button>
+                <button wire:target="save" wire:loading.attr="disabled" type="submit" class="w-full rounded-full bg-accent py-3 text-sm font-semibold text-white hover:bg-primary sm:ml-3 sm:w-auto sm:px-8">Salvar</button>
+                <button wire:click="$set('showReviewForm', false)" wire:target="save" wire:loading.attr="disabled" type="button" class="mt-3 w-full rounded-full border border-secondary py-3 text-sm font-semibold text-primary hover:bg-complement-500 sm:mt-0 sm:w-auto sm:px-8">Cancelar</button>
             </x-slot:footer>
         </x-modal-dialog>
     </form>

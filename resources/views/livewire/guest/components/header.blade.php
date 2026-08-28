@@ -67,6 +67,8 @@
                             </a>
                         </div>
                     @else
+                        <x-dropdown-link href="{{ route('customer.dashboard') }}">Visão Geral</x-dropdown-link>
+
                         <div class="flow-root">
                             <a
                                 href="{{ route('customer.profile') }}"
@@ -272,6 +274,8 @@
                                         </button>
                                     </x-slot:trigger>
                                     <x-slot:content>
+                                        <x-dropdown-link href="{{ route('customer.dashboard') }}">Visão Geral</x-dropdown-link>
+                                        
                                         <x-dropdown-link href="{{ route('customer.profile') }}">
                                             Meu Perfil
                                         </x-dropdown-link>

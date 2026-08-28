@@ -1,358 +1,168 @@
 <div>
-    <!-- Meta title & description -->
-    <x-slot:title>
-        {{ __('Pedidos - :orderId', ['orderId' => $order->id]) }}
-    </x-slot:title>
+    <x-slot:title>{{ __('Pedido #:orderId', ['orderId' => $order->id]) }}</x-slot:title>
 
-    <div class="bg-white">
-        <div class="mx-auto max-w-7xl px-4 py-10 ">
-            <div>
-                <h1 class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-                    {{ __('Obrigado pelo seu pedido!') }}
-                </h1>
-                <p class="my-4 text-base text-slate-500">
-                    @if($order->payment_status === \App\Enums\PaymentStatus::UNPAID)
-                        {{ __('Para finalizar o seu pedido, pedimos a gentileza de efetuar o pagamento. Por favor, prossiga para a seção de pagamento abaixo para concluir sua compra.') }}
-                    @elseif($order->payment_status === \App\Enums\PaymentStatus::PENDING)
-                        {{ __('Estamos aguardando a confirmação do seu pagamento. Enviaremos um e-mail de confirmação assim que seu pagamento for confirmado.') }}
-                    @elseif($order->payment_status === \App\Enums\PaymentStatus::PAID && $order->shipping_status === \App\Enums\ShippingStatus::UNSHIPPED)
-                        {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
-                    @elseif($order->payment_status === \App\Enums\PaymentStatus::PAID && $order->shipping_status === \App\Enums\ShippingStatus::SHIPPED)
-                        {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
-                    @else
-                        {{ __('Agradecemos seu pedido, estamos processando-o no momento. Então aguarde e enviaremos a confirmação em breve!') }}
-                    @endif
-                </p>
-                
-                
+    <x-account-layout active="orders">
+        <x-slot:header>
+            <a href="{{ route('customer.orders.list') }}" class="flex items-center gap-1.5 text-sm font-semibold text-purple hover:text-accent">
+                <x-heroicon-s-chevron-left class="h-4 w-4" /> Voltar aos pedidos
+            </a>
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-4">
+                <h1 class="font-urbanist text-2xl font-bold text-primary sm:text-3xl">Pedido #{{ $order->id }}</h1>
+                @if($order->payment_status === \App\Enums\PaymentStatus::UNPAID)
+                    <a href="{{ route('customer.order.payment', $order->id) }}" class="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 hover:bg-primary">Efetuar Pagamento</a>
+                @endif
+            </div>
+            <p class="mt-1 text-sm text-slate-500">Feito em {{ $order->created_at->format('d/m/Y') }}</p>
+        </x-slot:header>
 
-                <table class="table-auto w-full mt-8 text-center border-collapse ">
-                    <thead class="bg-primary text-white">
-                        <tr>
-                            <th class="border border-gray-300 "> Nº Pedido </th>
-                            <th class="border border-gray-300 ">{{ __('Data do Pedido') }} </th>
-                            <th class="border border-gray-300 ">{{ __('Status do Pagamento') }}</th>
-                            <th class="border border-gray-300 ">{{ __('Status do Envio') }}</th>
-                        </tr>
-                    </thead>
+        @php
+            $paid = in_array($order->payment_status, [\App\Enums\PaymentStatus::PAID, \App\Enums\PaymentStatus::AUTHORIZED]);
+            $shipped = $order->shipping_status === \App\Enums\ShippingStatus::SHIPPED;
+            $steps = [
+                ['label' => 'Pedido realizado', 'icon' => 'shopping-bag', 'done' => true],
+                ['label' => 'Pagamento confirmado', 'icon' => 'credit-card', 'done' => $paid],
+                ['label' => 'Em separação', 'icon' => 'archive-box', 'done' => $paid],
+                ['label' => 'Enviado', 'icon' => 'truck', 'done' => $shipped],
+            ];
+        @endphp
 
-                    <tbody>
-                        <tr>
-                            <td class="p-4">{{ $order->id }}</td>
-                            <td class="p-4">{{ $order->created_at->format('d/m/Y') }}</td>
-                            <td class="p-4  relative  font-bold @if($order->payment_status === \App\Enums\PaymentStatus::PAID) bg-success text-white  @else bg-warning text-white  @endif">
-                                {{ $order->payment_status->label() }} 
-                                @if( $order->payment_status === \App\Enums\PaymentStatus::UNPAID ) 
-                                    <a href="{{ route('customer.order.payment', $order->id) }}" class="btn btn-link px-5 absolute border rounded-full top-0 right-0 m-2 text-white border-white"> Pagar </a>
+        <div class="rounded-3xl border border-secondary bg-white p-6 sm:p-8">
+            <div class="grid grid-cols-4 gap-2">
+                @foreach($steps as $index => $step)
+                    <div class="flex flex-col items-center text-center">
+                        <div class="flex w-full items-center">
+                            <div class="h-0.5 flex-1 {{ $index === 0 ? 'invisible' : ($step['done'] ? 'bg-accent' : 'bg-secondary') }}"></div>
+                            <div @class(['flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full', 'bg-accent text-white' => $step['done'], 'bg-secondary/50 text-slate-400' => !$step['done']])>
+                                @if($step['icon'] === 'shopping-bag') <x-heroicon-s-shopping-bag class="h-4 w-4" />
+                                @elseif($step['icon'] === 'credit-card') <x-heroicon-s-credit-card class="h-4 w-4" />
+                                @elseif($step['icon'] === 'archive-box') <x-heroicon-s-archive-box class="h-4 w-4" />
+                                @else <x-heroicon-s-truck class="h-4 w-4" />
                                 @endif
-                            </td>
-                            <td class="p-4 font-bold @if( $order->shipping_status === \App\Enums\ShippingStatus::SHIPPED ) text-success @else text-warning @endif">
-                                {{ $order->shipping_status->label() }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                
-            </div>
-
-            <div class="my-10 py-2 relative overflow-auto " x-data="{ current: 0 }">
-                
-                <span class="p-2 text-white bg-primary w-auto rounded-full text-sm">
-                    {{ __('Seu Pedido') }} {{ $order->orderItems->count() }}
-                </span>
-
-                
-
-                <ul
-                    role="list"
-                    x-ref="slider"
-                    class=" py-10 flex flex-1 scroll-smooth scroll-no-bar snap-mandatory snap-x overflow-x-auto overflow-y-hidden"
-                >
-                
-                    @foreach($order->orderItems as $item)
-                        <li class="snap-center shrink-0 w-full"  x-intersect.threshold.90="$nextTick(() => current = {{ $loop->index }})">
-
-                            <div class="relative ">
-                                <div class="flex items-center sm:items-stretch">
-                                    <div class="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:h-40 sm:w-40">
-                                        @if($item->variant->hasMedia('image'))
-                                            {{ $item->variant->getFirstMedia('image')('thumb_large')->attributes(['alt' => $item->product->name, 'class' => 'h-full w-full object-cover object-center']) }}
-                                        @elseif($item->product->hasMedia('gallery'))
-                                            {{ $item->product->getFirstMedia('gallery')('thumb_large')->attributes(['alt' => $item->product->name, 'class' => 'h-full w-full object-cover object-center']) }}
-                                        @else
-                                            <x-heroicon-o-camera class="h-full w-16 absolute inset-0 mx-auto text-slate-400 sm:w-24" />
-                                        @endif
-                                    </div>
-                                    <div class="ml-6 flex flex-col flex-1 justify-between  self-center ">
-                                        <div>
-                                            <div class="font-bold text-slate-900 sm:flex sm:justify-between">
-                                                
-                                                <h4>
-                                                    {{ $item->quantity }}x
-                                                    {{ $item->product->name }}
-                                                </h4>
-
-                                                <p class="mt-2 sm:mt-0">
-                                                    <x-money
-                                                        :amount="$item->price"
-                                                        :currency="config('app.currency')"
-                                                    />
-                                                </p>
-                                            </div>
-                                        
-                                        </div>
-                                        
-                                    </div>
-                                </div>
                             </div>
-                           
-                        </li>
-                    @endforeach
-                </ul>
-
-
-                <div class="absolute bottom-10 inset-x-0 flex justify-center space-x-3">
-                    @foreach($order->orderItems as $slide)
-                        <button x-on:click="$refs.slider.scrollTo({ left: $refs.slider.offsetWidth * {{ $loop->index }}, behavior: 'smooth' })">
-                            <span class="sr-only">
-                                {{ __('Slide :count', ['count' => $loop->index + 1]) }}
-                            </span>
-                            <span
-                                class="block h-2 w-2 rounded-full border-primary ring-2 ring-primary ring-opacity-50 hover:ring-opacity-100"
-                                :class="{ 'bg-primary ring-opacity-100': current === {{ $loop->index }} }"
-                            ></span>
-                        </button>
-                    @endforeach
-                </div>
-
-
+                            <div class="h-0.5 flex-1 {{ $index === count($steps) - 1 ? 'invisible' : ($steps[$index + 1]['done'] ? 'bg-accent' : 'bg-secondary') }}"></div>
+                        </div>
+                        <span @class(['mt-2 text-xs font-medium', 'text-primary' => $step['done'], 'text-slate-400' => !$step['done']])>{{ $step['label'] }}</span>
+                    </div>
+                @endforeach
             </div>
 
-            <div class="">
-                
-                <h4 class="p-2 text-white bg-primary font-semibold">{{ __('Suas Informações') }}</h4>
-
-                    <dl class="grid grid-cols-2 gap-x-6 py-10 text-sm">
-                        <div>
-                            <dt class="font-bold text-primary">{{ __('Endereço de Envio') }}</dt>
-                            <dd class="mt-2 text-slate-700">
-                                <address class="not-italic">
-                                    
-                                    {{ $this->shippingAddress->name }}<br>
-
-                                    @if($this->shippingAddress->logradouro)
-                                        {{ $this->shippingAddress->logradouro }}<br>
-                                    @endif
-
-                                    @if($this->shippingAddress->bairro)
-                                        {{ $this->shippingAddress->bairro }}<br>
-                                    @endif
-
-                                    @if($this->shippingAddress->cidade)
-                                        {{ $this->shippingAddress->cidade }}
-                                    @endif
-
-                                    @if($this->shippingAddress->uf)
-                                        {{ $this->shippingAddress->uf }}<br>
-                                    @endif
-
-                                    @if($this->shippingAddress->phone)
-                                        {{ $this->shippingAddress->phone }}<br>
-                                    @endif
-                                </address>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="font-bold text-primary">{{ __('Endereço do Visitante') }}</dt>
-                            <dd class="mt-2 text-slate-700">
-                                <address class="not-italic">
-                                    
-                                    {{ $this->billingAddress->nome }}<br>
-
-                                    @if($this->billingAddress->logradouro)
-                                        {{ $this->billingAddress->logradouro }} , {{ optional($this->billingAddress)->numero }}<br>
-                                    @endif
-
-                                    @if($this->billingAddress->bairro)
-                                        {{ $this->billingAddress->bairro }}<br>
-                                    @endif
-
-                                    @if($this->billingAddress->cidade)
-                                        {{ $this->billingAddress->cidade }}
-                                    @endif
-
-                                    @if($this->billingAddress->uf)
-                                        {{ $this->billingAddress->uf }}<br>
-                                    @endif
-
-                                    @if($this->billingAddress->phone)
-                                        {{ $this->billingAddress->phone }}<br>
-                                    @endif
-                                </address>
-                            </dd>
-                        </div>
-                    </dl>
-
-                    <h4  class="p-2 text-white bg-primary font-semibold">{{ __('Pagamento / Envio') }}</h4>
-
-                    <dl class="grid grid-cols-2 gap-x-6 border-t border-slate-200 py-10 text-sm">
-                        <div>
-                            <dt class="font-bold text-primary">{{ __('Forma de Pagamento') }}</dt>
-                            <dd class="mt-2 text-slate-700">
-                                <p>{{ $order->paymentMethod->name }}</p>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="font-bold text-primary">{{ __('Forma de Envio') }}</dt>
-                            <dd class="mt-2 text-slate-700">
-                                <p>{{ $order->shipping_rate }}</p>
-                            </dd>
-                        </div>
-                    </dl>
-
-                   
-                    <dl class="space-y-6 border-t border-slate-200 pt-10 text-sm">
-                        <div class="flex justify-between">
-                            <dt class="font-medium text-slate-900">{{ __('Subtotal') }}</dt>
-                            <dd class="text-slate-700">
-                                <x-money
-                                    :amount="$order->subtotal"
-                                    :currency="config('app.currency')"
-                                />
-                            </dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="flex font-medium text-warning">{{ __('Desconto') }}</dt>
-                            <dd class="text-slate-700">
-                                - <x-money
-                                    :amount="$order->discount_total"
-                                    :currency="config('app.currency')"
-                                />
-                            </dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="font-medium text-slate-900">{{ __('Envio') }}</dt>
-                            <dd class="text-slate-700 font-bold">
-                                <x-money
-                                    :amount="$order->shipping_price"
-                                    :currency="config('app.currency')"
-                                />
-                            </dd>
-                        </div>
-                        
-                        
-                        <div class="flex justify-between">
-                            <dt class="font-bold text-slate-900 text-lg">{{ __('Total') }}</dt>
-                            <dd class="text-slate-900 font-bold text-lg">
-                                <x-money
-                                    :amount="$order->total - $order->total_refunded"
-                                    :currency="config('app.currency')"
-                                />
-                            </dd>
-                        </div>
-                        @if($order->payment_status == \App\Enums\PaymentStatus::UNPAID)
-                            @if( $order->paymentMethod->identifier == 'mercadopago')
-                                <div class="flex  justify-end">
-                                    <a class="btn btn-primary btn-lg " href="{{ route('customer.order.payment', $order->id) }}">
-                                        {{ __('Efetuar Pagamento') }}
-                                    </a>
-                                </div>                     
+            @if($shipped && $order->shipments->isNotEmpty())
+                <div class="mt-6 space-y-2 border-t border-secondary pt-6">
+                    @foreach($order->shipments as $shipment)
+                        <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-complement-500 p-4 text-sm">
+                            <div class="flex items-center gap-2">
+                                <x-heroicon-s-truck class="h-4 w-4 text-accent" />
+                                <span class="text-slate-600">{{ $shipment->shipping_carrier?->label() ?? 'Transportadora' }}</span>
+                                @if($shipment->tracking_number)<span class="font-semibold text-primary">{{ $shipment->tracking_number }}</span>@endif
+                            </div>
+                            @if($shipment->tracking_url)
+                                <a href="{{ $shipment->tracking_url }}" target="_blank" rel="noopener" class="flex items-center gap-1 font-semibold text-purple hover:text-accent">Rastrear envio <x-heroicon-s-arrow-top-right-on-square class="h-3.5 w-3.5" /></a>
                             @endif
-                        @endif
-                    </dl>
+                        </div>
+                    @endforeach
                 </div>
+            @endif
         </div>
-    </div>
+
+        <div class="mt-6 rounded-3xl border border-secondary bg-white p-6 sm:p-8">
+            <h2 class="font-urbanist text-lg font-bold text-primary">Itens do Jumbo</h2>
+            <ul role="list" class="mt-4 divide-y divide-secondary/60">
+                @foreach($order->orderItems as $item)
+                    <li class="flex items-center gap-4 py-4">
+                        <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border border-secondary bg-complement-500">
+                            @if($item->variant->hasMedia('image'))
+                                {{ $item->variant->getFirstMedia('image')('thumb_large')->attributes(['alt' => $item->product->name, 'class' => 'h-full w-full object-cover']) }}
+                            @elseif($item->product->hasMedia('gallery'))
+                                {{ $item->product->getFirstMedia('gallery')('thumb_large')->attributes(['alt' => $item->product->name, 'class' => 'h-full w-full object-cover']) }}
+                            @else
+                                <x-heroicon-o-camera class="h-full w-full p-4 text-slate-400" />
+                            @endif
+                        </div>
+                        <div class="flex-1"><p class="text-sm font-medium text-primary">{{ $item->quantity }}x {{ $item->product->name }}</p></div>
+                        <div class="text-sm font-semibold text-primary"><x-money :amount="$item->price" :currency="config('app.currency')" /></div>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class="rounded-3xl border border-secondary bg-white p-6">
+                <h3 class="flex items-center gap-2 font-urbanist text-sm font-bold uppercase tracking-wide text-accent"><x-heroicon-s-user class="h-4 w-4" /> Detento</h3>
+                <div class="mt-3 space-y-1 text-sm text-slate-600">
+                    <p class="font-medium text-primary">{{ $this->detentoSnapshot->name ?? '—' }}</p>
+                    <p>Matrícula: {{ $this->detentoSnapshot->matricula ?? '—' }}</p>
+                    <p>Raio {{ $this->detentoSnapshot->raio ?? '—' }} · Cela {{ $this->detentoSnapshot->cela ?? '—' }}</p>
+                </div>
+            </div>
+            <div class="rounded-3xl border border-secondary bg-white p-6">
+                <h3 class="flex items-center gap-2 font-urbanist text-sm font-bold uppercase tracking-wide text-accent"><x-heroicon-s-identification class="h-4 w-4" /> Visitante</h3>
+                <div class="mt-3 space-y-1 text-sm text-slate-600">
+                    <p class="font-medium text-primary">{{ $this->billingAddress->nome ?? '—' }}</p>
+                    <p>{{ $this->billingAddress->logradouro ?? '' }}{{ isset($this->billingAddress->numero) ? ', '.$this->billingAddress->numero : '' }}</p>
+                    <p>{{ $this->billingAddress->bairro ?? '' }} — {{ $this->billingAddress->cidade ?? '' }}/{{ $this->billingAddress->uf ?? '' }}</p>
+                    @if($this->billingAddress->phone ?? null)<p>{{ $this->billingAddress->phone }}</p>@endif
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 rounded-3xl border border-secondary bg-white p-6 sm:p-8">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <h3 class="flex items-center gap-2 font-urbanist text-sm font-bold uppercase tracking-wide text-accent"><x-heroicon-s-map-pin class="h-4 w-4" /> Unidade de Entrega</h3>
+                    <div class="mt-3 space-y-1 text-sm text-slate-600">
+                        <p class="font-medium text-primary">{{ $this->shippingAddress->name ?? '—' }}</p>
+                        <p>{{ $this->shippingAddress->logradouro ?? '' }} — {{ $this->shippingAddress->cidade ?? '' }}/{{ $this->shippingAddress->uf ?? '' }}</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="flex items-center gap-2 font-urbanist text-sm font-bold uppercase tracking-wide text-accent"><x-heroicon-s-credit-card class="h-4 w-4" /> Pagamento</h3>
+                    <div class="mt-3 space-y-1 text-sm text-slate-600">
+                        <p>{{ $order->paymentMethod->name }}</p>
+                        <p>Frete: {{ $order->shipping_rate }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <dl class="mt-6 space-y-3 border-t border-secondary pt-6 text-sm">
+                <div class="flex justify-between"><dt class="text-slate-500">Subtotal</dt><dd class="font-medium text-primary"><x-money :amount="$order->subtotal" :currency="config('app.currency')" /></dd></div>
+                @if($order->discount_total > 0)
+                    <div class="flex justify-between"><dt class="text-warning">Desconto</dt><dd class="text-warning">− <x-money :amount="$order->discount_total" :currency="config('app.currency')" /></dd></div>
+                @endif
+                <div class="flex justify-between"><dt class="text-slate-500">Envio</dt><dd class="font-medium text-primary"><x-money :amount="$order->shipping_price" :currency="config('app.currency')" /></dd></div>
+                <div class="flex justify-between border-t border-secondary pt-3 text-base"><dt class="font-bold text-primary">Total</dt><dd class="font-bold text-primary"><x-money :amount="$order->total - $order->total_refunded" :currency="config('app.currency')" /></dd></div>
+            </dl>
+        </div>
+    </x-account-layout>
 
     <form wire:submit.prevent="saveReview">
         <x-modal-dialog wire:model="showReviewForm">
-            <x-slot:title>
-                {{ __('Write a review') }}
-            </x-slot:title>
+            <x-slot:title>Escreva uma avaliação</x-slot:title>
             <x-slot:content>
-                <div class="space-y-6">
+                <div class="space-y-5">
                     <div>
-                        <x-input-label
-                            for="review.rating"
-                            :value="__('Rating')"
-                        />
-                        <x-select
-                            wire:model.defer="review.rating"
-                            id="rating"
-                            class="block w-full mt-1 sm:text-sm"
-                        >
-                            <option value="">{{ __('Select a rating') }}</option>
-                            @for($i = 1; $i <= 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                        <x-input-label for="review.rating" value="Avaliação" />
+                        <x-select wire:model.defer="review.rating" id="rating" class="mt-1.5 block w-full">
+                            <option value="">Classifique o produto</option>
+                            @for($i = 1; $i <= 5; $i++)<option value="{{ $i }}">{{ $i }} {{ $i == 1 ? 'estrela' : 'estrelas' }}</option>@endfor
                         </x-select>
-                        <x-input-error
-                            for="review.rating"
-                            class="mt-2"
-                        />
+                        <x-input-error for="review.rating" class="mt-2" />
                     </div>
                     <div>
-                        <x-input-label
-                            for="review.title"
-                            :value="__('Review summary')"
-                        />
-                        <x-input
-                            wire:model.defer="review.title"
-                            id="title"
-                            type="text"
-                            class="block w-full mt-1 sm:text-sm"
-                        />
-                        <x-input-error
-                            for="review.title"
-                            class="mt-2"
-                        />
+                        <x-input-label for="review.title" value="Resumo" />
+                        <x-input wire:model.defer="review.title" id="title" type="text" class="mt-1.5 block w-full" />
+                        <x-input-error for="review.title" class="mt-2" />
                     </div>
                     <div>
-                        <x-input-label
-                            for="review.content"
-                            :value="__('Share your thoughts')"
-                        />
-                        <x-textarea
-                            wire:model="review.content"
-                            id="comment"
-                            class="block w-full mt-1 sm:text-sm"
-                        />
-                        <x-input-error
-                            for="review.content"
-                            class="mt-2"
-                        />
+                        <x-input-label for="review.content" value="Sua opinião" />
+                        <x-textarea wire:model="review.content" id="comment" class="mt-1.5 block w-full" />
+                        <x-input-error for="review.content" class="mt-2" />
                     </div>
                 </div>
             </x-slot:content>
             <x-slot:footer>
-                <button
-                    wire:target="save"
-                    wire:loading.attr="disabled"
-                    type="submit"
-                    class="btn btn-primary w-full sm:ml-3 sm:w-auto"
-                >
-                    {{ __('Save') }}
-                </button>
-                <button
-                    x-on:click="show = false"
-                    wire:target="save"
-                    wire:loading.attr="disabled"
-                    type="button"
-                    class="mt-3 btn btn-invisible w-full sm:mt-0 sm:w-auto"
-                >
-                    {{ __('Cancel') }}
-                </button>
+                <button wire:target="save" wire:loading.attr="disabled" type="submit" class="w-full rounded-full bg-accent py-3 text-sm font-semibold text-white hover:bg-primary sm:ml-3 sm:w-auto sm:px-8">Salvar</button>
+                <button x-on:click="show = false" wire:target="save" wire:loading.attr="disabled" type="button" class="mt-3 w-full rounded-full border border-secondary py-3 text-sm font-semibold text-primary hover:bg-complement-500 sm:mt-0 sm:w-auto sm:px-8">Cancelar</button>
             </x-slot:footer>
         </x-modal-dialog>
     </form>
 </div>
-
-
-
-
-
-
-
-
-

@@ -11,6 +11,7 @@ Route::group([
 ], function () {
 
     Route::group(['middleware' => 'auth:customer'], function(){
+        Route::get('/', \App\Http\Livewire\Customer\DashboardHome::class)->name('dashboard');
         Route::get('/profile', \App\Http\Livewire\Customer\Profile\ProfileManager::class)->name('profile');
         Route::get('/orders', \App\Http\Livewire\Customer\Order\OrderList::class)->name('orders.list');
         Route::get('/orders/{order}', \App\Http\Livewire\Customer\Order\OrderDetail::class)->name('orders.detail');

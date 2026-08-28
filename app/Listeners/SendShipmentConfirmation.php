@@ -7,6 +7,7 @@ use App\Mail\DigitalShipmentConfirmed;
 use App\Mail\PhysicalShipmentConfirmed;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class SendShipmentConfirmation
@@ -29,10 +30,21 @@ class SendShipmentConfirmation
      */
     public function handle(ShipmentCreated $event)
     {
-        if ($event->shipment->is_physical) {
-            Mail::to($event->shipment->order->customer_email)->send(new PhysicalShipmentConfirmed($event->shipment));
-        } else {
-            Mail::to($event->shipment->order->customer_email)->send(new DigitalShipmentConfirmed($event->shipment));
+        $email = $event->shipment->order->customer_email;
+
+        if (empty($email)) {
+            Log::warning("Confirmação de envio não enviada: pedido #{$event->shipment->order_id} sem e-mail de cliente cadastrado.");
+            return;
+        }
+
+        try {
+            if ($event->shipment->is_physical) {
+                Mail::to($email)->send(new PhysicalShipmentConfirmed($event->shipment));
+            } else {
+                Mail::to($email)->send(new DigitalShipmentConfirmed($event->shipment));
+            }
+        } catch (\Exception $e) {
+            Log::error("Erro ao enviar confirmação de envio do pedido #{$event->shipment->order_id}: " . $e->getMessage());
         }
     }
 }

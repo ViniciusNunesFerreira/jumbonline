@@ -129,7 +129,12 @@ class OrderDetail extends Component
 
     public function getBillingAddressProperty()
     {
-        return $this->order->visitante;
+        return (object) ($this->order->visitante_snapshot ?? (array) $this->order->visitante);
+    }
+
+    public function getDetentoSnapshotProperty()
+    {
+        return (object) ($this->order->detento_snapshot ?? (array) optional($this->order->detento));
     }
 
     public function getShippingAddressProperty()

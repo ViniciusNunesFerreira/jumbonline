@@ -139,7 +139,6 @@ trait MercadopagoPayment
 
                 $this->createRequest = [
                     "transaction_amount" => $request->transaction_amount,
-                    "issuer_id" => $request->issuer_id,
                     "token" => $request->token,
                     "installments"  => $request->installments,
                     "external_reference" => $order->idempotency_key,

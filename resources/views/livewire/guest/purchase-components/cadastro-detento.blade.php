@@ -1,311 +1,124 @@
 <div>
-    
-    <form
-        wire:submit.prevent="saveData"
-        class="space-y-6"
-    >
-    <div class="mx-auto max-w-7xl py-8  space-y-4">
+    <form wire:submit.prevent="saveData" class="space-y-6">
 
-        <x-card>
-            <x-slot:content class="!py-8 sm:!px-10">
-                <h2 class="text-lg font-semibold text-purple tracking-tight flex items-center"> 
-                    <x-heroicon-s-check-circle class="h-5 w-5 flex-shrink-0 text-accent" /> &nbsp; Cadastrar novo detento 
-                </h2>
+        <div class="rounded-3xl border border-secondary bg-white p-6 sm:p-8">
+            <h2 class="flex items-center gap-2 font-urbanist text-lg font-semibold text-primary">
+                <x-heroicon-s-user class="h-5 w-5 text-accent" /> Dados do Detento
+            </h2>
+            <p class="mt-1 text-sm text-slate-500">
+                Os dados precisam ser <strong class="text-primary">idênticos</strong> aos cadastrados na unidade.
+            </p>
 
-                <div class="md:grid md:grid-cols-3 md:gap-6 mb-4 pb-8 border-b border-gray">
-
-                    <div class="md:col-span-2">
-                        
-                        <p class="mt-2 text-sm text-slate-500">
-                           * Os dados precisam ser <strong>IDÊNTICOS</strong> aos cadastrados na unidade
-                        </p>
-                    </div>
-
-                    <div class="mt-5 md:col-span-3 md:mt-0">
-                        <div class="grid grid-cols-6 gap-6">
-
-                            <div class="col-span-6">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="full-name"
-                                    value="Nome <span class='text-warning'>*</span>"
-                                />
-                                <x-input
-                                    wire:model.blur="data.detento.name"
-                                    type="text"
-                                    id="full-name"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Nome Completo do Detento"
-                                />
-                                <x-input-error
-                                    for="data.detento.name"
-                                    class="mt-2"
-                                />
-                            </div>
-
-                            <div class="col-span-2">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="matricula"
-                                    value="Matrícula <span class='text-warning'>*</span>"
-                                />
-                                <x-input
-                                    wire:model.blur="data.detento.matricula"
-                                    type="text"
-                                    id="matricula"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Matrícula (incluindo números, espaços e digitos)"
-                                />
-                                <x-input-error
-                                    for="data.detento.matricula"
-                                    class="mt-2"
-                                />
-                            </div>
-
-                            <div class="col-span-2">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="raio"
-                                    value="Raio <span class='text-warning'>*</span>"
-                                />
-                                <x-input
-                                    wire:model.blur="data.detento.raio"
-                                    type="text"
-                                    id="raio"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Raio"
-                                />
-                                <x-input-error
-                                    for="data.detento.raio"
-                                    class="mt-2"
-                                />
-                            </div>
-
-                            <div class="col-span-2">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="cela"
-                                    value="Cela <span class='text-warning'>*</span>"
-                                />
-                                <x-input
-                                    wire:model.blur="data.detento.cela"
-                                    type="text"
-                                    id="cela"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Cela"
-                                />
-                                <x-input-error
-                                    for="data.detento.cela"
-                                    class="mt-2"
-                                />
-                            </div>
-
-                        </div>
-                    </div>
-
+            <div class="mt-6 grid grid-cols-6 gap-5">
+                <div class="col-span-6">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="full-name" value="Nome completo" />
+                    <x-input wire:model.blur="data.detento.name" type="text" id="full-name" class="mt-1.5 block w-full" placeholder="Nome completo do detento" />
+                    <x-input-error for="data.detento.name" class="mt-2" />
                 </div>
 
-                <h2 class="text-lg font-semibold text-purple tracking-tight flex items-center"> 
-                    <x-heroicon-s-check-circle class="h-5 w-5 flex-shrink-0 text-accent" /> &nbsp; Visitante 
-                </h2>
-
-                <div class="md:grid md:grid-cols-3 md:gap-6 border-b border-gray pb-8 mb-4">
-
-                    <div class="md:col-span-2">
-                        
-                        <p class="mt-2 text-sm text-slate-500">
-                           * Informe o nome do visitante e o seu endereço cadastrado no rol de visitas na unidade prisional( endereço igual ao comprovante de residência enviado).
-                        </p>
-                    </div>
-
-                    <div class="mt-5 md:col-span-3 md:mt-0">
-
-                        <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="nome-visitante"
-                                    value="Nome <span class='text-warning'>*</span>"
-                                />
-                                <x-input
-                                    wire:model.blur="data.visitante.nome"
-                                    type="text"
-                                    id="nome-visitante"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Nome Completo do Visitante"
-                                />
-                                <x-input-error
-                                    for="data.visitante.nome"
-                                    class="mt-2"
-                                />
-                            </div>
-
-                            <div class="col-span-6 md:col-span-1">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="cep"
-                                    value="CEP <span class='text-warning'>*</span>"
-                                />
-                                <x-input x-mask="99.999-999"
-                                    wire:model.defer="data.visitante.cep"
-                                    wire:loading.attr="disabled"
-                                    type="text"
-                                    id="cep"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="CEP"
-                                    x-on:blur.prevent="$wire.changeDataVisitanteCep"
-                                />
-                                <x-input-error
-                                    for="data.visitante.cep"
-                                    class="mt-2"
-                                />
-                            </div>
-
-                            <div class="col-span-4">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="logradouro"
-                                    value="Endereço <span class='text-warning'>*</span>"
-                                />
-                               
-                                <x-input
-                                    wire:model.blur="data.visitante.logradouro"
-                                    type="text"
-                                    id="logradouro"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Endereço"
-                                    wire:loading.attr="disabled"
-                                />
-                                <x-input-error
-                                    for="data.visitante.logradouro"
-                                    class="mt-2"
-                                />
-                            </div>
-
-                            <div class="col-span-2">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="numero"
-                                    value="Número <span class='text-warning'>*</span>"
-                                />
-                                <x-input
-                                    wire:model.defer="data.visitante.numero"
-                                    type="text"
-                                    id="numero"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Número"
-                                />
-                                <x-input-error
-                                    for="data.visitante.numero"
-                                    class="mt-2"
-                                />
-                            </div>
-
-
-
-                            <div class="col-span-2">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="bairro"
-                                    value="Bairro <span class='text-warning'>*</span>"
-                                />
-                                <x-input
-                                    wire:model.blur="data.visitante.bairro"
-                                    type="text"
-                                    id="bairro"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Bairro"
-                                    wire:loading.attr="disabled"
-                                />
-                                <x-input-error
-                                    for="data.visitante.bairro"
-                                    class="mt-2"
-                                />
-                            </div>
-
-                            <div class="col-span-2">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="cidade"
-                                    value="Cidade <span class='text-warning'>*</span>"
-                                />
-                                <x-input
-                                    wire:model.blur="data.visitante.cidade"
-                                    type="text"
-                                    id="cidade"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Cidade"
-                                    wire:loading.attr="disabled"
-                                />
-                                <x-input-error
-                                    for="data.visitante.cidade"
-                                    class="mt-2"
-                                />
-                            </div>
-
-                            <div class="col-span-2">
-                                <x-input-label
-                                    class="!text-sm !font-bold !text-primary"
-                                    for="uf"
-                                    value="Estado <span class='text-warning'>*</span>"
-                                />
-                                <x-input
-                                    wire:model.blur="data.visitante.uf"
-                                    type="text"
-                                    id="uf"
-                                    class="mt-1 block w-full sm:text-sm"
-                                    placeholder="Estado"
-                                    wire:loading.attr="disabled"
-                                />
-                                <x-input-error
-                                    for="data.visitante.uf"
-                                    class="mt-2"
-                                />
-                            </div>
-                        </div>
-
-                    </div>
-
+                <div class="col-span-3 sm:col-span-2">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="matricula" value="Matrícula" />
+                    <x-input wire:model.blur="data.detento.matricula" type="text" id="matricula" class="mt-1.5 block w-full" placeholder="Matrícula" />
+                    <x-input-error for="data.detento.matricula" class="mt-2" />
                 </div>
 
-                <div class="md:grid md:grid-cols-3 md:gap-6 border-b border-gray pb-8 mb-4">
-
-                    <div class="md:col-span-3">
-                    
-                        <p class="mt-2 text-base text-warning flex">
-                            <x-heroicon-s-exclamation-triangle class="h-5 w-5 flex-shrink-0 text-accent" /> &nbsp;
-                           * Envie uma imagem com boa qualidade da carteirinha de visitante, que seja legível e esteja válido. Mostrando todo o documento, sem desfoques ou pouca luz.
-                        </p>
-                    </div>
-
-                    <div class="col-span-3 relative">
-                       
-                       <livewire:guest.purchase-components.visitante-gallery :visitante="$visitante" />
-
-                    </div>
-
-                    
-
+                <div class="col-span-3 sm:col-span-2">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="raio" value="Raio" />
+                    <x-input wire:model.blur="data.detento.raio" type="text" id="raio" class="mt-1.5 block w-full" placeholder="Raio" />
+                    <x-input-error for="data.detento.raio" class="mt-2" />
                 </div>
 
-                <div class="grid grid-cols-6 gap-6">
-                    <div class="col-span-3">
-                        <a class="btn bg-accent text-white text-center block w-full mt-2 flex">
-                            <x-heroicon-s-chevron-double-left class="h-5 w-5 flex-shrink-0 text-white" /> &nbsp; voltar
-                        </a>
-                    </div>
-                    <div class="col-span-3">
-                        <button type="submit" class="btn bg-primary text-white text-center block w-full mt-2 flex">
-                            Continuar &nbsp; <x-heroicon-s-chevron-double-right class="h-5 w-5 flex-shrink-0 text-white" />
-                        </button>
-                    </div>
+                <div class="col-span-6 sm:col-span-2">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="cela" value="Cela" />
+                    <x-input wire:model.blur="data.detento.cela" type="text" id="cela" class="mt-1.5 block w-full" placeholder="Cela" />
+                    <x-input-error for="data.detento.cela" class="mt-2" />
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-3xl border border-secondary bg-white p-6 sm:p-8">
+            <h2 class="flex items-center gap-2 font-urbanist text-lg font-semibold text-primary">
+                <x-heroicon-s-map-pin class="h-5 w-5 text-accent" /> Visitante
+            </h2>
+            <p class="mt-1 text-sm text-slate-500">
+                Nome e endereço cadastrados no rol de visitas — igual ao comprovante de residência enviado à unidade.
+            </p>
+
+            <div class="mt-6 grid grid-cols-6 gap-5">
+                <div class="col-span-6">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="nome-visitante" value="Nome completo" />
+                    <x-input wire:model.blur="data.visitante.nome" type="text" id="nome-visitante" class="mt-1.5 block w-full" placeholder="Nome completo do visitante" />
+                    <x-input-error for="data.visitante.nome" class="mt-2" />
                 </div>
 
-            </x-slot:content>
-        </x-card>
+                <div class="col-span-6 sm:col-span-2">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="cep" value="CEP" />
+                    <x-input
+                        x-mask="99.999-999"
+                        wire:model.defer="data.visitante.cep"
+                        wire:loading.attr="disabled"
+                        type="text"
+                        id="cep"
+                        class="mt-1.5 block w-full"
+                        placeholder="00.000-000"
+                        x-on:blur.prevent="$wire.changeDataVisitanteCep"
+                    />
+                    <x-input-error for="data.visitante.cep" class="mt-2" />
+                </div>
 
-    </div>
+                <div class="col-span-6 sm:col-span-4">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="logradouro" value="Endereço" />
+                    <x-input wire:model.blur="data.visitante.logradouro" type="text" id="logradouro" class="mt-1.5 block w-full" placeholder="Endereço" wire:loading.attr="disabled" />
+                    <x-input-error for="data.visitante.logradouro" class="mt-2" />
+                </div>
 
+                <div class="col-span-3 sm:col-span-2">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="numero" value="Número" />
+                    <x-input wire:model.defer="data.visitante.numero" type="text" id="numero" class="mt-1.5 block w-full" placeholder="Número" />
+                    <x-input-error for="data.visitante.numero" class="mt-2" />
+                </div>
+
+                <div class="col-span-3 sm:col-span-2">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="bairro" value="Bairro" />
+                    <x-input wire:model.blur="data.visitante.bairro" type="text" id="bairro" class="mt-1.5 block w-full" placeholder="Bairro" wire:loading.attr="disabled" />
+                    <x-input-error for="data.visitante.bairro" class="mt-2" />
+                </div>
+
+                <div class="col-span-4 sm:col-span-2">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="cidade" value="Cidade" />
+                    <x-input wire:model.blur="data.visitante.cidade" type="text" id="cidade" class="mt-1.5 block w-full" placeholder="Cidade" wire:loading.attr="disabled" />
+                    <x-input-error for="data.visitante.cidade" class="mt-2" />
+                </div>
+
+                <div class="col-span-2 sm:col-span-1">
+                    <x-input-label class="!text-sm !font-semibold !text-primary" for="uf" value="UF" />
+                    <x-input wire:model.blur="data.visitante.uf" type="text" id="uf" class="mt-1.5 block w-full" placeholder="UF" wire:loading.attr="disabled" />
+                    <x-input-error for="data.visitante.uf" class="mt-2" />
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-3xl border border-secondary bg-white p-6 sm:p-8">
+            <h2 class="flex items-center gap-2 font-urbanist text-lg font-semibold text-primary">
+                <x-heroicon-s-camera class="h-5 w-5 text-accent" /> Carteirinha de Visitante
+            </h2>
+            <p class="mt-2 flex items-start gap-2 text-sm text-warning">
+                <x-heroicon-s-exclamation-triangle class="h-5 w-5 flex-shrink-0" />
+                Envie uma foto legível, frente e verso, sem desfoque ou pouca luz.
+            </p>
+
+            <div class="mt-4">
+                <livewire:guest.purchase-components.visitante-gallery :visitante="$visitante" />
+            </div>
+        </div>
+
+        <div class="flex flex-col-reverse gap-3 sm:flex-row">
+            <button type="button" wire:click="$emitUp('changeTab', 'tabs-entrega')" class="flex flex-1 items-center justify-center gap-2 rounded-full border border-secondary py-3.5 text-sm font-semibold text-primary hover:bg-complement-500">
+                <x-heroicon-s-chevron-left class="h-4 w-4" /> Voltar
+            </button>
+            <button type="submit" class="flex flex-1 items-center justify-center gap-2 rounded-full bg-accent py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent/30 hover:bg-primary">
+                Continuar <x-heroicon-s-arrow-right class="h-4 w-4" />
+            </button>
+        </div>
     </form>
-
 </div>

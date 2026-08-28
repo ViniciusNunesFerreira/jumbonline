@@ -10,13 +10,16 @@ class PersonalInformation extends Component
     public $state = [
         'name' => '',
         'email' => '',
+        'phone' => '',
+        'phone_country' => '',
     ];
 
     protected $messages = [
-        'state.name.required' => 'The name field is required.',
-        'state.email.required' => 'The email field is required.',
-        'state.email.email' => 'The email must be a valid email address.',
-        'state.email.unique' => 'The email has already been taken.',
+        'state.name.required' => 'O nome é obrigatório.',
+        'state.email.required' => 'O e-mail é obrigatório.',
+        'state.email.email' => 'Informe um e-mail válido.',
+        'state.email.unique' => 'Esse e-mail já está em uso.',
+        'state.phone.required' => 'O telefone é obrigatório.',
     ];
 
     public function mount()
@@ -24,6 +27,8 @@ class PersonalInformation extends Component
         $this->state = [
             'name' => $this->user->name,
             'email' => $this->user->email,
+            'phone' => $this->user->phone,
+            'phone_country' => $this->user->phone_country ?: 'BR',
         ];
     }
 
@@ -32,14 +37,19 @@ class PersonalInformation extends Component
         $this->validate([
             'state.name' => ['required'],
             'state.email' => ['required', 'email', Rule::unique('customers', 'email')->ignore($this->user->id)],
+            'state.phone' => ['required'],
+            'state.phone_country' => ['required'],
         ]);
 
+        // phone_country primeiro — mesma lição do cast de telefone que já aprendemos
         $this->user->update([
+            'phone_country' => $this->state['phone_country'],
+            'phone' => $this->state['phone'],
             'name' => $this->state['name'],
             'email' => $this->state['email'],
         ]);
 
-        $this->notify(trans('Your profile has been updated.'));
+        $this->notify(trans('Perfil atualizado com sucesso.'));
     }
 
     public function getUserProperty()
