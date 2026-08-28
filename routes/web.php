@@ -3,9 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Cart;
 
-use MercadoPago\MercadoPagoConfig;
-use App\Models\PaymentMethod;
-use MercadoPago\Client\Payment\PaymentClient;
 use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +39,9 @@ Route::group(['as' => 'guest.', 'middleware' => \App\Http\Middleware\RedirectIfN
 
 //Route::get('/setup', \App\Http\Livewire\Setup\Setup::class)->middleware(\App\Http\Middleware\RedirectIfSetupFinished::class)->name('setup');
 
-Route::webhooks('webhooks/mercadopago', 'mercadopago');
+
+Route::post('/webhooks/mercadopago', [\App\Http\Controllers\Webhook\MercadoPagoWebhookController::class, 'handle'])
+    ->name('webhook-client-mercadopago');
 
 
 require __DIR__ . '/auth.php';
