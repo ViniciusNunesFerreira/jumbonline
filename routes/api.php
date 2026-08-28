@@ -14,7 +14,6 @@ use App\Http\Controllers\Api\V1\PDV\PDVPaymentController;
 use App\Http\Controllers\Api\V1\PDV\PrisonUnitController;
 use App\Http\Controllers\Api\V1\PDV\CepController;
 use App\Http\Controllers\Api\V1\PDV\ShippingController;
-//use App\Http\Controllers\Api\V1\Webhook\PDVMercadoPagoWebhookController;
 
 
 
