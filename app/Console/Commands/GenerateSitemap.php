@@ -27,13 +27,13 @@ class GenerateSitemap extends Command
             );
         });
 
-        Product::query()->active()->select('slug', 'updated_at')->each(function (Product $product) use ($sitemap) {
+      /*  Product::query()->active()->select('slug', 'updated_at')->each(function (Product $product) use ($sitemap) {
             $sitemap->add(
                 Url::create(route('guest.products.detail', $product->slug))
                     ->setLastModificationDate($product->updated_at)
                     ->setPriority(0.7)
             );
-        });
+        }); */
 
         Article::query()->select('slug', 'updated_at')->each(function (Article $article) use ($sitemap) {
             $sitemap->add(
