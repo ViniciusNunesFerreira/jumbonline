@@ -18,6 +18,7 @@ class Cart extends Model
         'payment_method',
         'notes',
         'meta',
+        'contacted_at'
     ];
 
     protected $casts = [

@@ -61,6 +61,8 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
+        \Carbon\Carbon::setLocale('pt_BR');
+
         Password::defaults(fn () => Password::min(8)->mixedCase()->numbers());
 
         Model::preventLazyLoading(! app()->isProduction());

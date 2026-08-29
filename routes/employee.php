@@ -68,5 +68,7 @@ Route::group([
         Route::get('/settings/template', \App\Http\Livewire\Employee\Settings\TemplateSettingManager::class)->name('settings.template');
         Route::get('/settings/checkout', \App\Http\Livewire\Employee\Settings\CheckoutSettingManager::class)->name('settings.checkout');
         Route::get('/settings/license', \App\Http\Livewire\Employee\Settings\LicenseSettingManager::class)->name('settings.license');
+
+        Route::get('/abandoned-carts', \App\Http\Livewire\Employee\AbandonedCart\AbandonedCartList::class)->name('abandoned-carts.list');
     });
 });

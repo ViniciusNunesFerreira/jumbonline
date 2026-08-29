@@ -39,7 +39,7 @@ class CadastroDetento extends Component
         */
     /* Fim função de listagem dos detentos */
 
-    protected $listeners = ['refresh' => '$refresh', 'changeTab', 'upload:finished' => 'saveImage'];
+    protected $listeners = ['refresh' => '$refresh', 'upload:finished' => 'saveImage'];
 
     public function mount($prison)
     {
