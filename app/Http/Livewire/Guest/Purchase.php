@@ -84,9 +84,9 @@ class Purchase extends Component
             return redirect()->route('login');
         }
         
-        if (auth()->check() && ! auth()->user()->hasVerifiedEmail()) {
+       /* if (auth()->check() && ! auth()->user()->hasVerifiedEmail()) {
             return redirect()->route('verification.notice');
-        }
+        }*/
         
         /*if(!$request->session()->has('prison')) {
             $this->redirect(route('guest.welcome'));

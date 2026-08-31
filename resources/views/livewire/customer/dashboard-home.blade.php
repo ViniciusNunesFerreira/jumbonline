@@ -86,4 +86,18 @@
             </div>
         </div>
     </x-account-layout>
+
+    @if(! $this->customer->hasVerifiedEmail())
+        <div class="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-warning/30 bg-warning/5 px-5 py-3 text-sm">
+            <div class="flex items-center gap-2 text-primary">
+                <x-heroicon-s-envelope class="h-4 w-4 text-warning" />
+                Confirme seu e-mail pra garantir que você receba as atualizações do seu pedido.
+            </div>
+            <form method="POST" action="{{ route('verification.send') }}">
+                @csrf
+                <button type="submit" class="font-semibold text-purple hover:text-accent">Confirmar e-mail</button>
+            </form>
+        </div>
+    @endif
+
 </div>
