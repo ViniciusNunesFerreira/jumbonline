@@ -3,10 +3,9 @@
 namespace App\Http\Livewire\Guest;
 
 use App\Models\Cart;
+use App\Models\PrisonUnit;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
-use App\Models\PrisonUnit;
-
 use Illuminate\Http\Request;
 
 class ShoppingCart extends Component
@@ -19,34 +18,43 @@ class ShoppingCart extends Component
         'refresh' => '$refresh',
     ];
 
-
     public function mount(Request $request)
     {
         $this->seo()->setTitle('Lista Jumbo');
 
-        if(!$request->session()->has('prison')) {
+        if (!$request->session()->has('prison')) {
             $this->redirect(route('guest.welcome'));
         }
 
-       $this->prison = $request->session()->get('prison');
-       
+        $this->prison = $request->session()->get('prison');
     }
 
-    public function updateCartItemQuantity($cartItemId, $quantity)
+    public function incrementItem($cartItemId)
     {
-        $max_quantity = $this->cartItems->find($cartItemId)->category->quantity;
+        $item = $this->cartItems->find($cartItemId);
 
-        if ($quantity < 1) {
-            return $this->addError('cartItems.' . $cartItemId . '.quantity', __('A quantidade deve ser mínimo 1'));
+        if (!$item || !$item->category || $item->quantity >= $item->category->quantity) {
+            return;
         }
 
-        if($max_quantity >= $quantity){
-            $this->cartItems->find($cartItemId)->update(['quantity' => $quantity]);
-        }else{
-            return $this->addError('cartItems.' . $cartItemId . '.quantity', __('A quantidade máxima é: {{$max_quantity}} '));
-        }
-        
+        $item->update(['quantity' => $item->quantity + 1]);
+        $this->emit('refresh')->to('guest.components.header');
+    }
 
+    public function decrementItem($cartItemId)
+    {
+        $item = $this->cartItems->find($cartItemId);
+
+        if (!$item) {
+            return;
+        }
+
+        if ($item->quantity <= 1) {
+            $this->removeCartItem($cartItemId);
+            return;
+        }
+
+        $item->update(['quantity' => $item->quantity - 1]);
         $this->emit('refresh')->to('guest.components.header');
     }
 
@@ -55,7 +63,6 @@ class ShoppingCart extends Component
         $this->cartItems->find($cartItemId)->delete();
 
         $this->emit('refresh')->self();
-
         $this->emit('refresh')->to('guest.components.header');
         $this->emit('refreshCart')->to('guest.product-list');
     }
@@ -63,6 +70,11 @@ class ShoppingCart extends Component
     public function getCustomerProperty()
     {
         return \Auth::user();
+    }
+
+    public function getPrisonUnitProperty()
+    {
+        return !empty($this->prison) ? PrisonUnit::query()->where('slug', $this->prison)->first() : null;
     }
 
     public function getCartProperty(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder

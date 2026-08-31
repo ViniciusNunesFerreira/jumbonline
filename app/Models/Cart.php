@@ -28,7 +28,7 @@ class Cart extends Model
         'isDigitalOnly' => 'boolean',
     ];
 
-    protected $with = ['items'];
+    protected $with = ['items.variant'];
 
     public function customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -71,9 +71,17 @@ class Cart extends Model
     {
         return new Attribute(
             get: fn() => $this->items->reduce(function ($value, $item) {
-                $itemWeight = $item->variant->weight_unit == 'g' ? $item->variant->weight_value / 1000 : $item->variant->weight_value;
+                
+                if (!$item->variant) {
+                    return $value;
+                }
 
-                return $value + $itemWeight;
+                $itemWeight = $item->variant->weight_unit == 'g' 
+                    ? ($item->variant->weight_value / 1000) 
+                    : $item->variant->weight_value;
+
+                //Multiplica o peso individual pela quantidade do item!
+                return $value + ($itemWeight * $item->quantity);
             }, 0)
         );
     }

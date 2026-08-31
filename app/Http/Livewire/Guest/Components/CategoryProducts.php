@@ -12,10 +12,15 @@ class CategoryProducts extends Component
     public int $selectedQuantity = 0;
     public bool $showProducts = false;
 
-    protected $listeners = [
-        'categoryReset' => 'onCategoryReset',
-        'categorySync'  => 'onCategorySync',
-    ];
+    protected $listeners = [];
+
+    protected function getListeners()
+    {
+        return [
+            "categoryReset.{$this->category->id}" => 'onCategoryReset',
+            "categorySync.{$this->category->id}"  => 'onCategorySync',
+        ];
+    }
 
     public function mount(?int $selectedProductId = null, int $selectedQuantity = 0)
     {
@@ -24,21 +29,18 @@ class CategoryProducts extends Component
     }
 
     // Escuta a remoção e reseta APENAS se o evento for referente a esta categoria
-    public function onCategoryReset(int $categoryId)
+    public function onCategoryReset()
     {
-        if ($this->category->id === $categoryId) {
-            $this->selectedProductId = null;
-            $this->selectedQuantity = 0;
-        }
+        $this->selectedProductId = null;
+        $this->selectedQuantity = 0;
     }
 
-    public function onCategorySync(int $categoryId, int $productId, int $quantity)
+    public function onCategorySync(int $productId, int $quantity)
     {
-        if ($this->category->id === $categoryId) {
-            $this->selectedProductId = $productId;
-            $this->selectedQuantity = $quantity;
-        }
+        $this->selectedProductId = $productId;
+        $this->selectedQuantity = $quantity;
     }
+    
 
     public function selectCategory()
     {

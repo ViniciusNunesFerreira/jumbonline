@@ -83,8 +83,8 @@
         </div>
     </div>
 
-    @if($weight > 0)
-        <div class="fixed bottom-4 left-4 z-30 w-72">
+    @if(count($cartCategories) > 0)
+        <div wire:key="floating-cart-card" class="fixed bottom-4 left-4 z-30 w-72">
             <div class="rounded-2xl border border-secondary bg-white p-5 shadow-2xl shadow-primary/10">
                 <div class="flex items-center gap-2 text-accent">
                     <x-heroicon-s-shopping-bag class="h-5 w-5" />

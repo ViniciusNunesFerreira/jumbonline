@@ -28,12 +28,9 @@ class ProductList extends Component
         'removeCategorySelection'
     ];
 
-    public array $cartCategories = []; 
-    public $subTotal = 0;
     public $weight_max = 12;
-    public $weight = 0;
 
-    protected ?Cart $cachedCart = null;
+   //protected ?Cart $cachedCart = null;
 
     public function mount()
     {
@@ -57,49 +54,46 @@ class ProductList extends Component
 
     public function getCartProperty(): Cart
     {
-        if ($this->cachedCart === null) {
-            $this->cachedCart = $this->customer
-                ? Cart::firstOrCreate(['customer_id' => $this->customer->id])
-                : Cart::firstOrCreate(['session_id' => session()->getId()]);
-        }
+        $cart = $this->customer
+            ? Cart::firstOrCreate(['customer_id' => $this->customer->id])
+            : Cart::firstOrCreate(['session_id' => session()->getId()]);
 
-        return $this->cachedCart;
+        return $cart->loadMissing('items.variant');
     }
 
-    public function refreshCart()
+    public function getCartCategoriesProperty()
     {
-        $this->cachedCart = null;
-        $cart = $this->cart;
-       // $cart->load(['items.variant', 'items.product']);
-
-        $this->cartCategories = $cart->items->keyBy('category_id')->map(function ($item) {
+        return $this->cart->items->keyBy('category_id')->map(function ($item) {
             return [
                 'product_id' => $item->product_id,
                 'quantity'   => $item->quantity,
             ];
         })->toArray();
+    }
 
-        $this->weight = $cart->weight;
-        $this->subTotal = $cart->subTotal;
+    public function getWeightProperty()
+    {
+        return $this->cart->weight;
+    }
 
+    public function getSubTotalProperty()
+    {
+        return $this->cart->subtotal;
+    }
+
+
+
+    public function refreshCart()
+    {
+    
         $this->emitTo('guest.components.header', 'refreshCart');
         $this->emitTo('guest.components.cart-slide', 'refreshCart');
     }
 
     public function refreshCartSilently()
     {
-        $this->cachedCart = null;
-        $cart = $this->cart; // Cart::$with e CartItem::$with já cobrem items/variant/category — sem load() extra
-
-        $this->cartCategories = $cart->items->keyBy('category_id')->map(function ($item) {
-            return [
-                'product_id' => $item->product_id,
-                'quantity'   => $item->quantity,
-            ];
-        })->toArray();
-
-        $this->weight = $cart->weight;
-        $this->subTotal = $cart->subTotal;
+        
+       
     }
 
     public function openCart()
@@ -112,10 +106,9 @@ class ProductList extends Component
         return \Auth::user();
     }
 
-    public function addCart(array $items)
+   public function addCart(array $items)
     {
         $cart = $this->cart;
-        $cart->load('items.variant');
 
         $otherItemsWeight = 0;
         foreach ($cart->items as $item) {
@@ -143,13 +136,15 @@ class ProductList extends Component
                 ]
             );
 
+            
+            $cart->unsetRelation('items');
+
             $this->refreshCart();
             
-            $this->emit('categorySync', $items['category'], $items['product'], $items['quantity']);
+            $this->emit("categorySync.{$items['category']}", $items['product'], $items['quantity']);
 
         } else {
-            // Se exceder o peso máximo da unidade, cancela e reseta o card visualmente
-            $this->emit('categoryReset', $items['category']);
+            $this->emit("categoryReset.{$items['category']}");
 
             $this->dispatchBrowserEvent('notify', [
                 'message' => 'Peso máximo do Jumbo excedido (' . $this->weight_max . ' kg)!'
@@ -160,11 +155,14 @@ class ProductList extends Component
     public function removeCategorySelection($categoryId)
     {
         $this->cart->items()->where('category_id', $categoryId)->delete();
+        
+        $this->cart->unsetRelation('items');
+        
         $this->refreshCart();
 
-        // Notifica o componente da categoria correspondente para resetar os botões na tela
         $this->emit('categoryReset', $categoryId);
     }
+
 
     public function getRowsProperty()
     {
@@ -192,7 +190,10 @@ class ProductList extends Component
     public function render()
     {
         return view('livewire.guest.product-list', [
-            'collections' => $this->rows
+            'collections' => $this->rows,
+            'weight' => $this->weight,
+            'cartCategories' => $this->cartCategories,
+            'subTotal' => $this->subTotal,
         ])->layout('layouts.guest');
     }
 }

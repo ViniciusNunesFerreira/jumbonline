@@ -110,7 +110,7 @@ class CartSlide extends Component
         $this->emitTo('guest.product-list', 'refreshCartSilently');
 
         if ($categoryId) {
-            $this->emit('categoryReset', $categoryId);
+            $this->emit("categoryReset.{$categoryId}");
         }
     }
 
@@ -130,7 +130,7 @@ class CartSlide extends Component
 
         $this->emit('refresh')->to('guest.components.header');
         $this->emitTo('guest.product-list', 'refreshCartSilently');
-        $this->emit('categorySync', $item->category_id, $item->product_id, $newQuantity);
+        $this->emit("categorySync.{$item->category_id}", $item->product_id, $newQuantity);
     }
 
     public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null
