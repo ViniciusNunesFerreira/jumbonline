@@ -356,6 +356,19 @@
             </svg>
             <span class="sr-only">{{ __('image') }}</span>
         </button>
+        {{--Table--}}
+        <button
+            type="button"
+            @click="insertTable()"
+            class="inline-flex items-center justify-center p-2 rounded-md border"
+            :class="{ 'bg-sky-500 text-white border-sky-500 hover:bg-sky-600 hover:border-sky-600 dark:hover:bg-sky-400 dark:hover:border-sky-400': isActive('table', updatedAt), 'hover:bg-slate-100 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700/50': !isActive('table', updatedAt) }"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="h-3.5 w-3.5 fill-current">
+                <path fill="none" d="M0 0h24v24H0z" />
+                <path d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm17 8h-6v4h6v-4zm0-2V5h-6v4h6zM9 11H4v4h5v-4zm8 6h-6v3h6v-3zM9 5H4v4h5V5zm0 12H4v3h5v-3z" />
+            </svg>
+            <span class="sr-only">{{ __('table') }}</span>
+        </button>
         {{--Undo--}}
         <button
             type="button"

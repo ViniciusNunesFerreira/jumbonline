@@ -182,7 +182,7 @@ class ArticleDetail extends Component
     {
         $this->dispatchBrowserEvent('tiptap-insert-media', [
             'type' => $media->mime_type,
-            'url' => '/' . $media->getPathRelativeToRoot(),
+            'url' => $media->getUrl(),
             'alt' => $media->name,
         ]);
 

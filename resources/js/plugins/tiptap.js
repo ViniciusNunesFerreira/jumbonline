@@ -4,6 +4,10 @@ import {Link} from '@tiptap/extension-link';
 import {Underline} from '@tiptap/extension-underline';
 import {TextAlign} from '@tiptap/extension-text-align';
 import {Placeholder} from "@tiptap/extension-placeholder";
+import {Table} from '@tiptap/extension-table';
+import {TableRow} from '@tiptap/extension-table-row';
+import {TableHeader} from '@tiptap/extension-table-header';
+import {TableCell} from '@tiptap/extension-table-cell';
 import {Video} from "./tiptap-video-extension";
 import StarterKit from '@tiptap/starter-kit';
 
@@ -88,6 +92,18 @@ document.addEventListener('alpine:init', () => {
             focus() {
                 editor.commands.focus();
             },
+            insertTable() {
+                editor.chain().focus().insertTable({rows: 3, cols: 3, withHeaderRow: true}).run();
+            },
+            addColumnAfter() {
+                editor.chain().focus().addColumnAfter().run();
+            },
+            addRowAfter() {
+                editor.chain().focus().addRowAfter().run();
+            },
+            deleteTable() {
+                editor.chain().focus().deleteTable().run();
+            },
             init(element) {
                 editor = new Editor({
                     element: element,
@@ -97,6 +113,10 @@ document.addEventListener('alpine:init', () => {
                         Underline,
                         Image,
                         Video,
+                        Table.configure({resizable: true}),
+                        TableRow,
+                        TableHeader,
+                        TableCell,
                         TextAlign.configure({
                             types: ['heading', 'paragraph'],
                         }),
