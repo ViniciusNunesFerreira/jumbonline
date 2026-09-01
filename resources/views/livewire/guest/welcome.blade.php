@@ -179,4 +179,22 @@
         </div>
     </section>
 
+    <section class="mx-auto max-w-7xl px-6 py-20 lg:py-28" id="do-blog">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <span class="inline-block rounded-full bg-accent/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-accent">Do Blog Jumbonline</span>
+                <h2 class="mt-3 font-urbanist text-2xl font-bold text-primary sm:text-3xl">
+                    Dicas pra facilitar o envio do seu jumbo
+                </h2>
+            </div>
+            <a href="{{ route('guest.blog.articles.list') }}" class="flex items-center gap-1.5 text-sm font-semibold text-purple hover:text-accent">
+                Ver todos os posts <x-heroicon-s-arrow-right class="h-4 w-4" />
+            </a>
+        </div>
+
+        <div class="mt-10">
+            <livewire:components.blog-section />
+        </div>
+    </section>
+
 </main>
