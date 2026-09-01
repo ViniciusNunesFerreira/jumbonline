@@ -22,6 +22,8 @@ class ArticleList extends Component
 
     public $search = '';
 
+    public $statusFilter = '';
+
     protected $queryString = [
         'search' => ['except' => ''],
     ];
@@ -63,9 +65,12 @@ class ArticleList extends Component
 
     public function getRowsQueryProperty()
     {
-        return Article::query()
-            ->when($this->search, fn($query, $search) => $query->where('title', 'like', '%' . $search . '%'))
-            ->latest();
+         return Article::query()
+        ->when($this->search, fn($query, $search) => $query->where('title', 'like', '%' . $search . '%'))
+        ->when($this->statusFilter === 'published', fn($q) => $q->published())
+        ->when($this->statusFilter === 'scheduled', fn($q) => $q->whereNotNull('published_at')->where('published_at', '>', now()))
+        ->when($this->statusFilter === 'draft', fn($q) => $q->whereNull('published_at'))
+        ->latest();
     }
 
     public function getRowsProperty()

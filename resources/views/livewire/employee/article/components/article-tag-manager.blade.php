@@ -43,7 +43,7 @@
                                 </span>
                             </li>
                         @endif
-                        @foreach($tags as $tag)
+                        @foreach($article->tags->where('type', 'tag') as $tag)
                             <li
                                 x-on:click="$wire.toggleTag('{{ $tag->id }}')"
                                 id="tag-{{ $tag->id }}"

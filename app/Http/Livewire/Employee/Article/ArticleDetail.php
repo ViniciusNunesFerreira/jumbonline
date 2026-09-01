@@ -52,7 +52,12 @@ class ArticleDetail extends Component
     {
         $this->article->load('author', 'media', 'tags');
 
-        $this->articleStatus = $this->article->published ? 'published' : 'hidden';
+        if ($this->article->published_at && $this->article->published_at->isFuture()) {
+            $this->articleStatus = 'scheduled';
+            $this->scheduledAt = $this->article->published_at->format('Y-m-d\TH:i');
+        } else {
+            $this->articleStatus = $this->article->published ? 'published' : 'hidden';
+        }
 
         $this->articleHasExcerpt = $this->article->excerpt !== null;
     }
@@ -61,8 +66,19 @@ class ArticleDetail extends Component
     {
         if ($value === 'published') {
             $this->article->published_at = now();
+        } elseif ($value === 'scheduled') {
+            $this->article->published_at = $this->scheduledAt
+                ? \Carbon\Carbon::parse($this->scheduledAt)
+                : now()->addDay();
         } else {
             $this->article->published_at = null;
+        }
+    }
+
+    public function updatedScheduledAt($value)
+    {
+        if ($this->articleStatus === 'scheduled' && $value) {
+            $this->article->published_at = \Carbon\Carbon::parse($value);
         }
     }
 

@@ -20,7 +20,7 @@ class ArticleTagManager extends Component
     {
         $this->tags = Tag::query()
             ->select('id', 'name')
-            ->where('type', 'article')
+            ->where('type', 'tag')
             ->when($this->filterTagName, fn($query) => $query->where('name', 'like', '%' . $this->filterTagName . '%'))
             ->get();
     }
@@ -34,7 +34,7 @@ class ArticleTagManager extends Component
     {
         $tag = Tag::firstOrCreate([
             'name' => $tagName,
-            'type' => 'article',
+            'type' => 'tag',
         ]);
 
         $this->article->tags()->syncWithoutDetaching($tag->id);
@@ -47,8 +47,12 @@ class ArticleTagManager extends Component
     public function removeTag($tagId)
     {
         $tag = Tag::query()
-            ->where('type', 'article')
+            ->where('type', 'tag')
             ->find($tagId);
+
+        if (! $tag) {
+            return;
+        }
 
         $this->article->tags()->detach($tag->id);
 
@@ -64,8 +68,12 @@ class ArticleTagManager extends Component
     public function toggleTag($tagId)
     {
         $tag = Tag::query()
-            ->where('type', 'article')
+            ->where('type', 'tag')
             ->find($tagId);
+        
+        if (! $tag) {
+            return;
+        }
 
         $this->article->tags()->toggle($tag->id);
 

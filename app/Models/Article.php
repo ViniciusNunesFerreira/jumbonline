@@ -86,6 +86,13 @@ class Article extends Model implements HasMedia
         );
     }
 
+    protected function displayExcerpt(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($this->content ?? ''), 150),
+        );
+    }
+
     public function scopePublished($query)
     {
         return $query->whereNotNull('published_at')->where('published_at', '<=', now());

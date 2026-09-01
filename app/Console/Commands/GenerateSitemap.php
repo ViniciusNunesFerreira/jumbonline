@@ -35,7 +35,7 @@ class GenerateSitemap extends Command
             );
         }); */
 
-        Article::query()->select('slug', 'updated_at')->each(function (Article $article) use ($sitemap) {
+        Article::query()->published()->select('slug', 'updated_at')->each(function (Article $article) use ($sitemap) {
             $sitemap->add(
                 Url::create(route('guest.blog.articles.detail', $article->slug))
                     ->setLastModificationDate($article->updated_at)

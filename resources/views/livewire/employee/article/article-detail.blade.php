@@ -34,14 +34,14 @@
                             <div>
                                 <x-input-label
                                     for="articleTitleInput"
-                                    :value="__('Title')"
+                                    :value="__('Título')"
                                 />
                                 <x-input
                                     wire:model.defer="article.title"
                                     type="text"
                                     id="articleTitleInput"
                                     class="mt-1 block w-full sm:text-sm"
-                                    placeholder="{{ __('Title') }}"
+                                    placeholder="{{ __('Título') }}"
                                 />
                                 <x-input-error
                                     for="article.title"
@@ -75,7 +75,7 @@
                             <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
                                 <div class="ml-4 mt-2">
                                     <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                                        {{ __('Excerpt') }}
+                                        {{ __('Resumo') }}
                                     </h3>
                                 </div>
                                 <div class="ml-4 mt-2 flex-shrink-0">
@@ -85,19 +85,19 @@
                                         type="button"
                                         class="btn btn-link"
                                     >
-                                        {{ __('Add excerpt') }}
+                                        {{ __('Add resumo') }}
                                     </button>
                                 </div>
                             </div>
                         </x-slot:header>
                         <x-slot:content class="-mt-10 space-y-5">
                             <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">
-                                {{ __('Add a summary of the post to appear on your home page or blog.') }}
+                                {{ __('Adicione um resumo da publicação para que ele apareça na sua página inicial ou no seu blog.') }}
                             </p>
                             <div x-show="articleHasExcerpt">
                                 <x-input-label
                                     for="excerpt"
-                                    :value="__('Excerpt')"
+                                    :value="__('Resumo')"
                                     class="sr-only"
                                 />
                                 <div class="block w-full mt-1 shadow-sm sm:text-sm">
@@ -124,7 +124,7 @@
                         <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
                             <div class="ml-4 mt-2">
                                 <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                                    {{ __('Visibility') }}
+                                    {{ __('Visibilidade') }}
                                 </h3>
                             </div>
                         </div>
@@ -142,7 +142,7 @@
                                 />
                                 <x-input-label
                                     for="visibleOption"
-                                    :value="__('Visible')"
+                                    :value="__('Visivel')"
                                     class="ml-3"
                                 />
                             </div>
@@ -161,6 +161,25 @@
                                     class="ml-3"
                                 />
                             </div>
+
+                            <div class="flex items-center">
+                                <x-input 
+                                    wire:model.defer="articleStatus" 
+                                    type="radio" name="articleStatus" 
+                                    id="scheduledOption" 
+                                    class="h-4 w-4 !rounded-full !shadow-none" 
+                                    value="scheduled" 
+                                />
+                                <x-input-label 
+                                    for="scheduledOption" 
+                                    :value="__('Agendado')" 
+                                    class="ml-3" 
+                                />
+                            </div>
+                            <div x-show="$wire.articleStatus === 'scheduled'" class="ml-7 mt-2">
+                                <x-input wire:model="scheduledAt" type="datetime-local" class="w-full sm:text-sm" />
+                            </div>
+
                         </div>
                     </x-slot:content>
                 </x-card>
@@ -170,7 +189,7 @@
                         <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
                             <div class="ml-4 mt-2">
                                 <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                                    {{ __('Featured Image') }}
+                                    {{ __('Imagem Destaque') }}
                                 </h3>
                             </div>
                             @if($article->hasMedia('cover'))
@@ -219,7 +238,7 @@
                                             for="featuredImageInput"
                                             class="absolute inset-0 cursor-pointer focus:outline-none"
                                         >
-                                            <span class="sr-only">{{ __('Change image') }}</span>
+                                            <span class="sr-only">{{ __('Alterar imagem') }}</span>
                                         </label>
                                         <input
                                             wire:model="featuredImage"
@@ -243,7 +262,7 @@
                                             for="featuredImageInput"
                                             class="absolute inset-0 cursor-pointer focus:outline-none"
                                         >
-                                            <span class="sr-only">{{ __('Change image') }}</span>
+                                            <span class="sr-only">{{ __('Alterar imagem') }}</span>
                                         </label>
                                         <input
                                             wire:model="featuredImage"
@@ -274,7 +293,7 @@
                                             for="file-upload"
                                             class="btn btn-link cursor-pointer"
                                         >
-                                            <span>{{ __('Upload a file') }}</span>
+                                            <span>{{ __('Carregar um arquivo') }}</span>
                                             <input
                                                 wire:model="featuredImage"
                                                 id="file-upload"
@@ -298,7 +317,7 @@
                         <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
                             <div class="ml-4 mt-2">
                                 <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                                    {{ __('Organization') }}
+                                    {{ __('Organização') }}
                                 </h3>
                             </div>
                         </div>
@@ -308,6 +327,8 @@
 
                         <hr class="-mx-4 border-slate-200 sm:-mx-6 dark:border-white/10" />
 
+                        <livewire:employee.article.components.article-category-manager :article="$article" />
+                        
                         <livewire:employee.article.components.article-tag-manager :article="$article" />
                     </x-slot:content>
                 </x-card>
@@ -343,14 +364,14 @@
                             x-on:click.prevent="confirmingDeletion = true"
                             class="btn btn-outline-danger block w-full"
                         >
-                            {{ __('Delete blog post') }}
+                            {{ __('Delete artigo') }}
                         </button>
                         <button
                             x-show="!confirmingDeletion"
                             wire:click="save"
                             class="btn btn-primary block w-full"
                         >
-                            {{ __('Save changes') }}
+                            {{ __('Salvar Alterações') }}
                         </button>
                     </div>
                 </div>
@@ -361,7 +382,7 @@
     <form wire:submit.prevent="updateFeaturedImage">
         <x-slide-over wire:model="editingFeaturedImage">
             <x-slot:title>
-                {{ __('Edit image') }}
+                {{ __('Editar imagem') }}
             </x-slot:title>
             <x-slot:content>
                 <div class="space-y-6">
@@ -388,7 +409,7 @@
                             class="block w-full mt-1 sm:text-sm"
                         />
                         <x-input-description>
-                            {{ __('Write a brief description of this image to improve search engine optimization (SEO) and accessibility for visually impaired customers.') }}
+                            {{ __('Escreva uma breve descrição desta imagem para melhorar a otimização para mecanismos de busca (SEO) e a acessibilidade para clientes com deficiência visual.') }}
                         </x-input-description>
                     </div>
                 </div>
@@ -400,13 +421,13 @@
                         type="button"
                         class="btn btn-invisible"
                     >
-                        {{ __('Cancel') }}
+                        {{ __('Cancelar') }}
                     </button>
                     <button
                         type="submit"
                         class="ml-4 btn btn-primary"
                     >
-                        {{ __('Save') }}
+                        {{ __('Salvar') }}
                     </button>
                 </div>
             </x-slot:footer>
@@ -480,7 +501,7 @@
                                     for="media-upload"
                                     class="relative cursor-pointer rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500"
                                 >
-                                    <span>{{ __('Upload a file') }}</span>
+                                    <span>{{ __('Enviar Arquivo') }}</span>
                                     <input
                                         x-ref="mediaInput"
                                         wire:model.defer="mediaFile"
@@ -492,7 +513,7 @@
                                 </label>
                             </div>
                             <p class="text-xs text-slate-500">
-                                {{ __('Maximum file size allowed: :size megabytes', ['size' => $this->maxUploadSize / 1000]) }}
+                                {{ __('Tamanho máximo de arquivo permitido: :size megabytes', ['size' => $this->maxUploadSize / 1000]) }}
                             </p>
                         </div>
                     </div>
@@ -520,7 +541,7 @@
                                             class="object-cover pointer-events-none"
                                             :class="{ 'group-hover:opacity-75': selectedMedia !== {{ $media->id }} }"
                                         >
-                                            {{ __('Your browser does not support the video tag.') }}
+                                            {{ __('Seu navegador não suporta a tag de vídeo..') }}
                                         </video>
                                     @endif
                                     <button
@@ -528,7 +549,7 @@
                                         class="absolute inset-0 focus:outline-none"
                                     >
                                     <span class="sr-only">
-                                        {{ __('Select this media') }}
+                                        {{ __('Selecione esta mídia') }}
                                     </span>
                                     </button>
                                 </div>
@@ -567,7 +588,7 @@
                                             for="media-upload"
                                             class="relative cursor-pointer rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500"
                                         >
-                                            <span class="sr-only">{{ __('Upload a file') }}</span>
+                                            <span class="sr-only">{{ __('Enviar arquivo') }}</span>
                                             <input
                                                 x-ref="mediaInput"
                                                 wire:model.defer="mediaFile"
@@ -591,7 +612,7 @@
                         type="button"
                         class="btn btn-invisible"
                     >
-                        {{ __('Cancel') }}
+                        {{ __('Cancelar') }}
                     </button>
                     <button
                         x-show="selectedMedia"
@@ -599,7 +620,7 @@
                         type="button"
                         class="ml-3 btn btn-outline-danger"
                     >
-                        {{ __('Delete') }}
+                        {{ __('Deletar') }}
                     </button>
                     <button
                         x-show="selectedMedia"
@@ -607,7 +628,7 @@
                         type="button"
                         class="ml-3 btn btn-primary"
                     >
-                        {{ __('Insert') }}
+                        {{ __('Inserir') }}
                     </button>
                 </div>
             </x-slot:footer>

@@ -1,14 +1,14 @@
 <div>
     <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Blog posts') }}
+        {{ __('Blog Jumbonline') }}
     </x-slot:title>
 
     <!-- Page title & actions -->
     <div class="px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div class="min-w-0 flex-1">
             <h1 class="text-2xl font-medium text-slate-900 sm:truncate dark:text-slate-100">
-                {{ __('Blog posts') }}
+                {{ __('Artigos do Blog') }}
             </h1>
         </div>
         @if($articles->count())
@@ -17,7 +17,7 @@
                     wire:click.prevent="addNewArticle"
                     class="btn btn-primary w-full order-0 sm:order-1 sm:ml-3"
                 >
-                    {{ __('Create blog post') }}
+                    {{ __('Criar Artigo') }}
                 </button>
             </div>
         @endif
@@ -32,11 +32,11 @@
                         <x-heroicon-o-document-text class="mx-auto h-12 w-12 text-slate-400" />
 
                         <h3 class="mt-2 text-lg font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('Write a blog post') }}
+                            {{ __('Escreva um artigo para o blog') }}
                         </h3>
 
                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            {{ __('Blog posts are a great way to build a community around your products and your brand.') }}
+                            {{ __('Postagens no blog são uma ótima maneira de construir uma comunidade em torno de seus produtos e de sua marca.') }}
                         </p>
 
                         <div class="mt-6">
@@ -44,7 +44,7 @@
                                 wire:click.prevent="addNewArticle"
                                 class="btn btn-primary"
                             >
-                                {{ __('Create blog post') }}
+                                {{ __('Criar novo post') }}
                             </button>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
                             type="text"
                             class="placeholder-slate-500 w-full pl-10 sm:text-sm focus:placeholder-slate-400 dark:focus:placeholder-slate-600"
                             ::class="{ 'pr-10' : search }"
-                            placeholder="{{ __('Filter blog posts') }}"
+                            placeholder="{{ __('Filtrar artigos') }}"
                         />
                         <button
                             x-show="search.length"
@@ -76,6 +76,9 @@
                             <x-heroicon-s-x-circle class="w-5 h-5 text-slate-500 hover:text-slate-600 dark:hover:text-slate-400" />
                         </button>
                     </div>
+
+                    
+
                 </x-slot:header>
                 <x-slot:content class="-mx-4 -my-5 sm:-mx-6">
                     <div class="overflow-x-auto">
@@ -90,7 +93,7 @@
                                         class="h-full w-screen items-center justify-center sm:w-auto"
                                     >
                                         <div class="m-auto flex items-center space-x-2">
-                                            <p class="text-sm dark:text-slate-200">{{ __('Loading blog posts...') }}</p>
+                                            <p class="text-sm dark:text-slate-200">{{ __('Lendo artigos do blog...') }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -112,7 +115,7 @@
                                                 class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
                                             >
                                                 @unless(count($selected))
-                                                    {{ __('Title') }}
+                                                    {{ __('Título') }}
                                                 @else
                                                     <div class="space-x-0.5">
                                                         <span>{{ trans(':count selected', ['count' => count($selected)]) }}</span>
@@ -168,14 +171,12 @@
                                                     </a>
                                                 </td>
                                                 <td class="relative px-3 py-4 text-sm text-slate-500 text-center whitespace-nowrap dark:text-slate-400">
-                                                    @if($article->published_at)
-                                                        <x-badge type="success">
-                                                            {{ __('Published') }}
-                                                        </x-badge>
+                                                    @if($article->published_at && $article->published_at->isFuture())
+                                                        <x-badge type="info">{{ __('Scheduled') }} — {{ $article->published_at->format('d/m/Y H:i') }}</x-badge>
+                                                    @elseif($article->published_at)
+                                                        <x-badge type="success">{{ __('Published') }}</x-badge>
                                                     @else
-                                                        <x-badge type="warning">
-                                                            {{ __('Draft') }}
-                                                        </x-badge>
+                                                        <x-badge type="warning">{{ __('Draft') }}</x-badge>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -188,10 +189,10 @@
                                                     <div class="max-w-lg mx-auto text-center">
                                                         <x-heroicon-o-magnifying-glass class="inline-block w-10 h-10 text-slate-400 dark:text-slate-300" />
                                                         <h3 class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-200">
-                                                            {{ __('No blog posts found') }}
+                                                            {{ __('Nenhuma postagem de blog encontrada') }}
                                                         </h3>
                                                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                                            {{ __('Try changing the filters or search term') }}
+                                                            {{ __('Tente alterar os filtros ou o termo de pesquisa.') }}
                                                         </p>
                                                     </div>
                                                 </td>
@@ -211,10 +212,10 @@
 
             <x-modal-alert wire:model="showDeleteConfirmationModal">
                 <x-slot:title>
-                    {{ __('Please confirm your action!') }}
+                    {{ __('Por favor, confirme sua ação.!') }}
                 </x-slot:title>
                 <x-slot:content>
-                    {{ trans_choice('Are you sure you want to delete :count blog post?|Are you sure you want to delete :count blog posts?', count($selected)) }}
+                    {{ trans_choice('Tem certeza de que deseja excluir :count artigos ?|Tem certeza de que deseja excluir :count artigos?', count($selected)) }}
                     {{ __('This action cannot be undone!') }}
                 </x-slot:content>
                 <x-slot:footer>
@@ -222,13 +223,13 @@
                         wire:click.prevent="deleteSelected"
                         class="btn btn-danger w-full sm:ml-3 sm:w-auto"
                     >
-                        {{ __('Delete') }}
+                        {{ __('Deletar') }}
                     </button>
                     <button
                         x-on:click.prevent="show = false"
                         class="mt-3 btn btn-invisible w-full sm:mt-0 sm:w-auto"
                     >
-                        {{ __('Cancel') }}
+                        {{ __('Cancelar') }}
                     </button>
                 </x-slot:footer>
             </x-modal-alert>
@@ -238,21 +239,21 @@
     <form wire:submit.prevent="saveNewArticle">
         <x-modal-dialog wire:model="addingNewArticle">
             <x-slot:title>
-                {{ __('Add new blog post') }}
+                {{ __('Add artigo') }}
             </x-slot:title>
             <x-slot:content>
                 <div class="space-y-6">
                     <div>
                         <x-input-label
                             for="newArticleTitleInput"
-                            :value="__('Title')"
+                            :value="__('Título')"
                         />
                         <x-input
                             wire:model.defer="newArticle.title"
                             type="text"
                             id="newArticleTitleInput"
                             class="block w-full mt-1 sm:text-sm"
-                            placeholder="{{ __('Eg: Blog about your latest products or deals') }}"
+                            placeholder="{{ __('Ex.: Escreva no blog sobre seus produtos ou ofertas mais recentes.') }}"
                             autofocus
                         />
                         <x-input-error
@@ -269,7 +270,7 @@
                         type="button"
                         class="btn btn-invisible"
                     >
-                        {{ __('Cancel') }}
+                        {{ __('Cancelar') }}
                     </button>
                     <button
                         type="submit"
