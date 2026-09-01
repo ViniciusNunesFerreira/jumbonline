@@ -46,7 +46,7 @@
 
             <div class="relative flex justify-center lg:justify-end">
                 <div class="bg-mask absolute inset-0 -z-10 bg-contain bg-center bg-no-repeat opacity-60"></div>
-                <img src="{{ asset('img/maskote.png') }}" alt="Mascote Jumbonline" class="max-h-[28rem] w-auto object-contain drop-shadow-xl">
+                <img src="{{ asset('img/mascote-logo-mark.png') }}" alt="Jumbonline CDP Penitenciarias" class="max-h-[28rem] w-auto object-contain drop-shadow-xl">
             </div>
         </div>
     </section>
