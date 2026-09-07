@@ -1,20 +1,20 @@
+{{-- resources/views/livewire/employee/customer/customer-list.blade.php (substituição completa) --}}
+
 <div>
-    <!-- Meta title & description -->
     <x-slot:title>
         {{ __('Clientes') }}
     </x-slot:title>
 
-    <!-- Page title & actions -->
     <div class="px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div class="min-w-0 flex-1">
             <h1 class="text-2xl font-medium text-slate-900 dark:text-slate-100">
                 {{ __('Clientes') }}
             </h1>
         </div>
-        @if($customers->count())
+        @if($customers->count() || $this->hasActiveFilters || $search)
             <div class="mt-4 flex sm:mt-0 sm:ml-4">
-                <a
-                    href="{{ route('employee.customers.create') }}"
+                
+                    <a href="{{ route('employee.customers.create') }}"
                     class="btn btn-primary block w-full order-0 sm:order-1 sm:ml-3"
                 >
                     {{ __('Add cliente') }}
@@ -23,9 +23,8 @@
         @endif
     </div>
 
-    <!-- Page content -->
     <div class="p-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        @if(!$customers->count() && !$search)
+        @if(!$customers->count() && !$search && !$this->hasActiveFilters)
             <x-card>
                 <x-slot:content>
                     <div class="max-w-lg mx-auto text-center">
@@ -40,8 +39,8 @@
                         </p>
 
                         <div class="mt-6">
-                            <a
-                                href="{{ route('employee.customers.create') }}"
+                            
+                                <a href="{{ route('employee.customers.create') }}"
                                 class="btn btn-primary"
                             >
                                 <x-heroicon-m-plus class="-ml-1 mr-2 h-5 w-5" />
@@ -54,28 +53,83 @@
         @else
             <x-card class="overflow-hidden">
                 <x-slot:header>
-                    <div
-                        x-data="{ search: @entangle('search')}"
-                        class="relative max-w-sm text-slate-400 focus-within:text-slate-600 dark:focus-within:text-slate-200"
-                    >
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <x-heroicon-o-magnifying-glass class="h-5 w-5" />
-                        </div>
-                        <x-input
-                            wire:model.debounce.500ms="search"
-                            type="text"
-                            class="placeholder-slate-500 w-full pl-10 sm:text-sm focus:placeholder-slate-400 dark:focus:placeholder-slate-600"
-                            ::class="{ 'pr-10' : search }"
-                            placeholder="{{ __('Filtrar clientes') }}"
-                        />
-                        <button
-                            x-show="search.length"
-                            x-on:click="search = ''"
-                            type="button"
-                            class="absolute inset-y-0 right-0 flex items-center pr-3"
+                    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div
+                            x-data="{ search: @entangle('search')}"
+                            class="relative max-w-sm text-slate-400 focus-within:text-slate-600 dark:focus-within:text-slate-200"
                         >
-                            <x-heroicon-s-x-circle class="w-5 h-5 text-slate-500 hover:text-slate-600 dark:hover:text-slate-400" />
-                        </button>
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <x-heroicon-o-magnifying-glass class="h-5 w-5" />
+                            </div>
+                            <x-input
+                                wire:model.debounce.500ms="search"
+                                type="text"
+                                class="placeholder-slate-500 w-full pl-10 sm:text-sm focus:placeholder-slate-400 dark:focus:placeholder-slate-600"
+                                ::class="{ 'pr-10' : search }"
+                                placeholder="{{ __('Filtrar clientes') }}"
+                            />
+                            <button
+                                x-show="search.length"
+                                x-on:click="search = ''"
+                                type="button"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3"
+                            >
+                                <x-heroicon-s-x-circle class="w-5 h-5 text-slate-500 hover:text-slate-600 dark:hover:text-slate-400" />
+                            </button>
+                        </div>
+
+                        <div class="flex flex-wrap items-end gap-3">
+                            <div>
+                                <x-standalone-label>{{ __('Unidade prisional') }}</x-standalone-label>
+                                <x-select wire:model="filterPrisonUnit" class="mt-1 h-10 text-sm">
+                                    <option value="">{{ __('Todas') }}</option>
+                                    @foreach($prisonUnits as $unit)
+                                        <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                    @endforeach
+                                </x-select>
+                            </div>
+
+                            <div>
+                                <x-standalone-label>{{ __('Status') }}</x-standalone-label>
+                                <x-select wire:model="filterStatus" class="mt-1 h-10 text-sm">
+                                    <option value="">{{ __('Todos') }}</option>
+                                    <option value="active">{{ __('Ativo') }}</option>
+                                    <option value="banned">{{ __('Banido') }}</option>
+                                </x-select>
+                            </div>
+
+                            <div>
+                                <x-standalone-label>{{ __('LTV mín.') }}</x-standalone-label>
+                                <x-input
+                                    wire:model.debounce.500ms="filterLtvMin"
+                                    type="number"
+                                    step="0.01"
+                                    class="mt-1 h-10 w-28 text-sm"
+                                    placeholder="0,00"
+                                />
+                            </div>
+
+                            <div>
+                                <x-standalone-label>{{ __('LTV máx.') }}</x-standalone-label>
+                                <x-input
+                                    wire:model.debounce.500ms="filterLtvMax"
+                                    type="number"
+                                    step="0.01"
+                                    class="mt-1 h-10 w-28 text-sm"
+                                    placeholder="9999,99"
+                                />
+                            </div>
+
+                            @if($this->hasActiveFilters)
+                                <button
+                                    wire:click="resetFilters"
+                                    type="button"
+                                    class="btn btn-default btn-xs h-10"
+                                >
+                                    {{ __('Limpar filtros') }}
+                                </button>
+                            @endif
+                        </div>
                     </div>
                 </x-slot:header>
                 <x-slot:content class="-mx-4 -my-5 sm:-mx-6">
@@ -98,33 +152,24 @@
                                 <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-200/10">
                                     <thead class="border-t border-slate-200 bg-slate-50 dark:border-slate-200/10 dark:bg-slate-800/75">
                                         <tr>
-                                            <th
-                                                scope="col"
-                                                class="relative w-12 px-6 sm:w-16 sm:px-8"
-                                            >
+                                            <th scope="col" class="relative w-12 px-6 sm:w-16 sm:px-8">
                                                 <x-input
                                                     wire:model="selectPage"
                                                     type="checkbox"
                                                     class="absolute left-4 top-1/2 -mt-2 h-4 w-4 !rounded !shadow-none sm:left-6"
                                                 />
                                             </th>
-                                            <th
-                                                scope="col"
-                                                class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
-                                            >
+                                            <th scope="col" class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200">
                                                 {{ __('Nome do Cliente') }}
                                             </th>
-                                            <th
-                                                scope="col"
-                                                class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200"
-                                            >
-                                                {{ __('Pedidos') }}
+                                            <th scope="col" class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200">
+                                                {{ __('Pedidos pagos') }}
                                             </th>
-                                            <th
-                                                scope="col"
-                                                class="pl-3 pr-4 py-4 text-right text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200"
-                                            >
-                                                {{ __('Valor Gasto') }}
+                                            <th scope="col" class="px-3 py-4 text-left text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap dark:text-slate-200">
+                                                {{ __('Última compra') }}
+                                            </th>
+                                            <th scope="col" class="pl-3 pr-4 py-4 text-right text-sm font-semibold tracking-wide text-slate-900 whitespace-nowrap sm:pr-6 dark:text-slate-200">
+                                                {{ __('LTV') }}
                                             </th>
                                         </tr>
                                     </thead>
@@ -156,28 +201,31 @@
                                                             >
                                                         </div>
                                                         <div class="ml-4">
-                                                            <a
-                                                                href="{{ route('employee.customers.detail', $customer) }}"
+                                                            
+                                                                <a href="{{ route('employee.customers.detail', $customer) }}"
                                                                 class="inline-flex items-center truncate hover:text-sky-600 dark:hover:text-sky-400"
                                                             >
                                                                 {{ $customer->name }}
                                                             </a>
+                                                            @if($customer->banned_at)
+                                                                <x-badge type="danger" size="xs" class="ml-2">{{ __('Banido') }}</x-badge>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td class="relative px-3 py-4 text-sm text-slate-500 text-left whitespace-nowrap dark:text-slate-400">
-                                                    {{ trans_choice(':count order|:count orders', $customer->orders_count) }}
+                                                    {{ trans_choice(':count pedido pago|:count pedidos pagos', $customer->paid_orders_count) }}
+                                                </td>
+                                                <td class="relative px-3 py-4 text-sm text-slate-500 text-left whitespace-nowrap dark:text-slate-400">
+                                                    {{ $customer->last_order_at?->diffForHumans() ?? __('Nunca comprou') }}
                                                 </td>
                                                 <td class="pl-3 pr-4 py-4 text-right text-sm text-slate-500 whitespace-nowrap sm:pr-6 dark:text-slate-400">
-                                                    <x-money :amount="$customer->orders->sum('total')" />
+                                                    <x-money :amount="$customer->ltv_total" />
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td
-                                                    class="px-3 py-4 text-sm text-slate-500 text-center whitespace-nowrap dark:text-slate-400"
-                                                    colspan="4"
-                                                >
+                                                <td class="px-3 py-4 text-sm text-slate-500 text-center whitespace-nowrap dark:text-slate-400" colspan="5">
                                                     <div class="max-w-lg mx-auto text-center">
                                                         <x-heroicon-o-magnifying-glass class="inline-block w-10 h-10 text-slate-400 dark:text-slate-300" />
                                                         <h3 class="mt-2 text-sm font-medium text-slate-900 dark:text-slate-200">

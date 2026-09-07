@@ -34,10 +34,11 @@ class ChangePassword extends Component
 
         $this->user->update([
             'password' => \Hash::make($this->state['password']),
+            'must_change_password' => false,
         ]);
 
         $this->notify(trans('Your password has been updated.'));
-        
+
         $this->reset('state');
     }
 

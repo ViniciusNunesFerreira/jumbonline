@@ -12,6 +12,12 @@ use Livewire\Component;
 use Livewire\Livewire;
 use App\Observers\CartItemObserver;
 use App\Observers\CartObserver;
+use App\Observers\OrderObserver;
+use App\Observers\PaymentObserver;
+use App\Observers\RefundObserver;
+use App\Models\Order;
+use App\Models\Payment;
+use App\Models\Refund;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 
@@ -71,7 +77,11 @@ class AppServiceProvider extends ServiceProvider
             $this->dispatchBrowserEvent('notify', $message);
         });
 
-       
+        // CRM (Módulo 1): mantém ltv_total / paid_orders_count / last_order_at
+        // do Customer atualizados a cada evento de pedido, pagamento ou reembolso.
+        Order::observe(OrderObserver::class);
+        Payment::observe(PaymentObserver::class);
+        Refund::observe(RefundObserver::class);
 
         View::share('generalSettings', app(GeneralSetting::class));
 

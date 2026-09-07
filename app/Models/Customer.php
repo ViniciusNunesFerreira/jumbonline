@@ -26,7 +26,8 @@ class Customer extends Authenticatable implements HasMedia, MustVerifyEmail
         'email',
         'password',
         'phone',
-        'phone_country'
+        'phone_country',
+        'must_change_password',
     ];
 
     /**
@@ -48,6 +49,8 @@ class Customer extends Authenticatable implements HasMedia, MustVerifyEmail
         'phone' => E164PhoneNumberCast::class . ':phone_country',
         'email_verified_at' => 'datetime',
         'banned_at' => 'datetime',
+        'last_order_at' => 'datetime',
+        'must_change_password' => 'boolean',
     ];
 
     public function registerMediaCollections(): void
@@ -91,5 +94,10 @@ class Customer extends Authenticatable implements HasMedia, MustVerifyEmail
     public function visitantes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return  $this->hasMany(Visitante::class);
+    }
+
+    public function interactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Interaction::class);
     }
 }

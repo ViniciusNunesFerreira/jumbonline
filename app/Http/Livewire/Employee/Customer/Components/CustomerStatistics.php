@@ -9,9 +9,15 @@ class CustomerStatistics extends Component
 {
     public Customer $customer;
 
-    public function mount()
+    protected $listeners = ['refresh' => '$refresh'];
+
+    public function getTicketMedioProperty()
     {
-        $this->customer->loadMissing(['orders.orderItems', 'orders.orderDiscounts.orderItem'])->loadCount('orders');
+        if (! $this->customer->paid_orders_count) {
+            return 0;
+        }
+
+        return $this->customer->ltv_total / $this->customer->paid_orders_count;
     }
 
     public function render()

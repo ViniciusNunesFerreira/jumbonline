@@ -2,7 +2,10 @@
 
 namespace App\Http\Livewire\Employee\AbandonedCart;
 
+use App\Enums\InteractionChannel;
+use App\Enums\InteractionType;
 use App\Models\Cart;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -22,13 +25,24 @@ class AbandonedCartList extends Component
 
     public function markAsContacted($cartId)
     {
-        $cart = Cart::find($cartId);
+        $cart = Cart::with('customer')->find($cartId);
 
         if (! $cart) {
             return;
         }
 
         $cart->update(['contacted_at' => now()]);
+
+        if ($cart->customer) {
+            $cart->customer->interactions()->create([
+                'employee_id' => Auth::guard('employee')->id(),
+                'channel' => InteractionChannel::WHATSAPP,
+                'type' => InteractionType::CARRINHO_ABANDONADO,
+                'description' => __('Contato de recuperação de carrinho abandonado registrado como realizado.'),
+                'meta' => ['cart_id' => $cart->id],
+            ]);
+        }
+
         $this->notify(trans('Marcado como contatado.'));
     }
 

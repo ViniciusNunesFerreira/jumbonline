@@ -13,11 +13,6 @@ class CustomerDetail extends Component
         'refresh' => '$refresh',
     ];
 
-    public function mount()
-    {
-        $this->customer->loadCount('orders');
-    }
-
     public function render()
     {
         return view('livewire.employee.customer.customer-detail')->layout('layouts.admin');

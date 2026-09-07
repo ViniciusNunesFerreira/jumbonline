@@ -81,7 +81,7 @@ class Purchase extends Component
         if ($this->cartItems->isEmpty()) return redirect()->route('guest.welcome');
 
         if ($this->checkout_settings->requires_login && ! auth()->check()) {
-            return redirect()->route('login');
+            return redirect()->guest(route('login'));
         }
         
        /* if (auth()->check() && ! auth()->user()->hasVerifiedEmail()) {

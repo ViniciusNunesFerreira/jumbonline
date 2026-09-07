@@ -20,7 +20,12 @@ class Refund extends Model
         'reason',
         'meta',
     ];
-    
+
+    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
     public function refundItems(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(RefundItem::class);
