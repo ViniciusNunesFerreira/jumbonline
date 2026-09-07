@@ -71,4 +71,11 @@ Route::group([
 
         Route::get('/abandoned-carts', \App\Http\Livewire\Employee\AbandonedCart\AbandonedCartList::class)->name('abandoned-carts.list');
     });
+
+    Route::group(['middleware' => ['auth:employee', 'can:admin']], function () {
+        Route::get('/financial', \App\Http\Livewire\Employee\Financial\FinancialDashboard::class)->name('financial.dashboard');
+        Route::get('/financial/abc-curve', \App\Http\Livewire\Employee\Financial\ProductAbcCurve::class)->name('financial.abc-curve');
+        Route::get('/financial/cash-reconciliation', \App\Http\Livewire\Employee\Financial\CashReconciliation::class)->name('financial.cash-reconciliation');
+    });
+    
 });

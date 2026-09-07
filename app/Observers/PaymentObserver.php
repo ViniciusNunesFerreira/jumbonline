@@ -2,8 +2,11 @@
 
 namespace App\Observers;
 
+use App\Models\Customer;
+use App\Models\Order;
 use App\Models\Payment;
 use App\Services\CustomerMetricsService;
+use Illuminate\Support\Facades\Log;
 
 class PaymentObserver
 {
@@ -19,10 +22,20 @@ class PaymentObserver
 
     protected function recalculate(Payment $payment): void
     {
-        $customer = $payment->order?->customer;
+        try {
+            $order = $payment->relationLoaded('order') ? $payment->order : Order::find($payment->order_id);
 
-        if ($customer) {
-            app(CustomerMetricsService::class)->recalculate($customer);
+            if (! $order || ! $order->customer_id) {
+                return;
+            }
+
+            $customer = Customer::find($order->customer_id);
+
+            if ($customer) {
+                app(CustomerMetricsService::class)->recalculate($customer);
+            }
+        } catch (\Throwable $e) {
+            Log::error("CRM: falha ao recalcular métricas do cliente após pagamento #{$payment->id}: " . $e->getMessage());
         }
     }
 }

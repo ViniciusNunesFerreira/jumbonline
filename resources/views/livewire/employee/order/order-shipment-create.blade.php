@@ -152,22 +152,41 @@
                                                     />
                                                 </div>
                                                 
-                                                    <div class="col-span-2">
-                                                        <x-input-label
-                                                            for="tracking_url"
-                                                            :value="__('URL de rastreio')"
-                                                        />
-                                                        <x-input
-                                                            wire:model.defer="shipment.tracking_url"
-                                                            type="text"
-                                                            id="tracking_url"
-                                                            class="mt-1 block w-full sm:text-sm"
-                                                        />
-                                                        <x-input-error
-                                                            for="shipment.tracking_url"
-                                                            class="mt-2"
-                                                        />
-                                                    </div>
+                                                <div class="col-span-2">
+                                                    <x-input-label
+                                                        for="tracking_url"
+                                                        :value="__('URL de rastreio')"
+                                                    />
+                                                    <x-input
+                                                        wire:model.defer="shipment.tracking_url"
+                                                        type="text"
+                                                        id="tracking_url"
+                                                        class="mt-1 block w-full sm:text-sm"
+                                                    />
+                                                    <x-input-error
+                                                        for="shipment.tracking_url"
+                                                        class="mt-2"
+                                                    />
+                                                </div>
+
+                                                <div class="col-span-2">
+                                                    <x-input-label
+                                                        for="shipment_cost"
+                                                        :value="__('Custo do frete (opcional)')"
+                                                    />
+                                                    <x-input
+                                                        wire:model.defer="shipment.cost"
+                                                        type="number"
+                                                        step="0.01"
+                                                        id="shipment_cost"
+                                                        class="mt-1 block w-full sm:text-sm"
+                                                        placeholder="{{ __('Valor pago aos Correios, conforme fatura') }}"
+                                                    />
+                                                    <x-input-error
+                                                        for="shipment.cost"
+                                                        class="mt-2"
+                                                    />
+                                                </div>
                                                 
                                             </div>
                                         @else

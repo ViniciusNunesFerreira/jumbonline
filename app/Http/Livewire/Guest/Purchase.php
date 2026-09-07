@@ -355,6 +355,7 @@ class Purchase extends Component
                 'variant_id' => $item->variant_id,
                 'name' => $item->product->name,
                 'price' => $item->variant->price,
+                'cost_price' => $item->variant->cost_price,
                 'quantity' => $item->quantity,
             ]);
 

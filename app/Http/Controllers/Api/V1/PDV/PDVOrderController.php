@@ -64,7 +64,8 @@ class PDVOrderController extends Controller
                     'name' => $product->name,
                     'variant_id' => $product->first_variant ? $product->first_variant->id : null,
                     'quantity' => $quantity,
-                    'price' => $price, 
+                    'price' => $price,
+                    'cost_price' => $product->first_variant ? $product->first_variant->cost_price : 0,
                 ];
             }
 

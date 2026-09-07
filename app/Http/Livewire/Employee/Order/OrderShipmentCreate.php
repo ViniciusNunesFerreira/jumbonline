@@ -31,6 +31,7 @@ class OrderShipmentCreate extends Component
             'shipment.shipping_carrier' => ['nullable', new Enum(ShippingCarrier::class)],
             'shipment.tracking_number' => 'nullable|string',
             'shipment.tracking_url' => 'nullable|string',
+            'shipment.cost' => 'nullable|numeric|min:0',
             'shipment.is_physical' => 'required|boolean',
             'shipmentItems.*.order_id' => 'required|integer',
             'shipmentItems.*.order_item_id' => 'required|integer',

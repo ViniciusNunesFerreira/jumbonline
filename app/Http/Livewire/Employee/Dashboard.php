@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Employee;
 
+use App\Enums\PaymentStatus;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -131,32 +132,31 @@ class Dashboard extends Component
         }, iterator_to_array($periods));
     }
 
+    /**
+     * CORRIGIDO: antes somava order_items.subtotal de QUALQUER pedido
+     * (carrinho abandonado, pendente, cancelado incluídos). Agora soma
+     * payments.amount com status PAID — receita real recebida.
+     */
     public function getDailySalesReportProperty()
     {
         $periods = new DatePeriod(Carbon::now()->subDays($this->periods)->startOfDay(), CarbonInterval::day(), Carbon::now()->endOfDay());
 
-        $days = array_map(function ($period) {
-            return $period->format('Y-m-d');
-        }, iterator_to_array($periods));
+        $days = array_map(fn($period) => $period->format('Y-m-d'), iterator_to_array($periods));
 
-        $sales = OrderItem::query()
+        $sales = \DB::table('payments')
+            ->where('status', PaymentStatus::PAID->name)
             ->whereBetween('created_at', [Carbon::now()->subDays($this->periods)->startOfDay(), Carbon::now()->endOfDay()])
             ->groupBy('day')
             ->orderBy('day')
             ->get([
                 \DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d") as day'),
-                \DB::raw('SUM(subtotal) as total'),
+                \DB::raw('SUM(amount) as total'),
             ])
-            ->keyBy('day')
-            ->map(function ($item) {
-                $item->date = Carbon::parse($item->date);
-                return $item;
-            });
+            ->keyBy('day');
 
-        $dailySale = array_map(function ($datePeriod) use ($sales) {
-            $date = $datePeriod->format('Y-m-d');
-            return $sales->has($date) ? $sales->get($date)->total : 0;
-        }, iterator_to_array($periods));
+        $dailySale = array_map(function ($date) use ($sales) {
+            return $sales->has($date) ? (float) $sales->get($date)->total : 0;
+        }, $days);
 
         return ['days' => $days, 'sales' => $dailySale];
     }

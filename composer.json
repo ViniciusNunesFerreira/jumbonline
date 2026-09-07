@@ -25,6 +25,7 @@
         "laravel/tinker": "^2.8",
         "league/flysystem-aws-s3-v3": "^3.12",
         "livewire/livewire": "^2.11",
+        "maatwebsite/excel": "^3.1",
         "mercadopago/dx-php": "3.0.7",
         "milon/barcode": "^11.0",
         "propaganistas/laravel-phone": "^5.0",
