@@ -1,5 +1,3 @@
-// app/Console/Commands/ConfirmPendingPixPayments.php (novo)
-
 <?php
 
 namespace App\Console\Commands;
@@ -33,9 +31,7 @@ class ConfirmPendingPixPayments extends Command
 
         MercadoPagoConfig::setAccessToken($mercadopago->meta['access_token']);
 
-        // Só pedidos do site ainda "OPEN" (mesmo critério que o próprio webhook usa
-        // pra localizar o pedido) sem pagamento PAID local, criados nas últimas 6h —
-        // a janela evita varrer o histórico inteiro a cada execução.
+
         $orders = Order::query()
             ->where('order_status', OrderStatus::OPEN->name)
             ->where(function ($q) {
