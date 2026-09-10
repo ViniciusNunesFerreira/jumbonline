@@ -38,7 +38,7 @@ class ConfirmPendingPixPayments extends Command
                 $q->whereNull('payment_status')
                   ->orWhere('payment_status', '!=', PaymentStatus::PAID->name);
             })
-            ->where('created_at', '>=', now()->subDays(10))
+            ->where('created_at', '>=', now()->subHours(6))
             ->whereDoesntHave('payments', fn($q) => $q->where('status', PaymentStatus::PAID->name))
             ->get();
 
