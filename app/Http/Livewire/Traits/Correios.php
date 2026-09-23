@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use App\Enums\ShippingServices;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 trait Correios
 {
@@ -15,8 +16,6 @@ trait Correios
     {
         $config = config('correios');
         $url = $config['host'].'token/v1/autentica/cartaopostagem';
-
-        $correios_params = ShippingMethod::query()->where('identifier', 'correios')->firstOrFail();
 
         $headers = [
                 'Content-Type'=>'application/json',
@@ -39,12 +38,10 @@ trait Correios
 
             $data = json_decode($response->getBody(), true);
 
-            config([ 'correios.token' => $data['token'] ]);
-            config([ 'correios.expired_in' => $data['expiraEm']]);
+            $expiresAt = Carbon::parse($data['expiraEm']);
 
-            $fp = fopen(base_path() . '/config/correios.php', 'w');
-            fwrite($fp, '<?php return ' . var_export(config('correios'), true) . ';');
-            fclose($fp);
+            Cache::put('correios.token', $data['token'], $expiresAt);
+            Cache::put('correios.expired_in', $data['expiraEm'], $expiresAt);
 
         } catch (\Exception $exception) {
             $response = $exception->getMessage();
@@ -54,19 +51,22 @@ trait Correios
 
     public function calcPrecoFrete(Array $params)
     {
-        
+
         //params['cepDestino', 'cepOrigem', 'peso']
 
         $config = config('correios');
         $service = ShippingServices::SEDEX_CONTRATO_AG;
 
+        $token = Cache::get('correios.token');
+        $expiredIn = Cache::get('correios.expired_in');
+
         $current =  Carbon::now();
-        $newHour = new Carbon($config['expired_in']);
-        
-        //SE O TOKEN ESTIVER COM VENCIMENTO ABAIXO DE 30 Minutos
-       if( empty($config['expired_in']) || $current->diffInMinutes($newHour, false) <= 30 ){
+        $newHour = $expiredIn ? new Carbon($expiredIn) : null;
+
+        //SE O TOKEN ESTIVER COM VENCIMENTO ABAIXO DE 30 Minutos (ou nunca foi obtido)
+       if( empty($expiredIn) || $current->diffInMinutes($newHour, false) <= 30 ){
             $this->getAccessToken();
-            $config = config('correios');
+            $token = Cache::get('correios.token');
        }
 
 
@@ -77,7 +77,7 @@ trait Correios
                 'Content-Type'=>'application/json',
                 'Accept' => 'application/json',
                 'Cache-Controle' => 'no-cache',
-                'Authorization' => 'Bearer '.$config['token']
+                'Authorization' => 'Bearer '.$token
         ];
 
         try {
@@ -90,7 +90,7 @@ trait Correios
 
 
         }catch( \Exception $exception ){
-            
+
             $data = $exception->getMessage();
         }
 

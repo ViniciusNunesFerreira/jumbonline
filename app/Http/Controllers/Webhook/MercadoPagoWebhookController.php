@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
-use App\Models\Product;
+use App\Models\Variant;
 use App\Enums\PaymentStatus;
 use App\Enums\OrderStatus;
 use App\Events\PaymentReceived;
 use App\Services\MercadoPagoWebhookSignature;
+use App\Services\StockMovementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -24,7 +25,6 @@ class MercadoPagoWebhookController extends Controller
         $secret = config('services.mercadopago.webhook_secret');
 
         if (! MercadoPagoWebhookSignature::isValid($request, $secret)) {
-            // Não é necessariamente ataque — pode ser reentrega concorrente da própria MP.
             Log::warning('Webhook Mercado Pago: assinatura inválida', [
                 'data_id' => $request->query('data.id') ?? $request->query('id'),
             ]);
@@ -87,6 +87,8 @@ class MercadoPagoWebhookController extends Controller
         $order->payment_status = PaymentStatus::PAID;
         $order->save();
 
+        $this->debitStockForOrder($order);
+
         try {
             PaymentReceived::dispatch($order);
         } catch (\Exception $e) {
@@ -114,13 +116,28 @@ class MercadoPagoWebhookController extends Controller
 
         if (in_array($data->status, ['rejected', 'cancelled', 'refunded'])) {
             if ($pdvPayment->getRawOriginal('status') !== 'cancelled') {
+                $order = $pdvPayment->order;
+
                 $pdvPayment->delete();
 
-                if ($pdvPayment->order) {
-                    foreach ($pdvPayment->order->orderItems as $item) {
-                        Product::find($item->product_id)?->increment('stock_quantity', $item->quantity);
+                if ($order) {
+                    // Estoque já foi debitado na criação do pedido (PDVOrderController);
+                    // como o pagamento não se confirmou, devolve pela StockMovementService.
+                    $stockMovementService = app(StockMovementService::class);
+
+                    foreach ($order->orderItems as $item) {
+                        if (! $item->variant_id) {
+                            continue;
+                        }
+
+                        $variant = Variant::find($item->variant_id);
+
+                        if ($variant && $variant->stock_tracking) {
+                            $stockMovementService->registerCancellation($variant, $item->quantity, $order, 'Pix do PDV recusado/cancelado');
+                        }
                     }
-                    $pdvPayment->order->delete();
+
+                    $order->delete();
                 }
 
                 Log::warning("PIX cancelado/recusado (PDV): Pagamento ID {$pdvPayment->id} — estoque devolvido");
@@ -129,5 +146,22 @@ class MercadoPagoWebhookController extends Controller
         }
 
         Log::info("Notificação PDV ignorada (status em processamento): {$data->status}");
+    }
+
+    protected function debitStockForOrder(Order $order): void
+    {
+        $stockMovementService = app(StockMovementService::class);
+
+        foreach ($order->orderItems as $item) {
+            if (! $item->variant_id) {
+                continue;
+            }
+
+            $variant = Variant::find($item->variant_id);
+
+            if ($variant && $variant->stock_tracking) {
+                $stockMovementService->registerSale($variant, $item->quantity, $order);
+            }
+        }
     }
 }

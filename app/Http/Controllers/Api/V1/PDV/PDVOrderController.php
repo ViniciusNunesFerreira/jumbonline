@@ -14,6 +14,8 @@ use App\Models\PaymentMethod; // <--- Importante!
 use App\Models\Payment;
 use App\Models\CashSession;
 use App\Models\CashMovement;
+use App\Models\Variant;
+use App\Services\StockMovementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -155,31 +157,27 @@ class PDVOrderController extends Controller
             ]);
 
             // 5. Salva Itens e Baixa Estoque
+            $stockMovementService = app(StockMovementService::class);
+
             foreach ($itemsData as $itemData) {
                 $itemData['order_id'] = $order->id;
-                OrderItem::create($itemData);
+                $orderItem = OrderItem::create($itemData);
 
-                // Baixa de estoque na tabela products
-                $productToUpdate = Product::with('first_variant')
-                    ->lockForUpdate()
-                    ->find($itemData['product_id']);
-
-                if ($productToUpdate) {
-                    // Verifica se o produto usa controle de estoque pela variante
-                    if ($productToUpdate->first_variant) {
-                        if ($productToUpdate->first_variant->stock_value < $itemData['quantity']) {
-                            throw new \Exception("Estoque insuficiente para a variação do produto: {$productToUpdate->name}");
-                        }
-                        $productToUpdate->first_variant->decrement('stock_value', $itemData['quantity']);
-                    } 
-                    // Caso contrário, desconta do produto principal
-                    else {
-                        if ($productToUpdate->stock < $itemData['quantity']) {
-                            throw new \Exception("Estoque insuficiente para o produto: {$productToUpdate->name}");
-                        }
-                        $productToUpdate->decrement('stock', $itemData['quantity']);
-                    }
+                if (! $orderItem->variant_id) {
+                    continue;
                 }
+
+                $variant = Variant::whereKey($orderItem->variant_id)->lockForUpdate()->first();
+
+                if (! $variant || ! $variant->stock_tracking) {
+                    continue;
+                }
+
+                if ($variant->stock_value < $orderItem->quantity) {
+                    throw new \Exception("Estoque insuficiente para a variação do produto: {$orderItem->name}");
+                }
+
+                $stockMovementService->registerSale($variant, $orderItem->quantity, $order);
             }
 
 

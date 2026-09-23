@@ -70,7 +70,10 @@ Route::group([
         Route::get('/settings/license', \App\Http\Livewire\Employee\Settings\LicenseSettingManager::class)->name('settings.license');
 
         Route::get('/abandoned-carts', \App\Http\Livewire\Employee\AbandonedCart\AbandonedCartList::class)->name('abandoned-carts.list');
-    });
+        
+        Route::get('/settings/inventory', \App\Http\Livewire\Employee\Settings\InventorySettingManager::class)->name('settings.inventory');
+    
+        });
 
     Route::group(['middleware' => ['auth:employee', 'can:admin']], function () {
         Route::get('/financial', \App\Http\Livewire\Employee\Financial\FinancialDashboard::class)->name('financial.dashboard');

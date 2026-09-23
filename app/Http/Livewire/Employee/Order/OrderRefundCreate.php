@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\Refund;
 use App\Models\RefundItem;
+use App\Models\Variant;
+use App\Services\StockMovementService;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
 
@@ -91,6 +93,8 @@ class OrderRefundCreate extends Component
 
         $this->order->refunds()->save($this->refund);
 
+        $stockMovementService = app(StockMovementService::class);
+
         foreach ($this->selectedShippedItems as $selectedShippedItem) {
             if ($selectedShippedItem['selected_quantity'] > 0) {
                 $this->refund->refundItems()->save(new RefundItem([
@@ -100,6 +104,7 @@ class OrderRefundCreate extends Component
                     'price' => $selectedShippedItem['price'],
                     'is_shipped' => true,
                 ]));
+                // Item já saiu fisicamente — não volta pro estoque.
             }
         }
 
@@ -112,6 +117,17 @@ class OrderRefundCreate extends Component
                     'price' => $selectedUnshippedItem['price'],
                     'is_shipped' => false,
                 ]));
+
+                // Item nunca saiu do estoque de fato — devolve.
+                $orderItem = $this->order->orderItems->firstWhere('id', $selectedUnshippedItem['id']);
+
+                if ($orderItem && $orderItem->variant_id) {
+                    $variant = Variant::find($orderItem->variant_id);
+
+                    if ($variant && $variant->stock_tracking) {
+                        $stockMovementService->registerReturn($variant, $selectedUnshippedItem['selected_quantity'], $this->refund, 'Reembolso de item não enviado');
+                    }
+                }
             }
         }
 

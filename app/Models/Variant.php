@@ -14,8 +14,8 @@ class Variant extends Model implements HasMedia
     use HasFactory;
     use InteractsWithMedia;
 
-    protected $fillable = ['sku', 'barcode', 'price', 'compare_price', 'cost_price', 'stock_tracking', 'stock_value', 'shipping_type', 'weight_value', 'weight_unit'];
-
+    protected $fillable = ['sku', 'barcode', 'price', 'compare_price', 'cost_price', 'stock_tracking', 'stock_value', 'low_stock_threshold', 'ncm', 'cfop', 'origin', 'shipping_type', 'weight_value', 'weight_unit'];
+    
     protected $casts = [
         'price' => 'float',
         'compare_price' => 'float',
@@ -113,5 +113,22 @@ class Variant extends Model implements HasMedia
         }
 
         return $weight;
+    }
+
+
+    public function stockMovements(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    public function getIsLowStockAttribute(): bool
+    {
+        if (! $this->stock_tracking) {
+            return false;
+        }
+
+        $threshold = $this->low_stock_threshold ?? app(\App\Settings\InventorySetting::class)->default_low_stock_threshold;
+
+        return $this->stock_value <= $threshold;
     }
 }

@@ -7,6 +7,7 @@ use App\Models\ShippingMethod;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Cotação de frete via Correios (contrato "Cartão de Postagem"), reutilizando
@@ -77,28 +78,32 @@ class CorreiosFreightService
 
         $data = json_decode($response->getBody(), true);
 
-        config(['correios.token' => $data['token']]);
-        config(['correios.expired_in' => $data['expiraEm']]);
+        $expiresAt = Carbon::parse($data['expiraEm']);
 
-        $fp = fopen(base_path() . '/config/correios.php', 'w');
-        fwrite($fp, '<?php return ' . var_export(config('correios'), true) . ';');
-        fclose($fp);
+        Cache::put('correios.token', $data['token'], $expiresAt);
+        Cache::put('correios.expired_in', $data['expiraEm'], $expiresAt);
 
-        return config('correios');
+        return [
+            'host' => $config['host'],
+            'token' => $data['token'],
+            'expired_in' => $data['expiraEm'],
+        ];
     }
 
     private function ensureValidToken(): array
     {
         $config = config('correios');
+        $token = Cache::get('correios.token');
+        $expiredIn = Cache::get('correios.expired_in');
 
         $current = Carbon::now();
-        $newHour = new Carbon($config['expired_in'] ?? null);
+        $newHour = $expiredIn ? new Carbon($expiredIn) : null;
 
-        if (empty($config['expired_in']) || $current->diffInMinutes($newHour, false) <= 30) {
-            $config = $this->getAccessToken();
+        if (empty($expiredIn) || $current->diffInMinutes($newHour, false) <= 30) {
+            return $this->getAccessToken();
         }
 
-        return $config;
+        return ['host' => $config['host'], 'token' => $token, 'expired_in' => $expiredIn];
     }
 
     /**

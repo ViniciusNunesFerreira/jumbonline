@@ -106,7 +106,7 @@
                 />
             </div>
 
-            <div class="col-span-3 xl:col-span-2 space-y-6">
+            <div class="col-span-2 xl:col-span-2 space-y-6">
                 <livewire:employee.product.components.product-variant-pricing
                     :product="$product"
                     :variant="$variant"
@@ -121,6 +121,12 @@
                     :product="$product"
                     :variant="$variant"
                 />
+
+                <livewire:employee.product.components.product-variant-fiscal
+                    :product="$product"
+                    :variant="$variant"
+                />
+                
             </div>
         </div>
     </div>

@@ -66,11 +66,6 @@ class OrderShipmentCreate extends Component
 
         $this->shipment->shipmentItems()->saveMany($this->shipmentItems);
 
-        foreach ($this->shipmentItems as $item) {
-            $item->orderItem->variant->decrement('stock_value', $item->quantity);
-
-            $item->orderItem->variant->save();
-        }
 
         ShipmentCreated::dispatch($this->shipment);
 
