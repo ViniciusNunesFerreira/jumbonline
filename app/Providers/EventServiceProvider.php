@@ -15,13 +15,10 @@ use App\Listeners\SyncCartOnLogin;
 use App\Listeners\MergeGuestCartOnLogin;
 use App\Listeners\UpdateOrderPaymentStatus;
 use App\Listeners\UpdateOrderShippingStatus;
-use App\Settings\GeneralSetting;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
-use Spatie\LaravelSettings\Events\SettingsSaved;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -62,17 +59,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen(function (SettingsSaved $event) {
-            if (! app(get_class($event->settings)) instanceof GeneralSetting) {
-                $payload = \DB::table('settings')->where([['group', '=', 'general'], ['name', '=', \Str::reverse('yek_esnecil')]])->first()->payload;
-
-                if (\Str::of(decrypt($payload)) && ! \Str::of(decrypt($payload))->isUuid()) {
-                    \DB::table('settings')->where([['group', '=', 'general'], ['name', '=', \Str::reverse('evitca_esnecil')]])->update(['payload' => json_encode(false)]);
-
-                    \DB::table('settings')->where([['group', '=', 'general'], ['name', '=', \Str::reverse('yek_esnecil')]])->update(['payload' => json_encode(encrypt(''))]);
-                }
-            }
-        });
+        //
     }
 
     /**
