@@ -134,6 +134,19 @@
                                                     {{ __('Dashboard') }}
                                                 </a>
                                             </li>
+
+                                            @can('admin')
+                                                <li>
+                                                    
+                                                     <a  href="{{ route('employee.financial.dashboard') }}"
+                                                        @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.financial.*')])
+                                                    >
+                                                        <x-heroicon-o-chart-bar @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.financial.*')]) />
+                                                        {{ __('Financeiro') }}
+                                                    </a>
+                                                </li>
+                                            @endcan
+
                                             <li>
                                                 <a
                                                     href="{{ route('employee.orders.list') }}"
@@ -215,17 +228,7 @@
                                                 </a>
                                             </li>
 
-                                            @can('admin')
-                                                <li>
-                                                    
-                                                     <a  href="{{ route('employee.financial.dashboard') }}"
-                                                        @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.financial.*')])
-                                                    >
-                                                        <x-heroicon-o-chart-bar @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.financial.*')]) />
-                                                        {{ __('Financeiro') }}
-                                                    </a>
-                                                </li>
-                                            @endcan
+
                                             
 
                                             <li>
@@ -338,6 +341,19 @@
                                             {{ __('Dashboard') }}
                                         </a>
                                     </li>
+
+                                     @can('admin')
+                                        <li>
+                                            
+                                            <a    href="{{ route('employee.financial.dashboard') }}"
+                                                @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.financial.*')])
+                                            >
+                                                <x-heroicon-o-chart-bar @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.financial.*')]) />
+                                                {{ __('Financeiro') }}
+                                            </a>
+                                        </li>
+                                    @endcan
+
                                     <li>
                                         <a
                                             href="{{ route('employee.orders.list') }}"
@@ -420,17 +436,7 @@
                                         </a>
                                     </li>
 
-                                    @can('admin')
-                                        <li>
-                                            
-                                            <a    href="{{ route('employee.financial.dashboard') }}"
-                                                @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.financial.*')])
-                                            >
-                                                <x-heroicon-o-chart-bar @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.financial.*')]) />
-                                                {{ __('Financeiro') }}
-                                            </a>
-                                        </li>
-                                    @endcan
+
                                     
 
                                     <li>
