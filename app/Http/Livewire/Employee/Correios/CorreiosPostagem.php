@@ -5,17 +5,16 @@ namespace App\Http\Livewire\Employee\Correios;
 use App\Enums\CorreiosPrepostagemStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ShippingCarrier;
-use App\Jobs\AguardarStatusPrepostagemJob;
-use App\Jobs\SolicitarRotuloCorreiosJob;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\Visitante;
+use App\Services\CorreiosPostagemOrchestrator;
 use App\Services\CorreiosPrepostagemService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Services\CorreiosPostagemOrchestrator;
 
 class CorreiosPostagem extends Component
 {
@@ -94,9 +93,10 @@ class CorreiosPostagem extends Component
     {
         return Shipment::query()
             ->where('shipping_carrier', ShippingCarrier::CORREIOS->value)
-            ->whereNotNull('correios_status')
-            ->where('correios_status', '!=', CorreiosPrepostagemStatus::POSTADO->value)
-            ->whereNull('correios_label_recibo') // Aplica AND no filtro
+            ->where(function ($q) {
+                $q->where('correios_status', '!=', CorreiosPrepostagemStatus::POSTADO->value)
+                  ->orWhereNull('correios_label_recibo');
+            })
             ->with('order.customer:id,name')
             ->latest()
             ->paginate(15);
@@ -138,14 +138,14 @@ class CorreiosPostagem extends Component
         $this->resetErrorBag();
     }
 
-    public function criarPostagemManual(CorreiosPrepostagemService $service)
+    public function criarPostagemManual(CorreiosPostagemOrchestrator $orchestrator)
     {
         $this->validate($this->rulesManual());
 
         $orderId = $this->pedidoManualId;
         $this->pedidoManualId = null;
 
-        $this->criarPostagem($orderId, $service, $this->remetenteManual, $this->destinatarioManual);
+        $this->criarPostagem($orderId, $orchestrator, $this->remetenteManual, $this->destinatarioManual);
     }
 
     public function criarPostagem($orderId, CorreiosPostagemOrchestrator $orchestrator, ?array $remetenteManual = null, ?array $destinatarioManual = null)
@@ -181,15 +181,25 @@ class CorreiosPostagem extends Component
         try {
             $html = $service->declaracaoConteudo($shipment->correios_prepostagem_id);
         } catch (\Throwable $e) {
+            $status = method_exists($e, 'getResponse') && $e->getResponse() ? $e->getResponse()->getStatusCode() : 'sem resposta';
+            $body = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : $e->getMessage();
+
+            Log::error("Correios: falha ao buscar declaração de conteúdo do shipment #{$shipment->id} (prepostagem {$shipment->correios_prepostagem_id}). HTTP {$status}: {$body}");
+
             $this->notify(trans('Não foi possível gerar a declaração agora — tente novamente em instantes.'));
             return;
         }
 
         $fileName = "declaracao-conteudo-pedido-{$shipment->order_id}.pdf";
 
-        return response()->streamDownload(function () use ($html) {
-            echo Pdf::loadHTML($html)->setPaper('a4')->output();
-        }, $fileName);
+        try {
+            return response()->streamDownload(function () use ($html) {
+                echo Pdf::loadHTML($html)->setPaper('a4')->output();
+            }, $fileName);
+        } catch (\Throwable $e) {
+            Log::error("Correios: HTML da declaração veio, mas o dompdf falhou ao converter pro shipment #{$shipment->id}: " . $e->getMessage());
+            $this->notify(trans('A Correios retornou a declaração, mas houve um erro ao gerar o PDF. Aviso técnico já registrado.'));
+        }
     }
 
     public function cancelarPostagem($shipmentId, CorreiosPrepostagemService $service)

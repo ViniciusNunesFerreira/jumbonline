@@ -119,13 +119,23 @@ class OrderCorreiosAction extends Component
         try {
             $html = $service->declaracaoConteudo($shipment->correios_prepostagem_id);
         } catch (\Throwable $e) {
+            $status = method_exists($e, 'getResponse') && $e->getResponse() ? $e->getResponse()->getStatusCode() : 'sem resposta';
+            $body = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : $e->getMessage();
+
+            \Illuminate\Support\Facades\Log::error("Correios: falha ao buscar declaração de conteúdo do shipment #{$shipment->id} (prepostagem {$shipment->correios_prepostagem_id}). HTTP {$status}: {$body}");
+
             $this->notify(trans('Não foi possível gerar a declaração agora — tente novamente em instantes.'));
             return;
         }
 
-        return response()->streamDownload(function () use ($html) {
-            echo Pdf::loadHTML($html)->setPaper('a4')->output();
-        }, "declaracao-conteudo-pedido-{$shipment->order_id}.pdf");
+        try {
+            return response()->streamDownload(function () use ($html) {
+                echo Pdf::loadHTML($html)->setPaper('a4')->output();
+            }, "declaracao-conteudo-pedido-{$shipment->order_id}.pdf");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Correios: HTML da declaração veio, mas o dompdf falhou pro shipment #{$shipment->id}: " . $e->getMessage());
+            $this->notify(trans('A Correios retornou a declaração, mas houve um erro ao gerar o PDF. Aviso técnico já registrado.'));
+        }
     }
 
     public function render()
