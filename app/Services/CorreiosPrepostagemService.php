@@ -116,7 +116,7 @@ class CorreiosPrepostagemService
             'destinatario' => [
                 'nome' => $destinatario['nome'],
                 'obs' => $destinatario['obs'] ?? '',
-                'cpfCnpj' => preg_replace('/\D/', '', $destinatario['cpf']),
+                'cpfCnpj' => preg_replace('/\D/', '', $destinatario['cpfCnpj']),
                 'endereco' => [
                     'cep' => preg_replace('/\D/', '', $destinatario['cep']),
                     'logradouro' => $destinatario['logradouro'],
