@@ -76,8 +76,15 @@ class CorreiosPrepostagemService
 
     public function declaracaoConteudo(string $idPrePostagem): string
     {
+        // Sobrescreve o header Accept para receber o HTML da declaração sem quebrar a API dos Correios
         $response = $this->client()->get($this->baseUrl() . "/v1/prepostagens/declaracaoconteudo/{$idPrePostagem}", [
-            'query' => ['tamFolhaImpressao' => 'A4'],
+            'headers' => [
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            ],
+            'query' => [
+                'tamFolhaImpressao' => 'A4',
+                'quebraPaginaImpressao' => 'S',
+            ],
         ]);
 
         return (string) $response->getBody();
@@ -120,6 +127,7 @@ class CorreiosPrepostagemService
                 ],
             ],
             'codigoServico' => $this->codigoServico($order),
+            'emiteDCe' => 'N', // Força o não uso de DCe eletrônica, liberando o status PREATENDIDO direto
             'pesoInformado' => (string) $this->pesoGramas($order),
             'codigoFormatoObjetoInformado' => '2',
             'alturaInformada' => '27',
