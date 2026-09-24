@@ -131,11 +131,36 @@ class OrderCorreiosAction extends Component
         try {
             $html = trim($html);
 
-            return response()->streamDownload(function () use ($html) {
-                echo Pdf::loadHTML($html)
-                    ->setOptions(['defaultMediaType' => 'print', 'isHtml5ParserEnabled' => true])
-                    ->output();
-            }, "declaracao-conteudo-pedido-{$shipment->order_id}.pdf");
+            $styleOverride = '<style>
+            @page {
+                size: A4 portrait;
+                margin: 10mm 10mm 10mm 10mm !important;
+            }
+            html, body {
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            /* Neutraliza quebras forcadas do HTML dos Correios que geram a 2ª página em branco */
+            div, table, .page-break {
+                page-break-after: avoid !important;
+                page-break-before: avoid !important;
+                page-break-inside: avoid !important;
+            }
+             </style>';
+
+            $htmlPreparado = $styleOverride . $html;
+
+            return response()->streamDownload(function () use ($htmlPreparado) {
+                    echo Pdf::loadHTML($htmlPreparado)
+                        ->setPaper('a4', 'portrait')
+                        ->setOptions([
+                            'defaultMediaType' => 'screen', // Usa 'screen' para ignorar o @media print problematico dos Correios
+                            'isHtml5ParserEnabled' => true,
+                            'isRemoteEnabled' => true,     // Permite carregar imagens/logos caso venham via URL
+                        ])
+                        ->output();
+                }, "declaracao-conteudo-pedido-{$shipment->order_id}.pdf");
 
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("Correios: HTML da declaração veio, mas o dompdf falhou pro shipment #{$shipment->id}: " . $e->getMessage());

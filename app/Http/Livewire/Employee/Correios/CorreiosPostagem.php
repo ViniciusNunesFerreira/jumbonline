@@ -195,12 +195,37 @@ class CorreiosPostagem extends Component
         try {
             $html = trim($html);
 
-            return response()->streamDownload(function () use ($html) {
-                echo Pdf::loadHTML($html)
-                    ->setOptions(['defaultMediaType' => 'print', 'isHtml5ParserEnabled' => true])
+             $styleOverride = '<style>
+            @page {
+                size: A4 portrait;
+                margin: 10mm 10mm 10mm 10mm !important;
+            }
+            html, body {
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            /* Neutraliza quebras forcadas do HTML dos Correios que geram a 2ª página em branco */
+            div, table, .page-break {
+                page-break-after: avoid !important;
+                page-break-before: avoid !important;
+                page-break-inside: avoid !important;
+            }
+             </style>';
+
+            $htmlPreparado = $styleOverride . $html;
+
+            return response()->streamDownload(function () use ($htmlPreparado) {
+                echo Pdf::loadHTML($htmlPreparado)
+                    ->setPaper('a4', 'portrait')
+                    ->setOptions([
+                            'defaultMediaType' => 'screen', 
+                            'isHtml5ParserEnabled' => true,
+                            'isRemoteEnabled' => true,     
+                        ])
                     ->output();
             }, $fileName);
-            
+
         } catch (\Throwable $e) {
             Log::error("Correios: HTML da declaração veio, mas o dompdf falhou ao converter pro shipment #{$shipment->id}: " . $e->getMessage());
             $this->notify(trans('A Correios retornou a declaração, mas houve um erro ao gerar o PDF. Aviso técnico já registrado.'));
