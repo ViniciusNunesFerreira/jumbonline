@@ -6,6 +6,7 @@ use App\Enums\ShippingCarrier;
 use App\Events\ShipmentDeleted;
 use App\Models\Order;
 use App\Models\Shipment;
+use App\Services\CorreiosPrepostagemService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\Rules\Enum;
 use Livewire\Component;
@@ -31,6 +32,11 @@ class OrderShipments extends Component
 
     public function edit(Shipment $shipment)
     {
+        if ($shipment->shipping_carrier === ShippingCarrier::CORREIOS && $shipment->correios_prepostagem_id) {
+            $this->notify(trans('Esta remessa é uma pré-postagem oficial dos Correios — gerencie pelo painel de Correios acima, não por aqui, pra não perder a ligação com a postagem real.'));
+            return;
+        }
+
         $this->shipmentBeingUpdated = $shipment;
 
         $this->shipmentBeingUpdated->shipping_carrier = ShippingCarrier::OTHER->value;
@@ -51,8 +57,17 @@ class OrderShipments extends Component
         $this->notify(trans('Tracking information updated.'));
     }
 
-    public function delete(Shipment $shipment)
+    public function delete(Shipment $shipment, CorreiosPrepostagemService $service)
     {
+        if ($shipment->shipping_carrier === ShippingCarrier::CORREIOS && $shipment->correios_prepostagem_id) {
+            try {
+                $service->cancelar($shipment->correios_prepostagem_id);
+            } catch (\Throwable $e) {
+                $this->notify(trans('Não foi possível cancelar junto aos Correios — verifique manualmente antes de remover.'));
+                return;
+            }
+        }
+
         $shipment->delete();
 
         $this->emit('refresh')->self();
