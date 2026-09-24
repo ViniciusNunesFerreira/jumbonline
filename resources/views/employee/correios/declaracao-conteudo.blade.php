@@ -101,7 +101,7 @@
         <strong>Chave NFe/Dce:</strong> {{ $d['chaveNFe'] ?? '' }}
         &nbsp;&nbsp; Observação: Constitui crime contra a ordem tributária suprimir ou reduzir tributo, ou contribuição social e qualquer acessório (Lei: 8.137/90 Art 1º, V)
         @if(!empty($d['chaveNFe']))
-            <div style="margin-top:6px">{!! \Milon\Barcode\Facades\DNS1D::getBarcodeHTML($d['chaveNFe'], 'C128', 1.5, 40) !!}</div>
+            <div style="margin-top:6px">{!! \DNS1D::getBarcodeHTML($d['chaveNFe'], 'C128', 1.5, 40) !!}</div>
         @else
             <div style="margin-top:6px; font-size:9px; color:#888;">(chave ainda não processada pela Correios — tente baixar novamente em alguns minutos)</div>
         @endif
