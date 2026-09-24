@@ -197,17 +197,6 @@
                                                 </a>
                                             </li>
 
-
-
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.reviews.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.reviews.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.reviews.*')])
-                                                >
-                                                    <x-heroicon-o-star @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.reviews.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.reviews.*')]) />
-                                                    {{ __('Avaliações') }}
-                                                </a>
-                                            </li>
                                             <li>
                                                 <a
                                                     href="{{ route('employee.collections.list') }}"
@@ -272,16 +261,6 @@
                                                 </a>
                                             </li>
                                            
-
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.pages.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.pages.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.pages.*')])
-                                                >
-                                                    <x-heroicon-o-flag @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.pages.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.pages.*')])/>
-                                                    {{ __('Páginas') }}
-                                                </a>
-                                            </li>
 
                                             <li>
                                                 <a 
@@ -406,17 +385,6 @@
                                         </a>
                                     </li>
 
-
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.reviews.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.reviews.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.reviews.*')])
-                                        >
-                                            <x-heroicon-o-star @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.reviews.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.reviews.*')]) />
-                                            {{ __('Avaliações') }}
-                                        </a>
-                                    </li>
                                     <li>
                                         <a
                                             href="{{ route('employee.collections.list') }}"
@@ -483,17 +451,6 @@
                                         </a>
                                     </li>
                                     
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.pages.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.pages.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.pages.*')])
-                                        >
-                                            <x-heroicon-o-flag @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.pages.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.pages.*')])/>
-                                            {{ __('Páginas') }}
-                                        </a>
-                                    </li>
-
 
                                     <li>
                                         <a 
