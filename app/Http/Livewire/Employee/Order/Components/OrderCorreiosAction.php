@@ -129,9 +129,14 @@ class OrderCorreiosAction extends Component
         }
 
         try {
+            $html = trim($html);
+
             return response()->streamDownload(function () use ($html) {
-                echo Pdf::loadHTML($html)->setPaper('a4')->output();
+                echo Pdf::loadHTML($html)
+                    ->setOptions(['defaultMediaType' => 'print', 'isHtml5ParserEnabled' => true])
+                    ->output();
             }, "declaracao-conteudo-pedido-{$shipment->order_id}.pdf");
+
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("Correios: HTML da declaração veio, mas o dompdf falhou pro shipment #{$shipment->id}: " . $e->getMessage());
             $this->notify(trans('A Correios retornou a declaração, mas houve um erro ao gerar o PDF. Aviso técnico já registrado.'));

@@ -193,9 +193,14 @@ class CorreiosPostagem extends Component
         $fileName = "declaracao-conteudo-pedido-{$shipment->order_id}.pdf";
 
         try {
+            $html = trim($html);
+
             return response()->streamDownload(function () use ($html) {
-                echo Pdf::loadHTML($html)->setPaper('a4')->output();
+                echo Pdf::loadHTML($html)
+                    ->setOptions(['defaultMediaType' => 'print', 'isHtml5ParserEnabled' => true])
+                    ->output();
             }, $fileName);
+            
         } catch (\Throwable $e) {
             Log::error("Correios: HTML da declaração veio, mas o dompdf falhou ao converter pro shipment #{$shipment->id}: " . $e->getMessage());
             $this->notify(trans('A Correios retornou a declaração, mas houve um erro ao gerar o PDF. Aviso técnico já registrado.'));
