@@ -111,80 +111,40 @@ class OrderCorreiosAction extends Component
 
         return response()->download(Storage::disk('local')->path($path), "etiqueta-pedido-{$shipment->order_id}.pdf");
     }
+    
 
     public function baixarDeclaracao(CorreiosPrepostagemService $service)
     {
         $shipment = $this->shipment;
-        if ($shipment->correios_status === CorreiosPrepostagemStatus::PENDENTE->value) {
-            $this->notify(trans('A declaração eletrônica (DCe) ainda está sendo gerada pelos Correios. Aguarde alguns segundos e tente novamente.'));
+
+        // Trava de segurança: aguarda o status sair de PENDENTE (7)
+        if ($shipment->correios_status === \App\Enums\CorreiosPrepostagemStatus::PENDENTE->value) {
+            $this->notify(trans('A Declaração Eletrônica (DCe) ainda está sendo gerada pelos Correios. Aguarde alguns instantes e tente novamente.'));
             return;
         }
 
         try {
-            $html = $service->declaracaoConteudo($shipment->correios_prepostagem_id);
+            // O método já retorna os bytes puros do PDF oficial com código de barras
+            $pdfContent = $service->emitirDacePdf($shipment->correios_prepostagem_id);
+
+            if (empty($pdfContent)) {
+                $this->notify(trans('A API dos Correios não retornou o arquivo da DACE. Tente novamente em instantes.'));
+                return;
+            }
+
+            return response()->streamDownload(function () use ($pdfContent) {
+                echo $pdfContent;
+            }, "dace-declaracao-pedido-{$shipment->order_id}.pdf", [
+                'Content-Type' => 'application/pdf',
+            ]);
+
         } catch (\Throwable $e) {
             $status = method_exists($e, 'getResponse') && $e->getResponse() ? $e->getResponse()->getStatusCode() : 'sem resposta';
             $body = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : $e->getMessage();
 
-            \Illuminate\Support\Facades\Log::error("Correios: falha ao buscar declaração de conteúdo do shipment #{$shipment->id} (prepostagem {$shipment->correios_prepostagem_id}). HTTP {$status}: {$body}");
+            \Illuminate\Support\Facades\Log::error("Correios: falha ao emitir DACE em PDF para o shipment #{$shipment->id} (prepostagem {$shipment->correios_prepostagem_id}). HTTP {$status}: {$body}");
 
-            $this->notify(trans('Não foi possível gerar a declaração agora — tente novamente em instantes.'));
-            return;
-        }
-
-        try {
-            $html = trim($html);
-
-            // Bloco de controle para injetar no <head> oficial do HTML
-            $metaAndCss = '
-                <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-                <style>
-                    @page {
-                        size: A4 portrait;
-                        margin: 12mm 10mm 12mm 10mm !important;
-                    }
-                    body, table, td, th, div, span, p {
-                        font-family: "DejaVu Sans", sans-serif !important; /* Resolve a acentuação UTF-8 */
-                    }
-                    body {
-                        margin: 0 !important;
-                        padding: 0 !important;
-                    }
-                    html, body, table, div {
-                        height: auto !important;
-                        max-height: 100% !important;
-                    }
-                    /* Elimina a página em branco no final */
-                    * {
-                        page-break-after: avoid !important;
-                        page-break-before: avoid !important;
-                        page-break-inside: avoid !important;
-                    }
-                </style>
-            ';
-
-            // Injeta corretamente dentro do <head> para manter a estrutura HTML válida
-            if (stripos($html, '<head>') !== false) {
-                $htmlPreparado = str_ireplace('<head>', '<head>' . $metaAndCss, $html);
-            } else {
-                $htmlPreparado = '<html><head>' . $metaAndCss . '</head><body>' . $html . '</body></html>';
-            }
-
-            return response()->streamDownload(function () use ($htmlPreparado) {
-                echo Pdf::loadHTML($htmlPreparado)
-                    ->setPaper('a4', 'portrait')
-                    ->setOptions([
-                        'defaultMediaType' => 'screen',
-                        'isHtml5ParserEnabled' => true,
-                        'isRemoteEnabled' => true,
-                        'defaultFont' => 'DejaVu Sans', // Garante o fallback de acentos no Dompdf
-                    ])
-                    ->output();
-            }, "declaracao-conteudo-pedido-{$shipment->order_id}.pdf");
-
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error("Correios: HTML da declaração veio, mas o dompdf falhou pro shipment #{$shipment->id}: " . $e->getMessage());
-            $this->notify(trans('A Correios retornou a declaração, mas houve um erro ao gerar o PDF. Aviso técnico já registrado.'));
+            $this->notify(trans('Não foi possível gerar o PDF da DACE agora — verifique o log ou tente novamente em instantes.'));
         }
     }
 

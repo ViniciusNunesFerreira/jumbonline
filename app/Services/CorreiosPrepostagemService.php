@@ -116,6 +116,7 @@ class CorreiosPrepostagemService
             'destinatario' => [
                 'nome' => $destinatario['nome'],
                 'obs' => $destinatario['obs'] ?? '',
+                'cpfCnpj' => preg_replace('/\D/', '', $destinatario['cpf']),
                 'endereco' => [
                     'cep' => preg_replace('/\D/', '', $destinatario['cep']),
                     'logradouro' => $destinatario['logradouro'],
@@ -127,7 +128,7 @@ class CorreiosPrepostagemService
                 ],
             ],
             'codigoServico' => $this->codigoServico($order),
-            'emiteDCe' => 'S', // Força o não uso de DCe eletrônica, liberando o status PREATENDIDO direto
+            'emiteDCe' => 'S',
             'pesoInformado' => (string) $this->pesoGramas($order),
             'codigoFormatoObjetoInformado' => '2',
             'alturaInformada' => '27',
@@ -184,7 +185,23 @@ class CorreiosPrepostagemService
             'bairro' => $order->prison_unit->bairro,
             'cidade' => $order->prison_unit->cidade,
             'uf' => $order->prison_unit->uf,
+            'cpfCnpj' => '43221148000169'
         ];
+    }
+
+    public function emitirDacePdf(string $idPrePostagem): string
+    {
+        $response = $this->client()->post($this->baseUrl() . '/v1/prepostagens/dce/dace/impressao', [
+            'json' => [
+                'idsPrePostagens' => [$idPrePostagem],
+                'tipoDace' => 'C', // C = Completa, R = Resumida, T = Térmica
+            ],
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // O retorno em $data['dados'] é a string em Base64 do PDF oficial com código de barras
+        return base64_decode($data['dados'] ?? '');
     }
 
     protected function pesoGramas(Order $order): int
