@@ -174,41 +174,23 @@ class CorreiosPostagem extends Component
         return response()->download(Storage::disk('local')->path($path), "etiqueta-pedido-{$shipment->order_id}.pdf");
     }
 
-    public function baixarDeclaracao(CorreiosPrepostagemService $service)
+    public function baixarDeclaracao($shipmentId, CorreiosPrepostagemService $service)
     {
-        $shipment = $this->shipment;
+        $shipment = Shipment::findOrFail($shipmentId);
 
-        // Trava de segurança: aguarda o status sair de PENDENTE (7)
-        if ($shipment->correios_status === \App\Enums\CorreiosPrepostagemStatus::PENDENTE->value) {
-            $this->notify(trans('A Declaração Eletrônica (DCe) ainda está sendo gerada pelos Correios. Aguarde alguns instantes e tente novamente.'));
+        try {
+            $pdf = $service->gerarDeclaracaoPdf($shipment->correios_prepostagem_id);
+        } catch (\Throwable $e) {
+            Log::error("Correios: falha ao gerar declaração de conteúdo do shipment #{$shipment->id}: " . $e->getMessage());
+            $this->notify(trans('Não foi possível gerar a declaração agora — tente novamente em instantes.'));
             return;
         }
 
-        try {
-            // O método já retorna os bytes puros do PDF oficial com código de barras
-            $pdfContent = $service->emitirDacePdf($shipment->correios_prepostagem_id);
-
-            if (empty($pdfContent)) {
-                $this->notify(trans('A API dos Correios não retornou o arquivo da DACE. Tente novamente em instantes.'));
-                return;
-            }
-
-            return response()->streamDownload(function () use ($pdfContent) {
-                echo $pdfContent;
-            }, "dace-declaracao-pedido-{$shipment->order_id}.pdf", [
-                'Content-Type' => 'application/pdf',
-            ]);
-
-        } catch (\Throwable $e) {
-            $status = method_exists($e, 'getResponse') && $e->getResponse() ? $e->getResponse()->getStatusCode() : 'sem resposta';
-            $body = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : $e->getMessage();
-
-            \Illuminate\Support\Facades\Log::error("Correios: falha ao emitir DACE em PDF para o shipment #{$shipment->id} (prepostagem {$shipment->correios_prepostagem_id}). HTTP {$status}: {$body}");
-
-            $this->notify(trans('Não foi possível gerar o PDF da DACE agora — verifique o log ou tente novamente em instantes.'));
-        }
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf;
+        }, "declaracao-conteudo-pedido-{$shipment->order_id}.pdf");
     }
-
+    
     public function cancelarPostagem($shipmentId, CorreiosPrepostagemService $service)
     {
         $shipment = Shipment::findOrFail($shipmentId);

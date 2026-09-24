@@ -74,21 +74,7 @@ class CorreiosPrepostagemService
         return json_decode($response->getBody(), true);
     }
 
-    public function declaracaoConteudo(string $idPrePostagem): string
-    {
-        // Sobrescreve o header Accept para receber o HTML da declaração sem quebrar a API dos Correios
-        $response = $this->client()->get($this->baseUrl() . "/v1/prepostagens/declaracaoconteudo/{$idPrePostagem}", [
-            'headers' => [
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            ],
-            'query' => [
-                'tamFolhaImpressao' => 'A4',
-                'quebraPaginaImpressao' => 'S',
-            ],
-        ]);
-
-        return (string) $response->getBody();
-    }
+    
 
     public function cancelar(string $idPrePostagem): void
     {
@@ -116,7 +102,6 @@ class CorreiosPrepostagemService
             'destinatario' => [
                 'nome' => $destinatario['nome'],
                 'obs' => $destinatario['obs'] ?? '',
-                'cpfCnpj' => preg_replace('/\D/', '', $destinatario['cpfCnpj']),
                 'endereco' => [
                     'cep' => preg_replace('/\D/', '', $destinatario['cep']),
                     'logradouro' => $destinatario['logradouro'],
@@ -185,23 +170,23 @@ class CorreiosPrepostagemService
             'bairro' => $order->prison_unit->bairro,
             'cidade' => $order->prison_unit->cidade,
             'uf' => $order->prison_unit->uf,
-            'cpfCnpj' => '43221148000169'
         ];
     }
 
-    public function emitirDacePdf(string $idPrePostagem): string
+    public function gerarDeclaracaoPdf(string $idPrePostagem): string
     {
-        $response = $this->client()->post($this->baseUrl() . '/v1/prepostagens/dce/dace/impressao', [
-            'json' => [
-                'idsPrePostagens' => [$idPrePostagem],
-                'tipoDace' => 'C', // C = Completa, R = Resumida, T = Térmica
-            ],
-        ]);
+        $dados = $this->consultarStatus($idPrePostagem);
 
-        $data = json_decode($response->getBody(), true);
+        if (! $dados) {
+            throw new RuntimeException("Pré-postagem {$idPrePostagem} não encontrada na Correios.");
+        }
 
-        // O retorno em $data['dados'] é a string em Base64 do PDF oficial com código de barras
-        return base64_decode($data['dados'] ?? '');
+        $html = view('employee.correios.declaracao-conteudo', ['d' => $dados])->render();
+
+        return \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+            ->setPaper('a4')
+            ->setOptions(['isHtml5ParserEnabled' => true])
+            ->output();
     }
 
     protected function pesoGramas(Order $order): int
