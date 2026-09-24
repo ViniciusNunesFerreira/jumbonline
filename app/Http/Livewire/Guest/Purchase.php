@@ -336,7 +336,9 @@ class Purchase extends Component
         $this->order->detento_id = $detento->id;
         $this->order->visitante_id = $visitante->id;
         $this->order->detento_snapshot = \Illuminate\Support\Arr::only($detento->toArray(), ['name', 'matricula', 'raio', 'cela']);
-        $this->order->visitante_snapshot = \Illuminate\Support\Arr::only($visitante->toArray(), ['nome', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'cep', 'phone']);
+        $this->order->visitante_snapshot = \Illuminate\Support\Arr::only($visitante->toArray(), ['nome', 'cpf', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'cep', 'phone']);
+
+
 
         //recupera e atualiza ordem
         $this->updateShippingPrice();

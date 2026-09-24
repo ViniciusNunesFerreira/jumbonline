@@ -49,23 +49,30 @@ class ShippingPrePost extends Component
 
     public function mount()
     {
+
+        $visitanteSnapshot = $this->order->visitante_snapshot;
+        $detentoSnapshot = $this->order->detento_snapshot;
+
         $this->state['remetente'] = [
-                'nome' => $this->order->visitante->nome,
+                'nome' => $visitanteSnapshot['nome'] ?? $this->order->visitante->nome,
                 'endereco' => [
-                    'cep' => $this->order->visitante->cep,
-                    'logradouro' => $this->order->visitante->logradouro,
-                    'numero' => $this->order->visitante->numero,
+                    'cep' => $visitanteSnapshot['cep'] ?? $this->order->visitante->cep,
+                    'logradouro' => $visitanteSnapshot['logradouro'] ?? $this->order->visitante->logradouro,
+                    'numero' => $visitanteSnapshot['numero'] ?? $this->order->visitante->numero,
                     'complemento' => '',
-                    'bairro' => $this->order->visitante->bairro,
-                    'cidade' => $this->order->visitante->cidade,
-                    'uf' => $this->order->visitante->uf,
+                    'bairro' => $visitanteSnapshot['bairro'] ?? $this->order->visitante->bairro,
+                    'cidade' => $visitanteSnapshot['cidade'] ?? $this->order->visitante->cidade,
+                    'uf' => $visitanteSnapshot['uf'] ?? $this->order->visitante->uf,
                 ]
         ];
 
         $this->state['destinatario'] = [
-                'nome' => $this->order->detento->name,
-                'obs' => $this->order->detento->matricula.' '.$this->order->detento->raio.' '.$this->order->detento->cela,
+                'nome' => $detentoSnapshot['name'] ?? $this->order->detento->name,
+                'obs' => ($detentoSnapshot['matricula'] ?? $this->order->detento->matricula).' '.($detentoSnapshot['raio'] ?? $this->order->detento->raio).' '.($detentoSnapshot['cela'] ?? $this->order->detento->cela),
                 'endereco' => [
+                    // prison_unit não tem snapshot próprio ainda — usa o relacionamento
+                    // vivo. Risco residual pequeno: só afeta pedido antigo se a unidade
+                    // prisional tiver o endereço corrigido depois no cadastro.
                     'cep' => $this->order->prison_unit->cep,
                     'logradouro' => $this->order->prison_unit->logradouro,
                     'numero' => $this->order->prison_unit->numero,
@@ -181,28 +188,18 @@ class ShippingPrePost extends Component
                             </div>
                         </body>
                         </html>';
-
-
-                    
-
     }
 
     public function geraEtiqueta()
     {
-       
-        $filename = public_path().'/pdf/etiqueta_order_n'.$this->order->id.'user_'.$this->order->customer->id.'.pdf';
-        if(file_exists($filename)){
-            unlink($filename);
-        }
+        // Não salva mais em public/pdf/ (pasta pública, nome previsível. Gera e entrega
+        // o PDF direto na resposta, sem tocar em disco — mesmo padrão já usado
+        // com segurança em ShippingManualLabel::geraEtiqueta().
+        $fileName = 'etiqueta-pedido-' . $this->order->id . '.pdf';
 
-        $fileurl =  explode('public',$filename);
-
-        $url = url('/').$fileurl[1];
-
-        Pdf::loadHTML($this->html)->save($filename)->stream('download.pdf');
-    
-        return redirect($url);
-    
+        return response()->streamDownload(function () {
+            echo Pdf::loadHTML($this->html)->output();
+        }, $fileName);
     }
 
     public function render()

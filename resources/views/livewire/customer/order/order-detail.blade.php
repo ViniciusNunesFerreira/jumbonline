@@ -47,19 +47,48 @@
             </div>
 
             @if($shipped && $order->shipments->isNotEmpty())
-                <div class="mt-6 space-y-2 border-t border-secondary pt-6">
+                <div wire:poll.60s class="mt-6 border-t border-secondary pt-6">
                     @foreach($order->shipments as $shipment)
-                        <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-complement-500 p-4 text-sm">
+                        <div class="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-complement-500 p-4 text-sm">
                             <div class="flex items-center gap-2">
                                 <x-heroicon-s-truck class="h-4 w-4 text-accent" />
                                 <span class="text-slate-600">{{ $shipment->shipping_carrier?->label() ?? 'Transportadora' }}</span>
                                 @if($shipment->tracking_number)<span class="font-semibold text-primary">{{ $shipment->tracking_number }}</span>@endif
                             </div>
-                            @if($shipment->tracking_url)
-                                <a href="{{ $shipment->tracking_url }}" target="_blank" rel="noopener" class="flex items-center gap-1 font-semibold text-purple hover:text-accent">Rastrear envio <x-heroicon-s-arrow-top-right-on-square class="h-3.5 w-3.5" /></a>
-                            @endif
                         </div>
                     @endforeach
+
+                    @if(count($this->rastreioEventos))
+                        <div class="relative space-y-0 pl-2">
+                            @foreach($this->rastreioEventos as $index => $evento)
+                                <div class="relative flex gap-4 pb-6 last:pb-0">
+                                    @if(!$loop->last)
+                                        <div class="absolute left-[15px] top-8 bottom-0 w-0.5 bg-secondary"></div>
+                                    @endif
+                                    <div @class([
+                                        'relative z-10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full',
+                                        'bg-accent text-white' => $index === 0,
+                                        'bg-secondary/60 text-primary' => $index !== 0,
+                                    ])>
+                                        <x-heroicon-s-map-pin class="h-4 w-4" />
+                                    </div>
+                                    <div class="flex-1 pt-1">
+                                        <p @class(['text-sm font-semibold', 'text-primary' => $index === 0, 'text-slate-500' => $index !== 0])>
+                                            {{ $evento['descricao'] ?? $evento['tipo'] ?? __('Atualização') }}
+                                        </p>
+                                        @if(!empty($evento['unidade']['cidade']))
+                                            <p class="text-xs text-slate-400">{{ $evento['unidade']['cidade'] }} @if(!empty($evento['unidade']['uf'])) - {{ $evento['unidade']['uf'] }} @endif</p>
+                                        @endif
+                                        @if(!empty($evento['dtHrCriado']))
+                                            <p class="text-xs text-slate-400">{{ \Carbon\Carbon::parse($evento['dtHrCriado'])->format('d/m/Y \à\s H:i') }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-slate-400">{{ __('Aguardando a primeira atualização de rastreio dos Correios.') }}</p>
+                    @endif
                 </div>
             @endif
         </div>

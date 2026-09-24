@@ -13,9 +13,9 @@ class Visitante extends Model implements HasMedia
     use HasFactory;
     use InteractsWithMedia;
 
-       
+
     protected $fillable = [
-        'nome', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'cep', 'customer_id', 'prison_unit_id'
+        'nome', 'cpf', 'logradouro', 'numero', 'bairro', 'cidade', 'uf', 'cep', 'customer_id', 'prison_unit_id'
     ];
 
     public function registerMediaCollections(): void

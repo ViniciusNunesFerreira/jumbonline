@@ -73,6 +73,7 @@ Route::group([
         
         Route::get('/settings/inventory', \App\Http\Livewire\Employee\Settings\InventorySettingManager::class)->name('settings.inventory');
     
+        Route::get('/correios', \App\Http\Livewire\Employee\Correios\CorreiosPostagem::class)->name('correios.postagem');
         });
 
     Route::group(['middleware' => ['auth:employee', 'can:admin']], function () {

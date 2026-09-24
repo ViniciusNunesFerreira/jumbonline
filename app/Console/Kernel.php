@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('sitemap:generate')->daily();
         $schedule->command('carts:cleanup-stale')->weekly()->sundays()->at('03:00');
         $schedule->command('orders:confirm-pending-pix')->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command('correios:sincronizar-postagens')->everyTenMinutes()->withoutOverlapping();
+        $schedule->command('correios:atualizar-rastreamento')->everyFifteenMinutes()->withoutOverlapping();
     }
 
     /**

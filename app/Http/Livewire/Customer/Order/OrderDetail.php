@@ -42,6 +42,7 @@ class OrderDetail extends Component
             'orderItems.variant.variantAttributes.option',
             'orderItems.variant.variantAttributes.optionValue',
             'orderItems.shipmentItems',
+            'shipments',
             'prison_unit',
             'visitante'
         ]);
@@ -70,6 +71,17 @@ class OrderDetail extends Component
         $this->productBeingReviewed = $productId;
 
         $this->showReviewForm = true;
+    }
+
+    public function getRastreioEventosProperty()
+    {
+        $shipment = $this->order->shipments->firstWhere('shipping_carrier', \App\Enums\ShippingCarrier::CORREIOS);
+
+        if (! $shipment || ! $shipment->tracking_number) {
+            return [];
+        }
+
+        return \Illuminate\Support\Facades\Cache::get("correios.rastreio.{$shipment->tracking_number}", []);
     }
 
     public function saveReview()

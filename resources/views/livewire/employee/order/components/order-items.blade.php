@@ -8,21 +8,8 @@
                             {{ __('Envio Pendente') }}
                         </h3>
                     </div>
-                    <div class="ml-4 mt-2 flex-shrink-0">
-                        <a
-                            href="{{ route('employee.orders.shipments.label', ['order' => $order]) }}"
-                            class="btn btn-primary"
-                        >
-                            {{ __('Etiqueta Manual') }}
-                        </a>
-                    </div>
-                    <div class="ml-4 mt-2 flex-shrink-0">
-                        <a
-                            href="{{ route('employee.orders.shipments.create', ['order' => $order, 'type' => 'physical']) }}"
-                            class="btn btn-primary"
-                        >
-                            {{ __('Informar Envio') }}
-                        </a>
+                     <div class="ml-4 mt-2 flex-shrink-0">
+                        <livewire:employee.order.components.order-correios-action :order="$order" />
                     </div>
                 </div>
             </x-slot:header>
