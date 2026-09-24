@@ -93,10 +93,9 @@ class CorreiosPostagem extends Component
     {
         return Shipment::query()
             ->where('shipping_carrier', ShippingCarrier::CORREIOS->value)
-            ->where(function ($q) {
-                $q->where('correios_status', '!=', CorreiosPrepostagemStatus::POSTADO->value)
-                  ->orWhereNull('correios_label_recibo');
-            })
+            ->whereNotNull('correios_status')
+            ->where('correios_status', '!=', CorreiosPrepostagemStatus::POSTADO->value)
+            ->whereNull('correios_label_recibo')
             ->with('order.customer:id,name')
             ->latest()
             ->paginate(15);
@@ -190,7 +189,7 @@ class CorreiosPostagem extends Component
             echo $pdf;
         }, "declaracao-conteudo-pedido-{$shipment->order_id}.pdf");
     }
-    
+
     public function cancelarPostagem($shipmentId, CorreiosPrepostagemService $service)
     {
         $shipment = Shipment::findOrFail($shipmentId);
