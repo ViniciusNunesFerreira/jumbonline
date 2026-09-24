@@ -115,6 +115,10 @@ class OrderCorreiosAction extends Component
     public function baixarDeclaracao(CorreiosPrepostagemService $service)
     {
         $shipment = $this->shipment;
+        if ($shipment->correios_status === CorreiosPrepostagemStatus::PENDENTE->value) {
+            $this->notify(trans('A declaração eletrônica (DCe) ainda está sendo gerada pelos Correios. Aguarde alguns segundos e tente novamente.'));
+            return;
+        }
 
         try {
             $html = $service->declaracaoConteudo($shipment->correios_prepostagem_id);

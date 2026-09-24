@@ -48,7 +48,7 @@ class CorreiosPostagemOrchestrator
         ]);
 
         if ($shipment->correios_status === CorreiosPrepostagemStatus::PENDENTE->value) {
-            AguardarStatusPrepostagemJob::dispatch($shipment->id)->delay(now()->addSeconds(10));
+            AguardarStatusPrepostagemJob::dispatch($shipment->id)->delay(now()->addSeconds(5));
         } else {
             SolicitarRotuloCorreiosJob::dispatch($shipment->id);
         }

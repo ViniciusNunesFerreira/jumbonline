@@ -127,7 +127,7 @@ class CorreiosPrepostagemService
                 ],
             ],
             'codigoServico' => $this->codigoServico($order),
-            'emiteDCe' => 'N', // Força o não uso de DCe eletrônica, liberando o status PREATENDIDO direto
+            'emiteDCe' => 'S', // Força o não uso de DCe eletrônica, liberando o status PREATENDIDO direto
             'pesoInformado' => (string) $this->pesoGramas($order),
             'codigoFormatoObjetoInformado' => '2',
             'alturaInformada' => '27',

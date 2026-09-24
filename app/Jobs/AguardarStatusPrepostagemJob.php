@@ -16,7 +16,7 @@ class AguardarStatusPrepostagemJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 12;
+    public $tries = 12; // 12 tentativas * 10 segundos = até 2 minutos aguardando
 
     public function __construct(public int $shipmentId)
     {
@@ -37,14 +37,23 @@ class AguardarStatusPrepostagemJob implements ShouldQueue
             $shipment->update(['correios_status' => $novoStatus]);
         }
 
+        // Se ainda estiver gerando a DCe (status 7), libera para tentar novamente em 10 segundos
         if ($novoStatus === CorreiosPrepostagemStatus::PENDENTE->value) {
             $this->release(10);
             return;
         }
 
-        if ($novoStatus === CorreiosPrepostagemStatus::PREPOSTADO->value) {
+        // Se o status mudou para PREATENDIDO (1) ou PREPOSTADO (2), a etiqueta já pode ser solicitada
+        if (in_array($novoStatus, [
+            CorreiosPrepostagemStatus::PREATENDIDO->value,
+            CorreiosPrepostagemStatus::PREPOSTADO->value,
+        ], true)) {
             SolicitarRotuloCorreiosJob::dispatch($shipment->id);
+            return;
         }
+
+        // Se cair em status cancelado, expirado ou desconhecido, encerra a execução sem tentar novamente
+        Log::warning("Correios: shipment #{$this->shipmentId} encerrou com status não elegível para rótulo: {$novoStatus}");
     }
 
     public function failed(\Throwable $exception): void

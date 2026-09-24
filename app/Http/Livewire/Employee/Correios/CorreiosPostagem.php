@@ -178,6 +178,11 @@ class CorreiosPostagem extends Component
     {
         $shipment = Shipment::findOrFail($shipmentId);
 
+        if ($shipment->correios_status === CorreiosPrepostagemStatus::PENDENTE->value) {
+            $this->notify(trans('A declaração eletrônica (DCe) ainda está sendo gerada pelos Correios. Aguarde alguns segundos e tente novamente.'));
+            return;
+        }
+
         try {
             $html = $service->declaracaoConteudo($shipment->correios_prepostagem_id);
         } catch (\Throwable $e) {
