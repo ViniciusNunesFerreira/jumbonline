@@ -195,34 +195,49 @@ class CorreiosPostagem extends Component
         try {
             $html = trim($html);
 
-             $styleOverride = '<style>
-            @page {
-                size: A4 portrait;
-                margin: 10mm 10mm 10mm 10mm !important;
-            }
-            html, body {
-                height: auto !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            /* Neutraliza quebras forcadas do HTML dos Correios que geram a 2ª página em branco */
-            div, table, .page-break {
-                page-break-after: avoid !important;
-                page-break-before: avoid !important;
-                page-break-inside: avoid !important;
-            }
-             </style>';
+            $metaAndCss = '
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            <style>
+                @page {
+                    size: A4 portrait;
+                    margin: 12mm 10mm 12mm 10mm !important;
+                }
+                body, table, td, th, div, span, p {
+                    font-family: "DejaVu Sans", sans-serif !important; /* Resolve a acentuação UTF-8 */
+                }
+                body {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                }
+                html, body, table, div {
+                    height: auto !important;
+                    max-height: 100% !important;
+                }
+                /* Elimina a página em branco no final */
+                * {
+                    page-break-after: avoid !important;
+                    page-break-before: avoid !important;
+                    page-break-inside: avoid !important;
+                }
+            </style>
+        ';
 
-            $htmlPreparado = $styleOverride . $html;
+        // Injeta corretamente dentro do <head> para manter a estrutura HTML válida
+        if (stripos($html, '<head>') !== false) {
+            $htmlPreparado = str_ireplace('<head>', '<head>' . $metaAndCss, $html);
+        } else {
+            $htmlPreparado = '<html><head>' . $metaAndCss . '</head><body>' . $html . '</body></html>';
+        }
 
             return response()->streamDownload(function () use ($htmlPreparado) {
                 echo Pdf::loadHTML($htmlPreparado)
                     ->setPaper('a4', 'portrait')
                     ->setOptions([
-                            'defaultMediaType' => 'screen', 
-                            'isHtml5ParserEnabled' => true,
-                            'isRemoteEnabled' => true,     
-                        ])
+                        'defaultMediaType' => 'screen',
+                        'isHtml5ParserEnabled' => true,
+                        'isRemoteEnabled' => true,
+                        'defaultFont' => 'DejaVu Sans', // Garante o fallback de acentos no Dompdf
+                    ])
                     ->output();
             }, $fileName);
 
