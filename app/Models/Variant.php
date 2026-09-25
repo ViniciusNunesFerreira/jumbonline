@@ -106,13 +106,7 @@ class Variant extends Model implements HasMedia
 
     public function calcWeight()
     {
-        $weight = $this->weight_value;
-
-        if($this->weight_unit == 'g'){
-            $weight = $this->weight_value / 100;
-        }
-
-        return $weight;
+        return self::convertWeightToKg($this->weight_value, $this->weight_unit);
     }
 
 
@@ -131,4 +125,15 @@ class Variant extends Model implements HasMedia
 
         return $this->stock_value <= $threshold;
     }
+
+    public static function convertWeightToKg(?float $value, ?string $unit): float
+    {
+        return match ($unit) {
+            'g' => ($value ?? 0) / 1000,
+            'lb' => ($value ?? 0) * 0.453592,
+            'oz' => ($value ?? 0) * 0.0283495,
+            default => $value ?? 0, // 'kg' (ou nulo/desconhecido) já é tratado como quilo
+        };
+    }
+
 }

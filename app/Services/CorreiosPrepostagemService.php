@@ -198,7 +198,7 @@ class CorreiosPrepostagemService
                 return 0;
             }
 
-            $peso = $variant->weight_unit === 'g' ? $variant->weight_value / 1000 : $variant->weight_value;
+            $peso = \App\Models\Variant::convertWeightToKg($variant->weight_value, $variant->weight_unit);
 
             return $peso * $item->quantity;
         });

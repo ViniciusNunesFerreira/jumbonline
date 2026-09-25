@@ -114,10 +114,9 @@ class ProductList extends Component
         foreach ($cart->items as $item) {
             if ($item->category_id != $items['category']) {
                 $variant = $item->variant;
+                
                 if ($variant) {
-                    $unitWeight = $variant->weight_unit === 'g' 
-                        ? ($variant->weight_value / 1000) 
-                        : $variant->weight_value;
+                    $unitWeight = \App\Models\Variant::convertWeightToKg($variant->weight_value, $variant->weight_unit);
                     $otherItemsWeight += ($unitWeight * $item->quantity);
                 }
             }

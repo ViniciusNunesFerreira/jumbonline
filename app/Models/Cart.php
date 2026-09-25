@@ -76,9 +76,7 @@ class Cart extends Model
                     return $value;
                 }
 
-                $itemWeight = $item->variant->weight_unit == 'g' 
-                    ? ($item->variant->weight_value / 1000) 
-                    : $item->variant->weight_value;
+                $itemWeight = \App\Models\Variant::convertWeightToKg($item->variant->weight_value, $item->variant->weight_unit);
 
                 //Multiplica o peso individual pela quantidade do item!
                 return $value + ($itemWeight * $item->quantity);

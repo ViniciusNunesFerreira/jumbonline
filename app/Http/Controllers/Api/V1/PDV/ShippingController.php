@@ -94,9 +94,7 @@ class ShippingController extends Controller
             $itemWeightKg = self::DEFAULT_ITEM_WEIGHT_KG;
 
             if ($variant && $variant->weight_value) {
-                $itemWeightKg = $variant->weight_unit === 'g'
-                    ? $variant->weight_value / 1000
-                    : (float) $variant->weight_value;
+                $itemWeightKg = \App\Models\Variant::convertWeightToKg($variant->weight_value, $variant->weight_unit);
             }
 
             $totalWeightKg += $itemWeightKg * (int) $item['quantity'];
