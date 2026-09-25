@@ -21,9 +21,6 @@
             content="noindex, nofollow"
         >
 
-        <!-- Title -->
-        {{--        <title>{{ isset($title) ? $title . ' - ' . $generalSettings->store_name : $generalSettings->store_name }}</title>--}}
-
         {!! SEOMeta::generate() !!}
 
         {!! OpenGraph::generate() !!}
@@ -47,7 +44,7 @@
             crossorigin
         >
         <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap"
             rel="stylesheet"
         >
 

@@ -41,7 +41,7 @@
             crossorigin
         >
         <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap"
             rel="stylesheet"
         >
 
@@ -51,7 +51,7 @@
     </head>
     <body
         id="main"
-        class="antialiased font-sans h-full bg-white dark:bg-slate-900"
+        class="antialiased font-sans h-full bg-slate-50 dark:bg-slate-950"
     >
         <div
             x-data="{ sidebarOpen: false }"
@@ -72,7 +72,7 @@
                     x-transition:leave="transition-opacity ease-linear duration-300"
                     x-transition:leave-start="opacity-100"
                     x-transition:leave-end="opacity-0"
-                    class="fixed inset-0 bg-slate-900/80"
+                    class="fixed inset-0 bg-primary-900/60 backdrop-blur-sm"
                 ></div>
 
                 <div class="fixed inset-0 flex">
@@ -107,184 +107,16 @@
                             </button>
                         </div>
 
-                        <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 dark:bg-slate-900 dark:ring-1 dark:ring-white/10">
-                            <div class="flex h-16 shrink-0 items-center">
+                        <div class="sidebar-scroll flex grow flex-col gap-y-6 overflow-y-auto bg-white px-5 pb-4 dark:bg-slate-900 dark:ring-1 dark:ring-white/10">
+                            <div class="flex h-16 shrink-0 items-center gap-3">
                                 <img
                                     src="{{ $brandSettings->logo_path ? Storage::url($brandSettings->logo_path) : asset('img/logo.png') }}"
                                     alt="{{ config('app.name') }}"
                                     class="h-8 w-auto"
                                 >
+                                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('Painel') }}</span>
                             </div>
-                            <nav class="flex flex-1 flex-col">
-                                <ul
-                                    role="list"
-                                    class="flex flex-1 flex-col gap-y-7"
-                                >
-                                    <li>
-                                        <ul
-                                            role="list"
-                                            class="-mx-2 space-y-1"
-                                        >
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.dashboard') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.dashboard'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.dashboard')])
-                                                >
-                                                    <x-heroicon-o-home @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.dashboard'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.dashboard')]) />
-                                                    {{ __('Dashboard') }}
-                                                </a>
-                                            </li>
-
-                                            @can('admin')
-                                                <li>
-                                                    
-                                                     <a  href="{{ route('employee.financial.dashboard') }}"
-                                                        @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.financial.*')])
-                                                    >
-                                                        <x-heroicon-o-chart-bar @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.financial.*')]) />
-                                                        {{ __('Financeiro') }}
-                                                    </a>
-                                                </li>
-                                            @endcan
-
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.customers.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.customers.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.customers.*')])
-                                                >
-                                                    <x-heroicon-o-users @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.customers.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.customers.*')]) />
-                                                    {{ __('Clientes') }}
-                                                </a>
-                                            </li>
-
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.orders.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.orders.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.orders.*')])
-                                                >
-                                                    <x-heroicon-o-inbox @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.orders.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.orders.*')]) />
-                                                    {{ __('Pedidos') }}
-                                                </a>
-                                            </li>
-
-                                            <li>
-    
-                                                <a    href="{{ route('employee.abandoned-carts.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.abandoned-carts.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.abandoned-carts.*')])
-                                                >
-                                                    <x-heroicon-o-shopping-cart @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.abandoned-carts.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.abandoned-carts.*')]) />
-                                                    {{ __('Carrinhos Abandonados') }}
-                                                </a>
-                                            </li>
-
-                                            <li>
-    
-                                                <a    href="{{ route('employee.articles.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.articles.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.articles.*')])
-                                                >
-                                                    <x-heroicon-o-newspaper @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.articles.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.articles.*')]) />
-                                                    {{ __('Blog') }}
-                                                </a>
-                                            </li>
-                                            
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.products.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.products.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.products.*')])
-                                                >
-                                                    <x-heroicon-o-tag @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.products.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.products.*')]) />
-                                                    {{ __('Produtos') }}
-                                                </a>
-                                            </li>
-
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.collections.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.collections.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.collections.*')])
-                                                >
-                                                    <x-heroicon-o-rectangle-stack @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.collections.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.collections.*')]) />
-                                                    {{ __('Grupos') }}
-                                                </a>
-                                            </li>
-
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.categories.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.categories.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.categories.*')])
-                                                >
-                                                    <x-heroicon-o-rectangle-stack @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.categories.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.categories.*')]) />
-                                                    {{ __('Categorias') }}
-                                                </a>
-                                            </li>
-
-                                          
-
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.promotions.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.promotions.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.promotions.*')])
-                                                >
-                                                    <x-heroicon-o-ticket @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.promotions.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.promotions.*')]) />
-                                                    {{ __('Promocões Frete') }}
-                                                </a>
-                                            </li>
-
-
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.shipping-label.loose') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping-label.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.shipping-label.*')])
-                                                >
-                                                    <x-heroicon-o-truck @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping-label.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.shipping-label.*')]) />
-                                                    {{ __('Etiqueta Avulsa') }}
-                                                </a>
-                                            </li>
-
-                                            <li>
-                                                
-                                                <a  href="{{ route('employee.correios.postagem') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.correios.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.correios.*')])
-                                                >
-                                                    <x-heroicon-o-envelope @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.correios.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.correios.*')]) />
-                                                    {{ __('Gerar Etiquetas') }}
-                                                </a>
-                                            </li>
-
-                                            
-                                            <li>
-                                                <a
-                                                    href="{{ route('employee.shipping.manager') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.shipping.*')])
-                                                >
-                                                    <x-heroicon-o-truck @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.shipping.*')]) />
-                                                    {{ __('Config Correios') }}
-                                                </a>
-                                            </li>
-                                           
-
-                                            <li>
-                                                <a 
-                                                    href="{{ route('employee.prison.list') }}"
-                                                    @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.prison.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.prison.*')])
-                                                >
-
-                                                    <x-heroicon-o-building-office @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.prison.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.prison.*')])/>
-                                                    Unid. Prisional
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="mt-auto">
-                                        <a
-                                            href="{{ route('employee.settings.general') }}"
-                                            @class(['group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-sky-600', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.settings.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.settings.*')])
-                                        >
-                                            <x-heroicon-o-cog-6-tooth @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.settings.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.settings.*')]) />
-                                            {{ __('Configurações') }}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
+                            @include('layouts.partials.admin-sidebar-nav')
                         </div>
                     </div>
                 </div>
@@ -292,197 +124,18 @@
 
             {{-- Static sidebar for desktop --}}
             <div class="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
-                <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-slate-200 bg-white px-6 pb-4 dark:bg-slate-900 dark:border-white/10">
-                    <div class="flex h-16 shrink-0 items-center">
-                        <img
-                            src="{{ $brandSettings->logo_path ? Storage::url($brandSettings->logo_path) : asset('img/logo.png') }}"
-                            alt="{{ config('app.name') }}"
-                            class="h-8 w-auto"
-                        >
+                <div class="sidebar-scroll flex grow flex-col gap-y-6 overflow-y-auto border-r border-slate-200/70 bg-white px-5 pb-4 dark:bg-slate-900 dark:border-white/10">
+                    <div class="flex h-16 shrink-0 items-center gap-3">
+                        <x-site-logo :brand-settings="$brandSettings" size="md" class="mx-auto"/>
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('Painel') }}</span>
                     </div>
-                    <nav class="flex flex-1 flex-col">
-                        <ul
-                            role="list"
-                            class="flex flex-1 flex-col gap-y-7"
-                        >
-                            <li>
-                                <ul
-                                    role="list"
-                                    class="-mx-2 space-y-1"
-                                >
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.dashboard') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.dashboard'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.dashboard')])
-                                        >
-                                            <x-heroicon-o-home @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.dashboard'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.dashboard')]) />
-                                            {{ __('Dashboard') }}
-                                        </a>
-                                    </li>
-
-                                     @can('admin')
-                                        <li>
-                                            
-                                            <a    href="{{ route('employee.financial.dashboard') }}"
-                                                @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.financial.*')])
-                                            >
-                                                <x-heroicon-o-chart-bar @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.financial.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.financial.*')]) />
-                                                {{ __('Financeiro') }}
-                                            </a>
-                                        </li>
-                                    @endcan
-
-                                    
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.customers.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.customers.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.customers.*')])
-                                        >
-                                            <x-heroicon-o-users @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.customers.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.customers.*')]) />
-                                            {{ __('Clientes') }}
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.orders.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.orders.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.orders.*')])
-                                        >
-                                            <x-heroicon-o-inbox @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.orders.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.orders.*')]) />
-                                            {{ __('Pedidos') }}
-                                        </a>
-                                    </li>
-
-                                    <li>
-    
-                                        <a    href="{{ route('employee.abandoned-carts.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.abandoned-carts.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.abandoned-carts.*')])
-                                        >
-                                            <x-heroicon-o-shopping-cart @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.abandoned-carts.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.abandoned-carts.*')]) />
-                                            {{ __('Carrinhos Abandonados') }}
-                                        </a>
-
-                                    </li>
-
-                                    <li>
-    
-                                        <a    href="{{ route('employee.articles.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.articles.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.articles.*')])
-                                        >
-                                            <x-heroicon-o-newspaper @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.articles.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.articles.*')]) />
-                                            {{ __('Blog') }}
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.products.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.products.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.products.*')])
-                                        >
-                                            <x-heroicon-o-tag @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.products.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.products.*')]) />
-                                            {{ __('Produtos') }}
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.collections.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.collections.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.collections.*')])
-                                        >
-                                            <x-heroicon-o-rectangle-stack @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.collections.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.collections.*')]) />
-                                            {{ __('Grupos') }}
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.categories.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.categories.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.categories.*')])
-                                        >
-                                            <x-heroicon-o-rectangle-stack @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.categories.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.categories.*')]) />
-                                            {{ __('Categorias') }}
-                                        </a>
-                                    </li>
-
-                                    
-
-
-                                    
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.promotions.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.promotions.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.promotions.*')])
-                                        >
-                                            <x-heroicon-o-ticket @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.promotions.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.promotions.*')]) />
-                                            {{ __('Frete Promoções') }}
-                                        </a>
-                                    </li>
-
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.shipping-label.loose') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping-label.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.shipping-label.*')])
-                                        >
-                                            <x-heroicon-o-truck @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping-label.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.shipping-label.*')]) />
-                                            {{ __('Etiqueta Avulsa') }}
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        
-                                        <a  href="{{ route('employee.correios.postagem') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.correios.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.correios.*')])
-                                        >
-                                            <x-heroicon-o-envelope @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.correios.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.correios.*')]) />
-                                            {{ __('Gerar Etiquetas') }}
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a
-                                            href="{{ route('employee.shipping.manager') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.shipping.*')])
-                                        >
-                                            <x-heroicon-o-truck @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.shipping.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.shipping.*')]) />
-                                            {{ __('Config. Correios') }}
-                                        </a>
-                                    </li>
-                                    
-
-                                    <li>
-                                        <a 
-                                            href="{{ route('employee.prison.list') }}"
-                                            @class(['group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.prison.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.prison.*')])
-                                        >
-                                            <x-heroicon-o-building-office @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.prison.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.prison.*')])/>
-                                            Unid. Prisional
-
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-
-                          
-                            <li class="mt-auto">
-                                <a
-                                    href="{{ route('employee.settings.general') }}"
-                                    @class(['group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-sky-600', 'bg-slate-50 text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.settings.*'), 'text-slate-700 hover:text-sky-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' => !request()->routeIs('employee.settings.*')])
-                                >
-                                    <x-heroicon-o-cog-6-tooth @class(['h-6 w-6 shrink-0', 'text-sky-600 dark:bg-slate-800 dark:text-white' => request()->routeIs('employee.settings.*'), 'text-slate-400 group-hover:text-sky-600 dark:group-hover:text-white dark:group-hover:bg-slate-800' => !request()->routeIs('employee.settings.*')]) />
-                                    {{ __('Configurações') }}
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
+                    @include('layouts.partials.admin-sidebar-nav')
                 </div>
             </div>
 
             <div class="lg:pl-72">
-                <div class="lg:mx-auto lg:max-w-7xl lg:px-8">
-                    <div class="flex h-16 items-center gap-x-4 border-b border-slate-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-0 lg:shadow-none dark:bg-slate-900 dark:border-white/10">
+                <div class="sticky top-0 z-40 lg:mx-auto lg:max-w-none">
+                    <div class="flex h-16 items-center gap-x-4 border-b border-slate-200/70 bg-white/80 px-4 backdrop-blur-md sm:gap-x-6 sm:px-6 lg:px-8 dark:bg-slate-900/80 dark:border-white/10">
                         <button
                             x-on:click="sidebarOpen = true"
                             type="button"
@@ -502,37 +155,33 @@
                         ></div>
 
                         <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-                            <div class="relative flex flex-1">
+                            <div class="relative flex flex-1 items-center">
                                 <button
-                                    class="relative w-full"
+                                    class="flex w-full max-w-sm items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm text-slate-400 transition-colors hover:border-slate-300 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-500 dark:hover:bg-white/10"
                                     x-on:click="$dispatch('open-search')"
                                 >
-                                    <x-heroicon-o-magnifying-glass
-                                        class="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-slate-400 dark:text-slate-500"
-                                        aria-hidden="true"
-                                    />
-                                    <span class="hidden sm:flex items-center h-full w-full pl-8 pr-0 text-slate-400 focus:ring-0 sm:text-sm dark:bg-slate-900 dark:text-slate-500">
-                                        {{ __('Search the site (Press "/" to focus)') }}
-                                    </span>
+                                    <x-heroicon-o-magnifying-glass class="h-4 w-4 shrink-0" aria-hidden="true" />
+                                    <span class="hidden sm:inline">{{ __('Buscar no painel...') }}</span>
+                                    <kbd class="ml-auto hidden rounded-md bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 ring-1 ring-inset ring-slate-200 sm:inline dark:bg-slate-800 dark:ring-white/10">/</kbd>
                                 </button>
                             </div>
-                            <div class="flex items-center gap-x-4 lg:gap-x-6">
+                            <div class="flex items-center gap-x-3 lg:gap-x-4">
                                 <x-dropdown>
                                     <x-slot:trigger>
                                         <button
                                             type="button"
-                                            class="-mr-2.5 p-2.5 text-gray-400 hover:text-gray-500"
+                                            class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-primary dark:hover:bg-white/5 dark:hover:text-white"
                                         >
                                             <span class="sr-only">
                                                 {{ __('Change theme') }}
                                             </span>
                                             <x-heroicon-o-sun
-                                                class="h-6 w-6"
+                                                class="h-5 w-5"
                                                 x-show="theme === 'light'"
                                                 x-cloak
                                             />
                                             <x-heroicon-o-moon
-                                                class="h-6 w-6"
+                                                class="h-5 w-5"
                                                 x-show="theme === 'dark'"
                                                 x-cloak
                                             />
@@ -569,26 +218,26 @@
                                     <x-slot:trigger>
                                         <button
                                             type="button"
-                                            class="-m-1.5 flex items-center p-1.5"
+                                            class="-m-1.5 flex items-center rounded-lg p-1.5 transition-colors hover:bg-slate-100 dark:hover:bg-white/5"
                                             id="user-menu-button"
                                             :aria-expanded="open.toString()"
                                             aria-haspopup="true"
                                         >
                                             <span class="sr-only">{{ __('Open user menu') }}</span>
                                             <img
-                                                class="h-8 w-8 flex-shrink-0 rounded-full bg-slate-100 dark:bg-slate-800"
+                                                class="h-8 w-8 flex-shrink-0 rounded-full bg-slate-100 ring-2 ring-white dark:bg-slate-800 dark:ring-slate-900"
                                                 src="{{ auth()->user()->getFirstMediaUrl('avatar') }}"
                                                 alt="{{ auth()->user()->name }}"
                                             >
                                             <span class="hidden lg:flex lg:items-center">
                                                 <span
-                                                    class="ml-4 text-sm font-semibold leading-6 text-gray-900 dark:text-white"
+                                                    class="ml-3 text-sm font-semibold leading-6 text-primary dark:text-white"
                                                     aria-hidden="true"
                                                 >
                                                     {{ auth()->user()->name }}
                                                 </span>
                                                 <x-heroicon-m-chevron-down
-                                                    class="ml-2 h-5 w-5 text-gray-400"
+                                                    class="ml-1.5 h-4 w-4 text-slate-400"
                                                     aria-hidden="true"
                                                 />
                                             </span>
@@ -612,7 +261,7 @@
                     </div>
                 </div>
 
-                <main class="py-10">
+                <main class="mx-auto py-8 ">
                     {{ $slot }}
                 </main>
             </div>

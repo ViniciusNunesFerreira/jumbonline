@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <div class="p-4 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="p-4 mx-auto ">
         <div class="grid grid-cols-3 gap-6">
             <div class="col-span-3 xl:col-span-2 space-y-6">
                 @if($customer->paid_orders_count > 0)

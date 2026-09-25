@@ -1,5 +1,4 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
-const colors = require('tailwindcss/colors')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -14,7 +13,10 @@ module.exports = {
                 }
             },
             fontFamily: {
-                sans: ['Inter','Urbanist', ...defaultTheme.fontFamily.sans],
+                sans: ['Urbanist', ...defaultTheme.fontFamily.sans],
+            },
+            boxShadow: {
+                'accent-sm': '0 2px 8px -2px rgb(241 89 143 / 0.35)',
             },
         },
     },

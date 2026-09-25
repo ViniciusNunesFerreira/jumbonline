@@ -46,7 +46,7 @@ Route::group([
         Route::get('/promotions', \App\Http\Livewire\Employee\Promotion\PromotionManager::class)->name('promotions.list');
         Route::get('/shipping', \App\Http\Livewire\Employee\Shipping\ShippingMethods::class)->name('shipping.manager');
         Route::get('/shipping/label/loose', \App\Http\Livewire\Employee\Shipping\ShippingManualLabel::class)->name('shipping-label.loose');
-        Route::get('/taxes', \App\Http\Livewire\Employee\Taxation\TaxManager::class)->name('taxes.manager');
+        
         Route::get('/articles', \App\Http\Livewire\Employee\Article\ArticleList::class)->name('articles.list');
         Route::get('/articles/{article:id}', \App\Http\Livewire\Employee\Article\ArticleDetail::class)->name('articles.detail');
         Route::get('/pages', \App\Http\Livewire\Employee\Page\PageList::class)->name('pages.list');

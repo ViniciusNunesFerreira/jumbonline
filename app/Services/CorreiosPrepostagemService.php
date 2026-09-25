@@ -89,7 +89,7 @@ class CorreiosPrepostagemService
         return [
             'remetente' => [
                 'nome' => $remetente['nome'],
-                'cpfCnpj' => preg_replace('/\D/', '', $remetente['cpf']),
+                'cpfCnpj' => '43221148000169',                   //preg_replace('/\D/', '', $remetente['cpf']),
                 'endereco' => [
                     'cep' => preg_replace('/\D/', '', $remetente['cep']),
                     'logradouro' => $remetente['logradouro'],
