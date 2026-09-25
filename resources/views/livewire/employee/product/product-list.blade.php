@@ -55,29 +55,46 @@
             @else
                 <x-card class="overflow-hidden">
                     <x-slot:header>
-                        <div
-                            x-data="{ search: @entangle('search')}"
-                            class="relative max-w-sm text-slate-400 focus-within:text-primary dark:focus-within:text-slate-200"
-                        >
-                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                <x-heroicon-o-magnifying-glass class="h-5 w-5" />
+                        @if(count($selected))
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="text-sm font-medium text-primary dark:text-slate-200">
+                                    {{ trans_choice(':count produto selecionado|:count produtos selecionados', count($selected)) }}
+                                </p>
+                                <div class="flex items-center gap-2">
+                                    <button wire:click="clearSelection" type="button" class="btn btn-default btn-xs !rounded-xl">
+                                        {{ __('Cancelar seleção') }}
+                                    </button>
+                                    <button wire:click="confirmBulkDelete" type="button" class="btn btn-outline-danger btn-xs !rounded-xl">
+                                        <x-heroicon-m-trash class="w-4 h-4 mr-1" />
+                                        {{ __('Excluir selecionados') }}
+                                    </button>
+                                </div>
                             </div>
-                            <x-input
-                                wire:model.debounce.500ms="search"
-                                type="text"
-                                class="placeholder-slate-400 w-full rounded-xl pl-10 sm:text-sm focus:placeholder-slate-400 dark:focus:placeholder-slate-600"
-                                ::class="{ 'pr-10' : search }"
-                                placeholder="{{ __('Filtrar produtos') }}"
-                            />
-                            <button
-                                x-show="search.length"
-                                x-on:click="search = ''"
-                                type="button"
-                                class="absolute inset-y-0 right-0 flex items-center pr-3"
+                        @else
+                            <div
+                                x-data="{ search: @entangle('search')}"
+                                class="relative max-w-sm text-slate-400 focus-within:text-primary dark:focus-within:text-slate-200"
                             >
-                                <x-heroicon-s-x-circle class="w-5 h-5 text-slate-400 hover:text-slate-500 dark:hover:text-slate-400" />
-                            </button>
-                        </div>
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <x-heroicon-o-magnifying-glass class="h-5 w-5" />
+                                </div>
+                                <x-input
+                                    wire:model.debounce.500ms="search"
+                                    type="text"
+                                    class="placeholder-slate-400 w-full rounded-xl pl-10 sm:text-sm focus:placeholder-slate-400 dark:focus:placeholder-slate-600"
+                                    ::class="{ 'pr-10' : search }"
+                                    placeholder="{{ __('Filtrar produtos') }}"
+                                />
+                                <button
+                                    x-show="search.length"
+                                    x-on:click="search = ''"
+                                    type="button"
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3"
+                                >
+                                    <x-heroicon-s-x-circle class="w-5 h-5 text-slate-400 hover:text-slate-500 dark:hover:text-slate-400" />
+                                </button>
+                            </div>
+                        @endif
                     </x-slot:header>
                     <x-slot:content class="-mx-4 -my-5 sm:-mx-6">
                         <div class="overflow-x-auto">
@@ -215,4 +232,45 @@
             @endif
         </div>
     </div>
+
+    <x-modal-alert wire:model="confirmingBulkDelete">
+        <x-slot:title>
+            {{ __('Excluir produtos selecionados?') }}
+        </x-slot:title>
+        <x-slot:content>
+            @php [$blocked, $deletable] = $this->selectedProductsInfo; @endphp
+            @if($deletable->count())
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    {{ trans_choice(':count produto será excluído permanentemente.|:count produtos serão excluídos permanentemente.', $deletable->count()) }}
+                </p>
+                <ul class="mt-2 max-h-32 overflow-y-auto sidebar-scroll text-sm text-slate-600 dark:text-slate-300 list-disc list-inside">
+                    @foreach($deletable as $product)
+                        <li class="truncate">{{ $product->name }}</li>
+                    @endforeach
+                </ul>
+            @endif
+            @if($blocked->count())
+                <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-900/20">
+                    <p class="text-xs font-semibold text-amber-700 dark:text-amber-400">
+                        {{ trans_choice(':count produto não será excluído — já tem pedido vinculado:|:count produtos não serão excluídos — já têm pedidos vinculados:', $blocked->count()) }}
+                    </p>
+                    <ul class="mt-1 text-xs text-amber-700 dark:text-amber-400 list-disc list-inside">
+                        @foreach($blocked as $product)
+                            <li class="truncate">{{ $product->name }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+        </x-slot:content>
+        <x-slot:footer>
+            @if($deletable->count())
+                <button wire:click="bulkDelete" wire:loading.attr="disabled" wire:target="bulkDelete" type="button" class="btn btn-danger w-full sm:ml-3 sm:w-auto">
+                    {{ __('Excluir definitivamente') }}
+                </button>
+            @endif
+            <button x-on:click="show = false" type="button" class="mt-3 btn btn-invisible w-full sm:mt-0 sm:w-auto">
+                {{ __('Cancelar') }}
+            </button>
+        </x-slot:footer>
+    </x-modal-alert>
 </div>

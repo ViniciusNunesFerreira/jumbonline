@@ -4,19 +4,19 @@
     }
 
     .btn-xs {
-        @apply px-2.5 py-1.5 text-xs !important;
+        @apply px-2.5 py-1.5 text-xs;
     }
 
     .btn-sm {
-        @apply px-3 py-2 text-sm leading-4 !important;
+        @apply px-3 py-2 text-sm leading-4;
     }
 
     .btn-lg {
-        @apply px-4 py-2 text-base !important;
+        @apply px-4 py-2 text-base ;
     }
 
     .btn-xl {
-        @apply px-6 py-3 text-base !important;
+        @apply px-6 py-3 text-base ;
     }
 
     .btn-default {

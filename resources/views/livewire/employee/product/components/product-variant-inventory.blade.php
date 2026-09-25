@@ -1,45 +1,28 @@
 <div>
-    <form
-        x-data="{ dirty: new Set() }"
-        x-on:variant-inventory-updated.window="dirty.clear()"
-        wire:submit.prevent="save"
-    >
+    <form x-data="{ dirty: new Set() }" x-on:variant-inventory-updated.window="dirty.clear()" wire:submit.prevent="save">
         <x-card class="relative overflow-hidden">
             <x-slot:header>
-                <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
-                    <div class="ml-4 mt-2">
-                        <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('Controle de Estoque') }}
-                        </h3>
-                    </div>
-                    <div
-                        x-show="dirty.size >= 1"
-                        class="ml-4 mt-2 flex-shrink-0"
-                    >
-                        <button type="submit" class="btn btn-link">{{ __('Save') }}</button>
+                <div class="flex items-center justify-between flex-wrap gap-3 sm:flex-nowrap">
+                    <h3 class="text-base font-semibold text-primary dark:text-slate-200">
+                        {{ __('Controle de Estoque') }}
+                    </h3>
+                    <div x-show="dirty.size >= 1" class="flex-shrink-0">
+                        <button type="submit" class="btn btn-link">{{ __('Salvar') }}</button>
                     </div>
                 </div>
             </x-slot:header>
-            <x-slot:content class="-mt-5">
-                <fieldset
-                    wire:target="save"
-                    wire:loading.delay.attr="disabled"
-                    class="grid grid-cols-2 gap-6"
-                >
+            <x-slot:content>
+                <fieldset wire:target="save" wire:loading.delay.attr="disabled" class="grid grid-cols-2 gap-6">
                     <div class="col-span-2 sm:col-span-1">
                         <x-input-label :value="__('Estoque atual')" />
                         <div class="mt-1 flex items-center gap-3">
-                            <span class="text-lg font-semibold text-slate-900 dark:text-slate-200">
+                            <span class="text-lg font-bold text-primary dark:text-white">
                                 {{ $variant->stock_value }}
                             </span>
                             @if($variant->is_low_stock)
                                 <x-badge type="danger" size="xs">{{ __('Estoque baixo') }}</x-badge>
                             @endif
-                            <button
-                                wire:click="openAdjustForm"
-                                type="button"
-                                class="btn btn-default btn-xs ml-auto"
-                            >
+                            <button wire:click="openAdjustForm" type="button" class="btn btn-default btn-xs !rounded-xl ml-auto">
                                 {{ __('Ajustar estoque') }}
                             </button>
                         </div>
@@ -55,7 +38,7 @@
                             wire:model.defer="variant.low_stock_threshold"
                             type="number"
                             id="low_stock_threshold"
-                            class="mt-1 block w-full sm:text-sm"
+                            class="mt-1 block w-full rounded-xl sm:text-sm"
                             placeholder="{{ __('Usa o padrão geral se vazio') }}"
                         />
                         <x-input-error class="mt-2" for="variant.low_stock_threshold" />
@@ -69,7 +52,7 @@
                                 wire:model.defer="variant.weight_value"
                                 type="number"
                                 id="weight"
-                                class="block w-full sm:text-sm no-spinners"
+                                class="block w-full rounded-xl sm:text-sm no-spinners"
                                 step="any"
                             />
                             <div class="absolute inset-y-0 right-0 flex items-center">
@@ -79,7 +62,7 @@
                                     wire:model.defer="variant.weight_unit"
                                     id="weight_unit"
                                     name="weight_unit"
-                                    class="h-full py-0 pl-2 pr-7 border border-transparent bg-transparent text-slate-500 sm:text-sm rounded-md focus:border-sky-500 focus:ring-sky-500 dark:focus:border-sky-500 dark:focus:ring-sky-500"
+                                    class="h-full py-0 pl-2 pr-7 border border-transparent bg-transparent text-slate-500 sm:text-sm rounded-xl focus:border-accent-500 focus:ring-accent-500"
                                 >
                                     <option value="lb">lb</option>
                                     <option value="oz">oz</option>
@@ -98,7 +81,7 @@
                             wire:model.defer="variant.sku"
                             type="text"
                             id="sku"
-                            class="mt-1 block w-full sm:text-sm"
+                            class="mt-1 block w-full rounded-xl sm:text-sm"
                         />
                         <x-input-error for="variant.sku" class="mt-2" />
                     </div>
@@ -110,7 +93,7 @@
                             wire:model.defer="variant.barcode"
                             type="text"
                             id="barcode"
-                            class="mt-1 block w-full sm:text-sm"
+                            class="mt-1 block w-full rounded-xl sm:text-sm"
                         />
                         <x-input-error for="variant.barcode" class="mt-2" />
                     </div>
@@ -120,9 +103,9 @@
     </form>
 
     @if($recentMovements->isNotEmpty())
-        <x-card class="mt-5 relative overflow-hidden">
+        <x-card class="mt-5 overflow-hidden">
             <x-slot:header>
-                <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">{{ __('Histórico de movimentação') }}</h3>
+                <h3 class="text-base font-semibold text-primary dark:text-slate-200">{{ __('Histórico de movimentação') }}</h3>
             </x-slot:header>
             <x-slot:content class="-mx-4 -my-5 sm:-mx-6">
                 <ul class="divide-y divide-slate-100 dark:divide-white/5">
@@ -133,7 +116,7 @@
                                 <span class="ml-2 text-sm text-slate-600 dark:text-slate-300">{{ $movement->reason }}</span>
                             </div>
                             <div class="text-right">
-                                <span class="text-sm text-slate-500 dark:text-slate-400">{{ $movement->quantity }} un.</span>
+                                <span class="text-sm font-medium text-primary dark:text-slate-300">{{ $movement->quantity }} un.</span>
                                 <span class="block text-xs text-slate-400">
                                     {{ $movement->employee?->name ?? __('Sistema') }} · {{ $movement->created_at->diffForHumans() }}
                                 </span>
@@ -151,12 +134,12 @@
             <div class="space-y-4">
                 <div>
                     <x-input-label for="newStockValue" :value="__('Nova quantidade em estoque')" />
-                    <x-input wire:model.defer="newStockValue" type="number" id="newStockValue" class="mt-1 block w-full" />
+                    <x-input wire:model.defer="newStockValue" type="number" id="newStockValue" class="mt-1 block w-full rounded-xl" />
                     <x-input-error for="newStockValue" class="mt-2" />
                 </div>
                 <div>
                     <x-input-label for="adjustReason" :value="__('Motivo do ajuste')" />
-                    <x-textarea wire:model.defer="adjustReason" id="adjustReason" rows="3" class="mt-1 block w-full sm:text-sm" placeholder="{{ __('Ex: contagem física, avaria, recebimento de fornecedor...') }}" />
+                    <x-textarea wire:model.defer="adjustReason" id="adjustReason" rows="3" class="mt-1 block w-full rounded-xl sm:text-sm" placeholder="{{ __('Ex: contagem física, avaria, recebimento de fornecedor...') }}" />
                     <x-input-error for="adjustReason" class="mt-2" />
                 </div>
             </div>

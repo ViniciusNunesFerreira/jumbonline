@@ -1,7 +1,7 @@
 <div>
     <x-card>
         <x-slot:header>
-            <h3 class="font-display font-medium text-base text-slate-900 dark:text-slate-200">
+            <h3 class="text-base font-semibold text-primary dark:text-slate-200">
                 {{ __('Acesso e segurança') }}
             </h3>
         </x-slot:header>
@@ -12,7 +12,7 @@
             <button
                 wire:click="openConfirm"
                 type="button"
-                class="btn btn-default btn-sm mt-4"
+                class="btn btn-default btn-sm !rounded-xl mt-4"
             >
                 <x-heroicon-m-key class="w-4 h-4 mr-1" />
                 {{ __('Gerar senha temporária') }}
@@ -29,7 +29,7 @@
                 {{ __('A senha atual do cliente será substituída imediatamente. Ele precisará definir uma nova senha no próximo login.') }}
             </p>
             <x-input-label for="reset-channel" :value="__('Como a senha será repassada ao cliente?')" />
-            <x-select wire:model="channel" id="reset-channel" class="mt-1">
+            <x-select wire:model="channel" id="reset-channel" class="mt-1 !h-10 rounded-xl">
                 <option value="">{{ __('Selecione...') }}</option>
                 @foreach($this->channels as $case)
                     <option value="{{ $case->name }}">{{ $case->label() }}</option>
@@ -65,13 +65,13 @@
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
                 {{ __('Repasse esta senha ao cliente agora. Ela não será mostrada novamente.') }}
             </p>
-            <div class="flex items-center justify-between gap-2 rounded-md bg-slate-100 dark:bg-slate-800 px-4 py-3 font-mono text-lg tracking-widest text-slate-900 dark:text-slate-100">
+            <div class="flex items-center justify-between gap-2 rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-3 font-mono text-lg tracking-widest text-primary dark:text-slate-100">
                 <span>{{ $generatedPassword }}</span>
                 <button
                     type="button"
                     x-on:click="$clipboard('{{ $generatedPassword }}').then(() => $dispatch('notify', '{{ __('Copiado para a área de transferência') }}'))"
                 >
-                    <x-heroicon-m-clipboard class="w-5 h-5 text-slate-500 hover:text-slate-600 dark:hover:text-slate-400" />
+                    <x-heroicon-m-clipboard class="w-5 h-5 text-slate-500 hover:text-accent-500 dark:hover:text-accent-400" />
                 </button>
             </div>
         </x-slot:content>

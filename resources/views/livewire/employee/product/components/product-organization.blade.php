@@ -5,16 +5,11 @@
 >
     <x-card class="overflow-hidden">
         <x-slot:header>
-            <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
-                <div class="ml-4 mt-2">
-                    <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                        {{ __('Grupo / Categoria') }}
-                    </h3>
-                </div>
-                <div
-                    x-show="dirty"
-                    class="ml-4 mt-2 flex-shrink-0"
-                >
+            <div class="flex items-center justify-between flex-wrap gap-3 sm:flex-nowrap">
+                <h3 class="text-base font-semibold text-primary dark:text-slate-200">
+                    {{ __('Grupo / Categoria') }}
+                </h3>
+                <div x-show="dirty" class="flex-shrink-0">
                     <button
                         wire:target="save"
                         wire:loading.delay.attr="disabled"
@@ -26,12 +21,12 @@
                 </div>
             </div>
         </x-slot:header>
-        <x-slot:content class="-mt-5">
-            <div class="-mx-4 -mb-5 border-t border-slate-300 max-h-72 overflow-y-auto sm:-mx-6 dark:border-slate-200/20">
+        <x-slot:content class="-mx-4 -my-5 sm:-mx-6">
+            <div class="max-h-72 overflow-y-auto sidebar-scroll">
                 @if($this->categories->count())
-                    <ul class="divide-y divide-slate-200 dark:divide-slate-200/10">
+                    <ul class="divide-y divide-slate-100 dark:divide-white/5">
                         @foreach($this->categories as $category)
-                            <div class="relative flex items-start p-4 sm:px-6 hover:bg-slate-50 dark:hover:bg-slate-800">
+                            <div class="relative flex items-start px-4 py-3.5 sm:px-6 hover:bg-slate-50/80 dark:hover:bg-white/[0.03]">
                                 <span
                                     onclick="event.preventDefault(); document.querySelector('#category-{{ $category->id }}').click()"
                                     class="absolute inset-0 cursor-pointer"
@@ -40,6 +35,7 @@
                                     <x-input-label
                                         for="category-{{ $category->id }}"
                                         :value="$category->title"
+                                        class="!text-slate-600 dark:!text-slate-300"
                                     />
                                 </div>
                                 <div class="ml-3 flex items-center h-5">
@@ -49,14 +45,14 @@
                                         id="category-{{ $category->id }}"
                                         type="checkbox"
                                         value="{{ $category->id }}"
-                                        class="h-4 w-4 !rounded !shadow-none"
+                                        class="h-4 w-4 !rounded !shadow-none text-accent-500 focus:ring-accent-500"
                                     />
                                 </div>
                             </div>
                         @endforeach
                     </ul>
                 @else
-                    <p class="my-6 text-center text-sm">
+                    <p class="py-6 text-center text-sm text-slate-500 dark:text-slate-400">
                         {{ __('Nenhum Grupo disponível') }}
                     </p>
                 @endif

@@ -1,94 +1,67 @@
 <div>
     <x-card>
         <x-slot:header>
-            <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
-                <div class="ml-4 mt-2">
-                    <h2 class="text-base font-medium text-slate-900 dark:text-slate-100">
-                        {{ __('Visitante Cadastrado') }}
-                    </h2>
-                </div>
-                <div class="ml-4 mt-2 flex-shrink-0">
-                    <button
-                        wire:click.prevent="manageVisitantes"
-                        type="button"
-                        class="btn btn-link"
-                    >
-                        {{ __('Gerenciar') }}
-                    </button>
-                </div>
+            <div class="flex items-center justify-between">
+                <h2 class="text-base font-semibold text-primary dark:text-slate-200">
+                    {{ __('Visitante Cadastrado') }}
+                </h2>
+                <button
+                    wire:click.prevent="manageVisitantes"
+                    type="button"
+                    class="btn btn-link"
+                >
+                    {{ __('Gerenciar') }}
+                </button>
             </div>
         </x-slot:header>
-        <x-slot:content class="-mt-5">
+        <x-slot:content>
             @unless($customer->visitantes->count() > 0)
-                <div class="text-sm text-slate-500 dark:text-slate-400">
+                <p class="text-sm text-slate-500 dark:text-slate-400">
                     {{ __('Nenhum Visitante definido.') }}
-                </div>
+                </p>
             @else
-                <address class="not-italic text-sm">
-                    {{ optional($visitante)->nome }}<br>
-                
-                    {{ optional($visitante)->logradouro }}, {{optional($visitante)->numero}}<br>
-                    
-                    {{ optional($visitante)->bairro }}<br>
-                
-                    {{ optional($visitante)->cidade }} / {{ optional($visitante)->uf }}
-                               
-                    {{ optional($visitante)->cep }}<br>
-
+                <address class="not-italic text-sm text-slate-600 dark:text-slate-300 space-y-0.5">
+                    <p class="font-semibold text-primary dark:text-slate-200">{{ optional($visitante)->nome }}</p>
+                    <p>{{ optional($visitante)->logradouro }}, {{ optional($visitante)->numero }}</p>
+                    <p>{{ optional($visitante)->bairro }}</p>
+                    <p>{{ optional($visitante)->cidade }} / {{ optional($visitante)->uf }} — {{ optional($visitante)->cep }}</p>
                 </address>
             @endunless
-            
         </x-slot:content>
     </x-card>
 
     <x-modal-dialog wire:model.defer="showAddressForm">
         <x-slot:title>
-            Carteirinha do Visitante Anexada
+            {{ __('Carteirinha do Visitante Anexada') }}
         </x-slot:title>
         <x-slot:content>
-
-            <fieldset
-                wire:target="save"
-                wire:loading.attr="disabled"
-                class="mt-5 grid gap-4"
-            >
-
-                @if ( method_exists((object)$visitante, 'hasMedia') ) 
-                    <div @class(['grid  grid-cols-2 gap-4 auto-rows-fr' => $visitante->hasMedia() ])>
-
-                        @forelse( $visitante->getMedia('gallery') as $medium)
-                            <div @class(['relative overflow-hidden border  border-slate-200 group rounded-md flex items-center justify-center dark:border-slate-200/20'])>
+            <fieldset wire:target="save" wire:loading.attr="disabled">
+                @if(method_exists((object) $visitante, 'hasMedia'))
+                    <div @class(['grid grid-cols-2 gap-4 auto-rows-fr' => $visitante->hasMedia()])>
+                        @forelse($visitante->getMedia('gallery') as $medium)
+                            <div class="relative overflow-hidden border border-slate-200 group rounded-xl flex items-center justify-center dark:border-white/10">
                                 <img
                                     src="{{ $medium->getUrl() }}"
                                     alt="{{ $medium->name }}"
                                     class="h-full w-full object-contain object-center transition group-hover:scale-125"
                                 />
-                                <div class="absolute inset-0 group-hover:bg-opacity-50 group-hover:bg-slate-600 rounded-md transition-all"></div>
+                                <div class="absolute inset-0 rounded-xl bg-primary-900/0 transition-colors group-hover:bg-primary-900/40"></div>
                                 <x-input
                                     wire:model="selected"
                                     type="checkbox"
-                                    class="absolute top-2 left-2 !rounded !shadow-none dark:!bg-slate-900 dark:checked:!bg-sky-500"
+                                    class="absolute top-2 left-2 !rounded !shadow-none text-accent-500 focus:ring-accent-500 dark:!bg-slate-900"
                                     x-bind:class="{ 'opacity-0 group-hover:opacity-100': !selected.length }"
                                     value="{{ $medium->id }}"
                                 />
                             </div>
                         @empty
-
-                        <div @class(['relative overflow-hidden border  border-slate-200 group rounded-md flex items-center justify-center dark:border-slate-200/20'])>
-                                Sem imagens
-                        </div>
-
+                            <div class="relative overflow-hidden border border-slate-200 rounded-xl flex items-center justify-center py-6 text-sm text-slate-400 dark:border-white/10">
+                                {{ __('Sem imagens') }}
+                            </div>
                         @endforelse
-               
-                @endif
-
                     </div>
-
-
-        
-
+                @endif
             </fieldset>
-
         </x-slot:content>
         <x-slot:footer>
             <button
@@ -98,14 +71,14 @@
                 type="submit"
                 class="btn btn-primary w-full sm:ml-3 sm:w-auto"
             >
-                {{ __('Download') }}
+                {{ __('Baixar') }}
             </button>
             <button
                 wire:click="$set('showAddressForm', false)"
                 wire:target="save"
                 wire:loading.attr="disabled"
                 type="button"
-                class="mt-3 btn btn-invisible w-full sm:mt-0 sm:w-auto"
+                class="btn btn-invisible mt-3 w-full sm:mt-0 sm:w-auto"
             >
                 {{ __('Cancelar') }}
             </button>
@@ -117,42 +90,27 @@
             {{ __('Gerenciar Visitantes') }}
         </x-slot:title>
         <x-slot:content>
-            <div class="divide-y divide-slate-200 dark:divide-slate-200/10">
+            @unless($customer->visitantes->count() > 0)
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    {{ __('Nenhum Visitante definido.') }}
+                </p>
+            @else
+                <address class="not-italic text-sm text-slate-600 dark:text-slate-300 space-y-0.5">
+                    <p class="font-semibold text-primary dark:text-slate-200">{{ optional($visitante)->nome }}</p>
+                    @if(optional($visitante->prison_unit())->name)
+                        <p>{{ $visitante->prison_unit->name }}</p>
+                    @endif
+                    <p>{{ optional($visitante)->logradouro }}, {{ optional($visitante)->numero }}</p>
+                    <p>{{ optional($visitante)->bairro }}</p>
+                    <p>{{ optional($visitante)->cidade }} / {{ optional($visitante)->uf }} — {{ optional($visitante)->cep }}</p>
+                </address>
 
-                @unless($customer->visitantes->count() > 0)
-                    <div class="text-sm text-slate-500 dark:text-slate-400">
-                        {{ __('Nenhum Visitante definido.') }}
-                    </div>
-                @else
-
-                    <address class="not-italic text-sm">
-                        {{ optional($visitante)->nome }}<br>
-
-                        @if(optional($visitante->prison_unit())->name)
-                            {{ $visitante->prison_unit->name }}<br>
-                        @endif
-
-                        {{ optional($visitante)->logradouro }}, {{optional($visitante)->numero}}<br>
-                
-                        {{ optional($visitante)->bairro }}<br>
-            
-                        {{ optional($visitante)->cidade }} / {{ optional($visitante)->uf }}
-                        
-                        {{ optional($visitante)->cep }}<br>
-                        
-                    </address>
-
-                    <div class="mt-3 flex items-center justify-between">
-                        <button
-                            wire:click.prevent="view()"
-                            class="btn btn-link"
-                        >
-                            {{ __('Visualizar Carteirinha') }}
-                        </button>
-                    </div>
-                    
-                @endunless
-            </div>
+                <div class="mt-4">
+                    <button wire:click.prevent="view()" type="button" class="btn btn-link">
+                        {{ __('Visualizar Carteirinha') }}
+                    </button>
+                </div>
+            @endunless
         </x-slot:content>
     </x-modal-dialog>
 </div>

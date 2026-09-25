@@ -10,7 +10,7 @@
             disableMobile: true,
             plugins: [new confirmDatePlugin({
                 confirmIcon: '',
-                confirmText: '{{ __('Schedule availability') }}',
+                confirmText: '{{ __('Agendar disponibilidade') }}',
                 showAlways: true
             })],
             onClose: function(date, dateString) {
@@ -26,42 +26,33 @@
     >
         <x-card>
             <x-slot:header>
-                <div class="-ml-4 -mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap">
-                    <div class="ml-4 mt-2">
-                        <h3 class="text-base font-medium text-slate-900 dark:text-slate-200">
-                            {{ __('Status do Produto') }}
-                        </h3>
-                    </div>
-                    <div
-                        x-show="dirty.size >= 1"
-                        class="ml-4 mt-2 flex-shrink-0"
-                    >
-                        <button
-                            type="submit"
-                            class="btn btn-link"
-                        >
+                <div class="flex items-center justify-between flex-wrap gap-3 sm:flex-nowrap">
+                    <h3 class="text-base font-semibold text-primary dark:text-slate-200">
+                        {{ __('Status do Produto') }}
+                    </h3>
+                    <div x-show="dirty.size >= 1" class="flex-shrink-0">
+                        <button type="submit" class="btn btn-link">
                             {{ __('Salvar') }}
                         </button>
                     </div>
                 </div>
             </x-slot:header>
-            <x-slot:content class="-mt-5">
+            <x-slot:content class="space-y-4">
+                <div>
+                    <x-input-label>{{ __('Situação') }}</x-input-label>
+                    <x-select
+                        x-on:change="$nextTick(() => $el.value !== '{{ $product->status->name }}' ? dirty.add('status') : dirty.delete('status'))"
+                        wire:model="product.status"
+                        class="mt-1 !h-10 rounded-xl sm:text-sm"
+                    >
+                        @foreach(\App\Enums\ProductStatus::cases() as $status)
+                            <option value="{{ $status->name }}">{{ $status->label() }}</option>
+                        @endforeach
+                    </x-select>
+                </div>
 
-                
-
-                <x-select
-                    x-on:change="$nextTick(() => $el.value !== '{{ $product->status->name }}' ? dirty.add('status') : dirty.delete('status'))"
-                    wire:model="product.status"
-                    class="sm:text-sm"
-                >
-                    @foreach(\App\Enums\ProductStatus::cases() as $status)
-                        <option value="{{ $status->name }}">{{ $status->label() }}</option>
-                    @endforeach
-                </x-select>
-
-                
-                <div class="mt-2 sm:text-sm">
-                    <div class="text-slate-500 text-sm dark:text-slate-400">
+                <div class="text-sm">
+                    <div class="text-slate-500 dark:text-slate-400">
                         @if($published_at && \Carbon\Carbon::parse($published_at)->isFuture())
                             <p>
                                 {{ __('Agendado para ') }}
@@ -75,67 +66,47 @@
                             @endif
                         @endif
                     </div>
-                    <div class="mt-1 space-x-3">
+                    <div class="mt-1.5 space-x-3">
                         @if($published_at && \Carbon\Carbon::parse($published_at)->isFuture())
-                            <span
-                                x-ref="date"
-                                class="btn btn-link cursor-pointer"
-                            >
+                            <span x-ref="date" class="btn btn-link cursor-pointer">
                                 {{ __('Editar') }}
                             </span>
-                            <a
-                                role="button"
-                                x-on:click="published_at = new Date(); scheduled_at = null; dirty.add('schedule_at');"
-                                class="btn btn-link cursor-pointer"
-                            >
+                            <a role="button" x-on:click="published_at = new Date(); scheduled_at = null; dirty.add('schedule_at');" class="btn btn-link cursor-pointer">
                                 {{ __('Limpar Agendamento') }}
                             </a>
                         @else
-                            <span
-                                x-ref="date"
-                                class="btn btn-link cursor-pointer"
-                            >
+                            <span x-ref="date" class="btn btn-link cursor-pointer">
                                 {{ __('Agendar Publicação') }}
                             </span>
                         @endif
                     </div>
                 </div>
 
-                <div class="mt-2">
-
-                    <x-input-label> Canal de Vendas </x-input-label>
-                        <x-select
-                            x-on:change="$nextTick(() => $el.value !== '{{ $product->sales_channel ?? $product->sales_channel }}' ? dirty.add('sales_channel') : dirty.delete('sales_channel'))"
-                            wire:model="product.sales_channel"
-                            class="sm:text-sm mt-2"
-                        >
-
-                            @foreach(\App\Enums\ProductSaleChannel::cases() as $sale_channel)
-                                <option value="{{ strtolower($sale_channel->name) }}">{{ $sale_channel->label() }} </option>
-                            @endforeach
-
-                        </x-select>
-
+                <div>
+                    <x-input-label>{{ __('Canal de Vendas') }}</x-input-label>
+                    <x-select
+                        x-on:change="$nextTick(() => $el.value !== '{{ $product->sales_channel ?? $product->sales_channel }}' ? dirty.add('sales_channel') : dirty.delete('sales_channel'))"
+                        wire:model="product.sales_channel"
+                        class="mt-1 !h-10 rounded-xl sm:text-sm"
+                    >
+                        @foreach(\App\Enums\ProductSaleChannel::cases() as $sale_channel)
+                            <option value="{{ strtolower($sale_channel->name) }}">{{ $sale_channel->label() }}</option>
+                        @endforeach
+                    </x-select>
                 </div>
 
-
-                
-                <div class="mt-2">
-
-                    <x-input-label> Tipo de Produto </x-input-label>
-                    
-
+                <div>
+                    <x-input-label>{{ __('Tipo de Produto') }}</x-input-label>
                     <x-select
                         x-on:change="$nextTick(() => $el.value !== '{{ $product->type->name }}' ? dirty.add('status') : dirty.delete('status'))"
                         wire:model="product.type"
-                        class="sm:text-sm mt-2"
+                        class="mt-1 !h-10 rounded-xl sm:text-sm"
                     >
                         @foreach(\App\Enums\ProductType::cases() as $type)
                             <option value="{{ $type->name }}">{{ $type->label() }}</option>
                         @endforeach
                     </x-select>
                 </div>
-
             </x-slot:content>
         </x-card>
     </form>
