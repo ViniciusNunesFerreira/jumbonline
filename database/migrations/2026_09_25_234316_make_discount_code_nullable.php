@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('discounts', function (Blueprint $table) {
-            $table->string('code')->nullable()->unique()->change();
+            $table->string('code')->nullable()->change();
         });
 
         Schema::table('cart_discounts', function (Blueprint $table) {
