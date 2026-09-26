@@ -87,9 +87,18 @@ class OrderRefundCreate extends Component
         }
     }
 
-    public function refund()
+    public function refund(\App\Services\MercadoPagoPaymentVerificationService $mercadoPago)
     {
         $this->validate();
+
+        if ($this->order->paymentMethod->is_third_party) {
+            try {
+                $mercadoPago->reembolsar($this->order, (float) $this->refund->amount);
+            } catch (\Throwable $e) {
+                $this->addError('refund', 'Não foi possível reembolsar na Mercado Pago: ' . $e->getMessage());
+                return;
+            }
+        }
 
         $this->order->refunds()->save($this->refund);
 

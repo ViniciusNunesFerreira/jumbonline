@@ -66,6 +66,7 @@ class ArticleList extends Component
     public function getRowsQueryProperty()
     {
          return Article::query()
+        ->with(['author:id,name', 'media'])
         ->when($this->search, fn($query, $search) => $query->where('title', 'like', '%' . $search . '%'))
         ->when($this->statusFilter === 'published', fn($q) => $q->published())
         ->when($this->statusFilter === 'scheduled', fn($q) => $q->whereNotNull('published_at')->where('published_at', '>', now()))

@@ -173,8 +173,55 @@
                             @endforeach
                         </ul>
 
-                        <dl class="space-y-3 border-t border-secondary pt-4 text-sm">
+                        <div class="border-t border-secondary pt-4">
+                            <div class="rounded-2xl border border-secondary bg-complement-500 p-4">
+                                @if($cart->appliedCoupon)
+                                    <div class="flex items-center justify-between">
+                                        <span class="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                                            <x-heroicon-s-ticket class="h-4 w-4 text-accent" />
+                                            {{ __('CUPOM: :code', ['code' => $cart->appliedCoupon->code]) }}
+                                        </span>
+                                        <button
+                                            wire:click="removeDiscountCode"
+                                            wire:loading.attr="disabled"
+                                            wire:target="removeDiscountCode"
+                                            type="button"
+                                            class="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-white hover:text-red-500"
+                                        >
+                                            <x-heroicon-s-x-mark class="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                @else
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ __('Cupom de desconto') }}</p>
+                                    <div x-data="{ code: @entangle('discountCode') }" class="flex gap-2">
+                                        <input
+                                            x-model="code"
+                                            type="text"
+                                            placeholder="{{ __('Digite seu código') }}"
+                                            class="flex-1 rounded-full border border-secondary bg-white px-4 py-2.5 text-sm text-primary placeholder:text-slate-400 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                                        >
+                                        <button
+                                            wire:click="redeemDiscountCode"
+                                            wire:loading.attr="disabled"
+                                            wire:target="redeemDiscountCode"
+                                            type="button"
+                                            class="rounded-full border border-accent px-4 py-2.5 text-sm font-semibold text-accent hover:bg-accent hover:text-white disabled:opacity-50"
+                                        >
+                                            {{ __('Aplicar') }}
+                                        </button>
+                                    </div>
+                                    @error('discountCode')
+                                        <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+                                    @enderror
+                                @endif
+                            </div>
+                        </div>
+
+                        <dl class="space-y-3 pt-4 text-sm">
                             <div class="flex justify-between"><dt class="text-slate-500">Subtotal</dt><dd class="font-medium text-primary"><x-money :amount="$cart->subtotal" :currency="config('app.currency')" /></dd></div>
+                            @if(($cart->discountTotal ?? 0) > 0)
+                                <div class="flex justify-between"><dt class="text-slate-500">Desconto</dt><dd class="font-medium text-accent">-<x-money :amount="$cart->discountTotal" :currency="config('app.currency')" /></dd></div>
+                            @endif
                             <div class="flex justify-between"><dt class="text-slate-500">Frete</dt><dd class="font-medium text-primary"><x-money :amount="optional($this->order)->shipping_price" :currency="config('app.currency')" /></dd></div>
                             <div class="flex justify-between border-t border-secondary pt-3 text-base"><dt class="font-bold text-primary">Total</dt><dd class="font-bold text-primary"><x-money :amount="optional($this->order)->total" :currency="config('app.currency')" /></dd></div>
                         </dl>

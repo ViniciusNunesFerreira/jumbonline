@@ -1,12 +1,16 @@
 <div>
-    <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Profile') }}
+        {{ __('Meu Perfil') }}
     </x-slot:title>
 
-    <!-- Page content -->
-    <div class="p-4 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="space-y-12">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <h1 class="text-2xl font-bold tracking-tight text-primary dark:text-white">
+                {{ __('Meu Perfil') }}
+            </h1>
+        </div>
+
+        <div class="mt-6 space-y-6 ">
             <livewire:employee.profile.components.personal-information />
 
             <livewire:employee.profile.components.change-password />

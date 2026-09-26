@@ -42,8 +42,13 @@
                                                 {{ $item->product->name }}
                                             </a>
                                         </h3>
-                                        <p class="flex-shrink-0 text-sm font-semibold text-primary">
-                                            <x-money :amount="$item->price * $item->quantity" :currency="config('app.currency')" />
+                                        <p class="flex-shrink-0 text-right text-sm font-semibold text-primary">
+                                            @if($item->discount)
+                                                <span class="block text-xs font-normal text-slate-400 line-through"><x-money :amount="$item->price * $item->quantity" :currency="config('app.currency')" /></span>
+                                                <x-money :amount="$item->discountedPrice" :currency="config('app.currency')" />
+                                            @else
+                                                <x-money :amount="$item->price * $item->quantity" :currency="config('app.currency')" />
+                                            @endif
                                         </p>
                                     </div>
                                     @if($item->variant->variantAttributes->count())
@@ -109,9 +114,64 @@
 
         @if(count($cartItems))
             <x-slot:footer>
-                <div class="flex justify-between text-base font-medium text-primary">
-                    <p>{{ __('Subtotal') }}</p>
-                    <p><x-money :amount="$cart->subtotal ?? 0" :currency="config('app.currency')" /></p>
+                
+                <div class="mb-5 rounded-2xl border border-secondary bg-complement-500 p-4">
+                    @if($cart->appliedCoupon)
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                                <x-heroicon-s-ticket class="h-4 w-4 text-accent" />
+                                {{ __('CUPOM: :code', ['code' => $cart->appliedCoupon->code]) }}
+                            </span>
+                            <button
+                                wire:click="removeDiscountCode"
+                                wire:loading.attr="disabled"
+                                wire:target="removeDiscountCode"
+                                type="button"
+                                class="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-white hover:text-red-500"
+                            >
+                                <x-heroicon-s-x-mark class="h-4 w-4" />
+                            </button>
+                        </div>
+                    @else
+                        <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{{ __('Cupom de desconto') }}</p>
+                        <div x-data="{ code: @entangle('discountCode') }" class="flex gap-2">
+                            <input
+                                x-model="code"
+                                type="text"
+                                placeholder="{{ __('Digite seu código') }}"
+                                class="flex-1 rounded-full border border-secondary bg-white px-4 py-2.5 text-sm text-primary placeholder:text-slate-400 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                            >
+                            <button
+                                wire:click="redeemDiscountCode"
+                                wire:loading.attr="disabled"
+                                wire:target="redeemDiscountCode"
+                                type="button"
+                                class="rounded-full border border-accent px-4 py-2.5 text-sm font-semibold text-accent hover:bg-accent hover:text-white disabled:opacity-50"
+                            >
+                                {{ __('Aplicar') }}
+                            </button>
+                        </div>
+                        @error('discountCode')
+                            <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    @endif
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-sm text-slate-500">
+                        <p>{{ __('Subtotal') }}</p>
+                        <p><x-money :amount="$cart->subtotal ?? 0" :currency="config('app.currency')" /></p>
+                    </div>
+                    @if(($cart->discountTotal ?? 0) > 0)
+                        <div class="flex justify-between text-sm font-semibold text-accent">
+                            <p>{{ __('Desconto') }}</p>
+                            <p>-<x-money :amount="$cart->discountTotal" :currency="config('app.currency')" /></p>
+                        </div>
+                    @endif
+                    <div class="flex justify-between text-base font-bold text-primary">
+                        <p>{{ __('Total') }}</p>
+                        <p><x-money :amount="($cart->subtotal ?? 0) - ($cart->discountTotal ?? 0)" :currency="config('app.currency')" /></p>
+                    </div>
                 </div>
                 <p class="mt-1 text-sm text-slate-500">{{ __('Frete calculado na finalização, direto para a unidade.') }}</p>
 

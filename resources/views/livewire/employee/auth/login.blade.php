@@ -95,19 +95,26 @@
                         />
                     </div>
 
-                    <div>
+                    <div x-data="{ show: false }">
                         <x-input-label
                             for="password"
                             :value="__('Senha')"
                             class="!text-sm !font-semibold !text-slate-700 dark:!text-slate-300"
                         />
-                        <x-input
-                            wire:model.defer="password"
-                            id="password"
-                            type="password"
-                            name="password"
-                            class="block mt-1.5 w-full rounded-xl sm:text-sm"
-                        />
+                        <div class="relative mt-1.5">
+                            <x-input
+                                wire:model.defer="password"
+                                id="password"
+                                type="password"
+                                x-bind:type="show ? 'text' : 'password'"
+                                name="password"
+                                class="block w-full rounded-xl pr-10 sm:text-sm"
+                            />
+                            <button type="button" x-on:click="show = !show" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-500">
+                                <x-heroicon-o-eye x-show="!show" class="h-5 w-5" />
+                                <x-heroicon-o-eye-slash x-show="show" x-cloak class="h-5 w-5" />
+                            </button>
+                        </div>
                         <x-input-error
                             for="password"
                             class="mt-2"

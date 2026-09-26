@@ -11,6 +11,7 @@ class CartSlide extends Component
     public Cart $cart;
     public Collection $cartItems;
     public $isShown = false;
+    public string $discountCode = '';
 
     protected $listeners = [
         'show' => 'show',
@@ -39,6 +40,19 @@ class CartSlide extends Component
         $this->cartItems = $this->loadCartItems();
     }
 
+    public function redeemDiscountCode(\App\Services\DiscountService $discountService)
+    {
+        try {
+            $discountService->redeemCode($this->cart, $this->discountCode);
+
+            $this->discountCode = '';
+
+            $this->refresh();
+        } catch (\RuntimeException $e) {
+            $this->addError('discountCode', $e->getMessage());
+        }
+    }
+
     public function loadCart(): Cart
     {
         $cart = $this->customer
@@ -47,12 +61,15 @@ class CartSlide extends Component
 
         $cart->load([
             'items' => fn($query) => $query->orderBy('created_at', 'desc'),
+            'items.discount',
             'items.product.media',
             'items.variant.media',
             'items.variant.variantAttributes.option',
             'items.variant.variantAttributes.optionValue',
             'items.category',
         ]);
+
+         app(\App\Services\DiscountService::class)->applyAutomaticDiscounts($cart);
 
         return $cart;
     }
@@ -136,6 +153,13 @@ class CartSlide extends Component
     public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null
     {
         return \Auth::user();
+    }
+
+    public function removeDiscountCode(\App\Services\DiscountService $discountService)
+    {
+        $discountService->removeCode($this->cart);
+
+        $this->refresh();
     }
 
     public function render()

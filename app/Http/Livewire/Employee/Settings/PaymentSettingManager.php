@@ -7,7 +7,7 @@ use Livewire\Component;
 
 class PaymentSettingManager extends Component
 {
-    public $stripe_payment_state = [
+    public $mercadopago_state = [
         'is_enabled' => false,
         'display_name' => '',
         'description' => '',
@@ -18,29 +18,32 @@ class PaymentSettingManager extends Component
     ];
 
     protected $rules = [
-        'stripe_payment_state.is_enabled' => 'boolean',
-        'stripe_payment_state.display_name' => 'required|string',
-        'stripe_payment_state.description' => 'nullable|string',
-        'stripe_payment_state.meta.public_key' => 'required_if:stripe_payment_state.is_enabled,true|string',
-        'stripe_payment_state.meta.access_token' => 'required_if:stripe_payment_state.is_enabled,true|string',
+        'mercadopago_state.is_enabled' => 'boolean',
+        'mercadopago_state.display_name' => 'required|string',
+        'mercadopago_state.description' => 'nullable|string',
+        'mercadopago_state.meta.public_key' => 'required_if:mercadopago_state.is_enabled,true|string',
+        'mercadopago_state.meta.access_token' => 'required_if:mercadopago_state.is_enabled,true|string',
     ];
 
     public function mount()
     {
-        $this->stripe_payment_state = $this->stripe_payment->toArray();
-
+        $this->mercadopago_state = $this->mercadopago->toArray();
     }
 
     public function save()
     {
         $this->validate();
 
-        $this->stripe_payment->update($this->stripe_payment_state);
+        $this->mercadopago->update($this->mercadopago_state);
 
         $this->notify('Configurações de pagamento salvas com sucesso.');
     }
 
-    public function getStripePaymentProperty()
+    /**
+     * Nome do método/atributo mantido descritivo de propósito — este
+     * registro é o Mercado Pago real que processa os pagamentos do site.
+     */
+    public function getMercadopagoProperty()
     {
         return PaymentMethod::query()->firstOrCreate([
             'identifier' => 'mercadopago',
@@ -57,13 +60,10 @@ class PaymentSettingManager extends Component
         ]);
     }
 
-    
-
-  
     public function render()
     {
         return view('livewire.employee.settings.payment-setting-manager', [
-            'stripe_payment' => $this->stripe_payment,
+            'mercadopago' => $this->mercadopago,
         ])->layout('layouts.admin');
     }
 }

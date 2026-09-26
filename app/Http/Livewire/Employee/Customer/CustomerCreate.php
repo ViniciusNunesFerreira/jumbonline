@@ -5,6 +5,8 @@ namespace App\Http\Livewire\Employee\Customer;
 use App\Models\Address;
 use App\Models\Country;
 use App\Models\Customer;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -20,6 +22,8 @@ class CustomerCreate extends Component
 
     public $customer_phone;
 
+    public $customer_phone_number;
+
     public $customer_phone_country;
 
     public $customer_password;
@@ -30,7 +34,16 @@ class CustomerCreate extends Component
 
     public $address_phone;
 
+    public $address_phone_number;
+
     public $address_phone_country;
+
+    /**
+     * Ligado por padrão — a grande maioria dos cadastros usa o mesmo
+     * telefone pro cliente e pro endereço, então evita pedir o mesmo dado
+     * duas vezes. Só desmarca quem realmente precisa de um número diferente.
+     */
+    public bool $sameAddressPhone = true;
 
     protected function rules()
     {
@@ -38,7 +51,11 @@ class CustomerCreate extends Component
             'customer.name' => ['required', 'string'],
             'customer.email' => ['required', 'email', 'unique:customers,email'],
             'customer_password' => ['required', 'string', 'min:8', 'confirmed'],
-            'customer_phone' => ['nullable', Rule::phone()->countryField('phone_country')],
+            'customer_phone' => [
+                'nullable',
+                Rule::phone()->countryField('phone_country'),
+                Rule::unique('customers', 'phone'),
+            ],
             'customer_phone_country' => ['nullable', 'string', 'exists:countries,iso2'],
             'customer.notes' => ['nullable', 'string'],
             'address.country_id' => ['required', 'exists:countries,id'],
@@ -55,6 +72,10 @@ class CustomerCreate extends Component
         ];
     }
 
+    protected $messages = [
+        'customer_phone.unique' => 'Este telefone já está cadastrado em outro cliente.',
+    ];
+
     public function mount()
     {
         $this->customer = new Customer();
@@ -63,16 +84,17 @@ class CustomerCreate extends Component
 
         $this->countries = Country::query()->select(['id', 'name', 'iso2', 'phonecode', 'emoji'])->orderBy('name')->get();
 
-        $this->selectCustomerCountry($this->countries->where('iso2', 'US')->first()->iso2);
+        // Padrão Brasil — praticamente 100% dos clientes cadastrados são
+        // daqui; antes vinha "US" por padrão, obrigando corrigir na mão
+        // em todo cadastro.
+        $this->selectCustomerCountry($this->countries->where('iso2', 'BR')->first()->iso2);
 
-        $this->selectAddressCountry($this->countries->where('iso2', 'US')->first()->iso2);
+        $this->selectAddressCountry($this->countries->where('iso2', 'BR')->first()->iso2);
     }
 
     public function selectCustomerCountry($value)
     {
         $this->customer_country = $this->countries->where('iso2', $value)->first();
-
-        $this->customer_phone = '+' . $this->customer_country->phonecode;
 
         $this->customer_phone_country = $value;
     }
@@ -80,8 +102,6 @@ class CustomerCreate extends Component
     public function selectAddressCountry($value)
     {
         $this->address_country = $this->countries->where('iso2', $value)->first();
-
-        $this->address_phone = '+' . $this->address_country->phonecode;
 
         $this->address_phone_country = $value;
     }
@@ -93,6 +113,12 @@ class CustomerCreate extends Component
 
     public function save()
     {
+        $this->customer_phone = $this->buildE164($this->customer_phone_number, $this->customer_country);
+
+        if (! $this->sameAddressPhone) {
+            $this->address_phone = $this->buildE164($this->address_phone_number, $this->address_country);
+        }
+
         $this->validate();
 
         $this->customer->password = bcrypt($this->customer_password);
@@ -101,17 +127,37 @@ class CustomerCreate extends Component
 
         $this->customer->phone = $this->customer_phone;
 
-        $this->customer->save();
+        try {
+            $this->customer->save();
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                $this->addError('customer_phone', 'Este telefone já está cadastrado em outro cliente.');
+                return;
+            }
 
-        $this->address->phone_country = $this->address_phone_country;
+            throw $e;
+        }
 
-        $this->address->phone = $this->address_phone;
+        if ($this->sameAddressPhone) {
+            $this->address->phone_country = $this->customer_phone_country;
+            $this->address->phone = $this->customer_phone;
+        } else {
+            $this->address->phone_country = $this->address_phone_country;
+            $this->address->phone = $this->address_phone;
+        }
 
         $this->address->addressable()->associate($this->customer);
 
         $this->address->save();
 
         $this->redirect(route('employee.customers.detail', $this->customer));
+    }
+
+    protected function buildE164(?string $localNumber, $country): ?string
+    {
+        $digits = preg_replace('/\D/', '', $localNumber ?? '');
+
+        return $digits ? '+' . $country->phonecode . $digits : null;
     }
 
     public function render()

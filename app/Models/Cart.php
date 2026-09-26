@@ -100,6 +100,20 @@ class Cart extends Model
         );
     }
 
+    protected function discountTotal(): Attribute
+    {
+        return new Attribute(
+            get: fn() => $this->discounts->sum('amount') + $this->items->sum('discountedAmount')
+        );
+    }
+
+    protected function appliedCoupon(): Attribute
+    {
+        return new Attribute(
+            get: fn() => $this->discounts->first(fn($d) => ! is_null($d->code))
+        );
+    }
+
     protected static function booted()
     {
         static::creating(function ($cart) {

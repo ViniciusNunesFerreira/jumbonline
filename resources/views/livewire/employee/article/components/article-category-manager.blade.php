@@ -1,29 +1,29 @@
 <div x-data="{ open: false }">
-    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ __('Categoria') }}</label>
+    <x-input-label :value="__('Categoria')" />
 
     @if($this->currentCategory)
-        <div class="mt-2 inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 dark:bg-sky-900/30 dark:text-sky-400">
+        <div class="mt-1.5 inline-flex items-center gap-2 rounded-full bg-accent-50 px-3 py-1.5 text-sm font-medium text-accent-700 dark:bg-accent-500/10 dark:text-accent-400">
             {{ $this->currentCategory->name }}
-            <button wire:click="removeCategory" type="button" class="text-sky-400 hover:text-sky-600">
+            <button wire:click="removeCategory" type="button" class="text-accent-400 hover:text-accent-600">
                 <x-heroicon-s-x-mark class="h-3.5 w-3.5" />
             </button>
         </div>
     @else
-        <div class="relative mt-2 max-w-xs" x-on:click.outside="open = false">
+        <div class="relative mt-1.5 max-w-xs" x-on:click.outside="open = false">
             <x-input
                 wire:model.debounce.300ms="filterCategoryName"
                 x-on:focus="open = true"
                 type="text"
                 placeholder="{{ __('Buscar ou criar categoria...') }}"
-                class="w-full"
+                class="w-full rounded-xl sm:text-sm"
             />
-            <div x-show="open" x-cloak class="absolute z-10 mt-1 w-full rounded-md border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
+            <div x-show="open" x-cloak class="absolute z-10 mt-1 w-full rounded-xl border border-slate-100 bg-white shadow-lg dark:border-white/10 dark:bg-slate-900">
                 @forelse($categories as $category)
                     <button
                         wire:click="setCategory('{{ $category->name }}')"
                         x-on:click="open = false"
                         type="button"
-                        class="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                        class="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5"
                     >
                         {{ $category->name }}
                     </button>
@@ -33,7 +33,7 @@
                             wire:click="setCategory('{{ $filterCategoryName }}')"
                             x-on:click="open = false"
                             type="button"
-                            class="block w-full px-3 py-2 text-left text-sm text-sky-600 hover:bg-slate-50 dark:hover:bg-slate-700"
+                            class="block w-full px-3 py-2 text-left text-sm font-medium text-accent-600 hover:bg-slate-50 dark:text-accent-400 dark:hover:bg-white/5"
                         >
                             {{ __('Criar categoria ":name"', ['name' => $filterCategoryName]) }}
                         </button>

@@ -44,7 +44,27 @@
                 {{ __('Editar cliente') }}
             </x-slot:title>
             <x-slot:content>
-                <fieldset wire:target="save" wire:loading.attr="disabled" class="space-y-6">
+                <fieldset
+                    x-data="{
+                        phoneCountry: @entangle('phone_country').defer,
+                        maskPhone(el, country) {
+                            let v = el.value.replace(/\D/g, '');
+                            if (country === 'BR') {
+                                v = v.slice(0, 11);
+                                if (v.length > 10) v = v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+                                else if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+                                else if (v.length > 2) v = v.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+                                else if (v.length > 0) v = '(' + v;
+                            } else {
+                                v = v.slice(0, 15);
+                            }
+                            el.value = v;
+                        },
+                    }"
+                    wire:target="save"
+                    wire:loading.attr="disabled"
+                    class="space-y-6"
+                >
                     <div>
                         <x-input-label for="name" :value="__('Nome')" />
                         <x-input
@@ -105,7 +125,7 @@
                             </div>
                             <input
                                 wire:model.defer="phoneNumber"
-                                x-on:input="$el.value = $el.value.replace(/[^0-9\s()-]/g, '')"
+                                x-on:input="maskPhone($el, phoneCountry)"
                                 type="tel"
                                 inputmode="numeric"
                                 id="phone-number"

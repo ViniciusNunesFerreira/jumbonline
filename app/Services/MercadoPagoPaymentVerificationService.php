@@ -78,4 +78,47 @@ class MercadoPagoPaymentVerificationService
 
         PaymentReceived::dispatch($order);
     }
+
+
+
+    /**
+     * Localiza o pagamento aprovado real na Mercado Pago (mesma busca por
+     * external_reference já usada em verificar()) e solicita o estorno de
+     * verdade — parcial ou total — direto na API. Nunca mexe em nada local;
+     * quem chama decide o que fazer com o resultado.
+     */
+    public function reembolsar(Order $order, float $valor): array
+    {
+        $this->autenticar();
+
+        $client = new \MercadoPago\Client\Payment\PaymentClient();
+
+        $search = $client->search(new \MercadoPago\Net\MPSearchRequest(10, 0, [
+            'external_reference' => $order->idempotency_key,
+        ]));
+
+        $approved = collect($search->results ?? [])->first(fn($r) => $r->status === 'approved');
+
+        if (! $approved) {
+            throw new RuntimeException('Não encontrei um pagamento aprovado na Mercado Pago pra este pedido — não é seguro prosseguir com o reembolso.');
+        }
+
+        $refundClient = new \MercadoPago\Client\PaymentRefund\PaymentRefundClient();
+
+        // Reembolso parcial se o valor for menor que o total pago; total se
+        // for igual (a API da Mercado Pago trata "sem valor" como reembolso
+        // integral).
+        $ehParcial = round($valor, 2) < round((float) $approved->transaction_amount, 2);
+
+        $resultado = $refundClient->create(
+            $approved->id,
+            $ehParcial ? ['amount' => round($valor, 2)] : null
+        );
+
+        return [
+            'mercadopago_payment_id' => $approved->id,
+            'mercadopago_refund_id' => $resultado->id ?? null,
+            'valor_reembolsado' => $valor,
+        ];
+    }
 }

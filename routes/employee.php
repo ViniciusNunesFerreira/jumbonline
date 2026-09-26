@@ -40,10 +40,9 @@ Route::group([
         Route::get('/customers', \App\Http\Livewire\Employee\Customer\CustomerList::class)->name('customers.list');
         Route::get('/customers/create', \App\Http\Livewire\Employee\Customer\CustomerCreate::class)->name('customers.create');
         Route::get('/customers/{customer:id}', \App\Http\Livewire\Employee\Customer\CustomerDetail::class)->name('customers.detail');
-        Route::get('/discounts', \App\Http\Livewire\Employee\Discount\DiscountList::class)->name('discounts.list');
         Route::get('/discounts/create', \App\Http\Livewire\Employee\Discount\DiscountDetail::class)->name('discounts.create');
         Route::get('/discounts/{discount:id}', \App\Http\Livewire\Employee\Discount\DiscountDetail::class)->name('discounts.detail');
-        Route::get('/promotions', \App\Http\Livewire\Employee\Promotion\PromotionManager::class)->name('promotions.list');
+        Route::get('/promotions', \App\Http\Livewire\Employee\Promotion\PromotionsHub::class)->name('promotions.list');
         Route::get('/shipping', \App\Http\Livewire\Employee\Shipping\ShippingMethods::class)->name('shipping.manager');
         Route::get('/shipping/label/loose', \App\Http\Livewire\Employee\Shipping\ShippingManualLabel::class)->name('shipping-label.loose');
         
@@ -67,8 +66,7 @@ Route::group([
         Route::get('/settings/layout', \App\Http\Livewire\Employee\Settings\LayoutSettingManager::class)->name('settings.layout');
         Route::get('/settings/template', \App\Http\Livewire\Employee\Settings\TemplateSettingManager::class)->name('settings.template');
         Route::get('/settings/checkout', \App\Http\Livewire\Employee\Settings\CheckoutSettingManager::class)->name('settings.checkout');
-        Route::get('/settings/license', \App\Http\Livewire\Employee\Settings\LicenseSettingManager::class)->name('settings.license');
-
+       
         Route::get('/abandoned-carts', \App\Http\Livewire\Employee\AbandonedCart\AbandonedCartList::class)->name('abandoned-carts.list');
         
         Route::get('/settings/inventory', \App\Http\Livewire\Employee\Settings\InventorySettingManager::class)->name('settings.inventory');

@@ -1,94 +1,69 @@
 <div>
-    <!-- Meta title & description -->
     <x-slot:title>
-        {{ __('Users') }} - {{ $state['is_admin'] ? __('Add admin') : __('Add staff') }}
+        {{ __('Usuários') }} - {{ $state['is_admin'] ? __('Novo administrador') : __('Novo funcionário') }}
     </x-slot:title>
 
-    <!-- Page content -->
-    <div class="px-4 mx-auto max-w-7xl sm:px-6 xl:flex xl:gap-x-16 xl:px-8">
+    <div class="px-4 sm:px-6 xl:flex xl:gap-x-10 xl:px-8">
         @include('layouts.employee-settings-navigation')
 
-        <form
-            wire:submit.prevent="save"
-            class="py-6 xl:flex-auto xl:py-0"
-        >
-            <div class="space-y-12">
-                <div class="border-b border-slate-900/10 pb-12 dark:border-white/10">
-                    <h2 class="text-base font-semibold leading-7 text-slate-900 dark:text-slate-200">
-                        {{ $state['is_admin'] ? __('Add admin') : __('Add staff') }}
-                    </h2>
-                    <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                        <div class="sm:col-span-4">
-                            <x-input-label
-                                for="userNameInput"
-                                :value="__('Full name')"
-                            />
-                            <div class="mt-2">
-                                <x-input
-                                    wire:model.defer="state.name"
-                                    type="text"
-                                    id="userNameInput"
-                                    class="block w-full sm:text-sm"
-                                />
-                                <x-input-error
-                                    for="state.name"
-                                    class="mt-2"
-                                />
-                            </div>
-                        </div>
-                        <div class="sm:col-span-3">
-                            <x-input-label
-                                for="userEmailInput"
-                                :value="__('Email address')"
-                            />
-                            <div class="mt-2">
-                                <x-input
-                                    wire:model.defer="state.email"
-                                    type="text"
-                                    id="userEmailInput"
-                                    class="block w-full sm:text-sm"
-                                />
-                                <x-input-error
-                                    for="state.email"
-                                    class="mt-2"
-                                />
-                            </div>
-                        </div>
-                        <div class="sm:col-span-3">
-                            <x-input-label
-                                for="userPasswordInput"
-                                :value="__('Password')"
-                            />
-                            <div class="mt-2">
-                                <x-input
-                                    wire:model.defer="state.password"
-                                    type="password"
-                                    id="userPasswordInput"
-                                    class="block w-full sm:text-sm"
-                                />
-                                <x-input-error
-                                    for="state.password"
-                                    class="mt-2"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="xl:flex-auto">
+            <div class="sm:flex sm:items-center sm:justify-between mb-6">
+                <h1 class="text-2xl font-bold tracking-tight text-primary dark:text-white">
+                    {{ $state['is_admin'] ? __('Novo administrador') : __('Novo funcionário') }}
+                </h1>
             </div>
-            <div class="mt-6 flex items-center justify-end gap-x-6">
-                <a
-                    href="{{ route('employee.settings.user.list') }}"
-                    class="btn btn-default"
-                >
-                    {{ __('Cancel') }}
-                </a>
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    {{ __('Save changes') }}
-                </button>
-            </div>
-        </form>
+
+            <form wire:submit.prevent="save">
+                <x-card>
+                    <x-slot:content>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div class="sm:col-span-2">
+                                <x-input-label for="userNameInput" :value="__('Nome completo')" />
+                                <x-input wire:model.defer="state.name" type="text" id="userNameInput" class="mt-1 block w-full rounded-xl sm:text-sm" />
+                                <x-input-error for="state.name" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="userEmailInput" :value="__('E-mail')" />
+                                <x-input wire:model.defer="state.email" type="text" id="userEmailInput" class="mt-1 block w-full rounded-xl sm:text-sm" />
+                                <x-input-error for="state.email" class="mt-2" />
+                            </div>
+                            <div x-data="{ show: false }">
+                                <x-input-label for="userPasswordInput" :value="__('Senha')" />
+                                <div class="relative mt-1">
+                                    <x-input
+                                        wire:model.defer="state.password"
+                                        type="password"
+                                        x-bind:type="show ? 'text' : 'password'"
+                                        id="userPasswordInput"
+                                        class="block w-full rounded-xl pr-10 sm:text-sm"
+                                    />
+                                    <button type="button" x-on:click="show = !show" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-500">
+                                        <x-heroicon-o-eye x-show="!show" class="h-5 w-5" />
+                                        <x-heroicon-o-eye-slash x-show="show" x-cloak class="h-5 w-5" />
+                                    </button>
+                                </div>
+                                <x-input-error for="state.password" class="mt-2" />
+                            </div>
+                        </div>
+
+                        @if($state['is_admin'])
+                            <div class="mt-5 rounded-xl border border-accent-200 bg-accent-50 p-3 text-xs text-accent-700 dark:border-accent-500/20 dark:bg-accent-500/10 dark:text-accent-400">
+                                {{ __('Este usuário terá acesso ao Financeiro e a todas as áreas restritas do painel.') }}
+                            </div>
+                        @endif
+                    </x-slot:content>
+                    <x-slot:footer>
+                        <div class="flex justify-end">
+                            <a href="{{ route('employee.settings.user.list') }}" class="btn btn-invisible">
+                                {{ __('Cancelar') }}
+                            </a>
+                            <button type="submit" class="ml-3 btn btn-primary">
+                                {{ __('Salvar') }}
+                            </button>
+                        </div>
+                    </x-slot:footer>
+                </x-card>
+            </form>
+        </div>
     </div>
 </div>

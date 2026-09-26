@@ -32,6 +32,8 @@ use App\Enums\PaymentStatus;
 use App\Events\OrderCreated;
 use App\Settings\CheckoutSetting;
 
+use App\Services\DiscountService;
+
 class Purchase extends Component
 {
     
@@ -45,6 +47,7 @@ class Purchase extends Component
     public ?Promotion $promotion = null;
     public Order $order;
     public $prison;
+    public string $discountCode = '';
   
     public $state = [
         'name' => '',
@@ -305,6 +308,24 @@ class Purchase extends Component
 
     }
 
+    public function applyAutomaticDiscounts()
+    {
+        app(DiscountService::class)->applyAutomaticDiscounts($this->cart);
+    }
+
+    public function redeemDiscountCode()
+    {
+        try {
+            app(DiscountService::class)->redeemCode($this->cart, $this->discountCode);
+
+            $this->discountCode = '';
+
+            $this->notify('Código aplicado com sucesso!');
+        } catch (\RuntimeException $e) {
+            $this->addError('discountCode', $e->getMessage());
+        }
+    }
+
     
 
     protected function placeOrder()
@@ -341,6 +362,7 @@ class Purchase extends Component
 
 
         //recupera e atualiza ordem
+        $this->applyAutomaticDiscounts();
         $this->updateShippingPrice();
         $this->order->save();
 
@@ -368,7 +390,21 @@ class Purchase extends Component
                     'type' => $item->discount->type,
                     'amount' => $item->discount->amount,
                 ]);
+
+                \App\Models\Discount::whereKey($item->discount->discount_id)->increment('usage_count');
             }
+
+        });
+
+        $this->cart->discounts()->whereNull('cart_item_id')->get()->each(function ($cartDiscount) {
+            $this->order->orderDiscounts()->create([
+                'order_item_id' => null,
+                'code' => $cartDiscount->code,
+                'type' => $cartDiscount->type,
+                'amount' => $cartDiscount->amount,
+            ]);
+
+            \App\Models\Discount::whereKey($cartDiscount->discount_id)->increment('usage_count');
         });
 
 
@@ -388,6 +424,11 @@ class Purchase extends Component
 
         $this->redirect($this->customer ? route('customer.order.payment', $this->order) : URL::signedRoute('guest.order.payment', $this->order));
         
+    }
+
+    public function removeDiscountCode(DiscountService $discountService)
+    {
+        $discountService->removeCode($this->cart);
     }
 
 

@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Guest;
 
 use App\Models\Cart;
 use App\Models\PrisonUnit;
+use App\Services\DiscountService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use Illuminate\Http\Request;
@@ -13,6 +14,8 @@ class ShoppingCart extends Component
     use SEOTools;
 
     public $prison = '';
+
+    public string $discountCode = '';
 
     protected $listeners = [
         'refresh' => '$refresh',
@@ -67,6 +70,19 @@ class ShoppingCart extends Component
         $this->emit('refreshCart')->to('guest.product-list');
     }
 
+    public function redeemDiscountCode(DiscountService $discountService)
+    {
+        try {
+            $discountService->redeemCode($this->cart, $this->discountCode);
+
+            $this->discountCode = '';
+
+            $this->emit('refresh')->self();
+        } catch (\RuntimeException $e) {
+            $this->addError('discountCode', $e->getMessage());
+        }
+    }
+
     public function getCustomerProperty()
     {
         return \Auth::user();
@@ -84,6 +100,7 @@ class ShoppingCart extends Component
             : Cart::query()->firstOrCreate(['session_id' => session()->getId()]);
 
         $cart->load([
+            'items.discount',
             'items.category',
             'items.product.media',
             'items.variant.media',
@@ -91,12 +108,21 @@ class ShoppingCart extends Component
             'items.variant.variantAttributes.optionValue',
         ]);
 
+        app(DiscountService::class)->applyAutomaticDiscounts($cart);
+
         return $cart;
     }
 
     public function getCartItemsProperty()
     {
         return $this->cart->items;
+    }
+
+    public function removeDiscountCode(DiscountService $discountService)
+    {
+        $discountService->removeCode($this->cart);
+
+        $this->emit('refresh')->self();
     }
 
     public function render()

@@ -14,6 +14,8 @@ class CartModal extends Component
 
     public $isShown = false;
 
+    public string $discountCode = '';
+
     protected $listeners = [
         'show' => 'show',
     ];
@@ -39,13 +41,31 @@ class CartModal extends Component
             : Cart::query()->firstOrCreate(['session_id' => session()->getId()]);
 
         $cart->load([
+            'items.discount',
             'items.product.media',
             'items.variant.media',
             'items.variant.variantAttributes.option',
             'items.variant.variantAttributes.optionValue',
         ]);
 
+        app(\App\Services\DiscountService::class)->applyAutomaticDiscounts($cart);
+
         return $cart;
+    }
+
+    public function redeemDiscountCode(\App\Services\DiscountService $discountService)
+    {
+        try {
+            $discountService->redeemCode($this->cart, $this->discountCode);
+
+            $this->discountCode = '';
+
+            $this->cart = $this->loadCart();
+
+            $this->cartItems = $this->loadCartItems();
+        } catch (\RuntimeException $e) {
+            $this->addError('discountCode', $e->getMessage());
+        }
     }
 
     public function loadCartItems()
@@ -68,6 +88,15 @@ class CartModal extends Component
     public function getCustomerProperty(): \App\Models\Customer|\Illuminate\Contracts\Auth\Authenticatable|null
     {
         return \Auth::user();
+    }
+
+    public function removeDiscountCode(\App\Services\DiscountService $discountService)
+    {
+        $discountService->removeCode($this->cart);
+
+        $this->cart = $this->loadCart();
+
+        $this->cartItems = $this->loadCartItems();
     }
 
     public function render()

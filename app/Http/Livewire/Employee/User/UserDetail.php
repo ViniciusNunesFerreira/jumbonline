@@ -20,6 +20,8 @@ class UserDetail extends Component
         'email' => '',
         'bio' => '',
         'website' => '',
+        'password' => '',
+        'is_admin' => false,
     ];
 
     protected function rules()
@@ -30,6 +32,7 @@ class UserDetail extends Component
             'state.password' => 'sometimes|required|min:8',
             'state.bio' => 'nullable',
             'state.website' => 'nullable|url',
+            'state.is_admin' => 'boolean',
         ];
     }
 
@@ -39,11 +42,15 @@ class UserDetail extends Component
 
         $this->employee = Employee::find(request()->user);
 
+        $this->employee->makeVisible('is_admin');
+
         $this->state = [
             'name' => $this->employee->name,
             'email' => $this->employee->email,
             'bio' => $this->employee->bio,
             'website' => $this->employee->website,
+            'password' => '',
+            'is_admin' => (bool) $this->employee->is_admin,
         ];
     }
 
@@ -59,11 +66,19 @@ class UserDetail extends Component
 
         $this->employee->website = $this->state['website'];
 
-        if (request()->filled('password')) {
+        // Ninguém consegue tirar o próprio acesso de administrador por aqui —
+        // evita um autobloqueio acidental do Financeiro e das áreas restritas.
+        if (auth()->user()->id !== $this->employee->id) {
+            $this->employee->is_admin = $this->state['is_admin'];
+        }
+
+        if (! empty($this->state['password'])) {
             $this->employee->password = bcrypt($this->state['password']);
         }
 
         $this->employee->save();
+
+        $this->state['password'] = '';
 
         $this->notify(trans('User profile was updated successfully.'));
     }

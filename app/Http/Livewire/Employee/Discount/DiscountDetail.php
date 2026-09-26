@@ -2,20 +2,26 @@
 
 namespace App\Http\Livewire\Employee\Discount;
 
+use App\Enums\ProductType;
 use App\Models\Collection;
 use App\Models\Discount;
 use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class DiscountDetail extends Component
 {
     public Discount $discount;
 
-    public $collections = [];
+    /**
+     * 'automatic' = sem código, aplica sozinho dentro da validade.
+     * 'code' = cliente digita um código no carrinho.
+     */
+    public string $activationType = 'code';
 
-    public $readyToLoadCollections = false;
+    public $collections = [];
 
     public $showCollectionModal = false;
 
@@ -24,8 +30,6 @@ class DiscountDetail extends Component
     public $filterCollectionTitle = '';
 
     public $products = [];
-
-    public $readyToLoadProducts = false;
 
     public $showProductModal = false;
 
@@ -43,17 +47,31 @@ class DiscountDetail extends Component
 
     public $hasEnd = false;
 
-    protected $rules = [
-        'discount.code' => 'required|string',
-        'discount.type' => 'required|in:fixed,percentage',
-        'discount.value' => 'required|numeric',
-        'discount.applies_to' => 'required|in:all,collections,products,variants',
-        'startDate' => 'date',
-        'startTime' => 'date',
-        'endDate' => 'nullable|date',
-        'endTime' => 'nullable|date',
-        'selectedCollections' => 'required_if:discount.applies_to,collections|array',
-        'selectedProducts' => 'required_if:discount.applies_to,products|array',
+    protected function rules()
+    {
+        return [
+            'discount.code' => [
+                'nullable',
+                'string',
+                Rule::unique('discounts', 'code')->ignore($this->discount->id),
+            ],
+            'discount.type' => 'required|in:fixed,percentage',
+            'discount.value' => 'required|numeric|min:0',
+            'discount.usage_limit' => 'nullable|integer|min:1',
+            'discount.applies_to' => 'required|in:collections,products,orders',
+            'startDate' => 'date',
+            'startTime' => 'date',
+            'endDate' => 'nullable|date',
+            'endTime' => 'nullable|date',
+            'selectedCollections' => 'required_if:discount.applies_to,collections|array',
+            'selectedProducts' => 'required_if:discount.applies_to,products|array',
+        ];
+    }
+
+    protected $messages = [
+        'discount.code.unique' => 'Já existe um desconto com este código.',
+        'selectedCollections.required_if' => 'Selecione pelo menos um grupo.',
+        'selectedProducts.required_if' => 'Selecione pelo menos um kit.',
     ];
 
     public function mount()
@@ -61,7 +79,7 @@ class DiscountDetail extends Component
         if (Route::currentRouteName() === 'employee.discounts.create') {
             $this->discount = new Discount([
                 'type' => 'percentage',
-                'applies_to' => 'collections',
+                'applies_to' => 'orders',
             ]);
 
             $this->startDate = now()->toISOString();
@@ -81,11 +99,13 @@ class DiscountDetail extends Component
                 },
             ]);
 
+            $this->activationType = $this->discount->code ? 'code' : 'automatic';
+
             $this->startDate = $this->discount->starts_at->toISOString();
 
             $this->startTime = $this->discount->starts_at->toISOString();
 
-            $this->hasEnd = (bool)$this->discount->ends_at;
+            $this->hasEnd = (bool) $this->discount->ends_at;
 
             $this->endDate = $this->hasEnd ? $this->discount->ends_at->toISOString() : now()->toISOString();
 
@@ -141,10 +161,15 @@ class DiscountDetail extends Component
         $this->loadProducts();
     }
 
+    /**
+     * Só produtos do tipo Kit — Simples nunca é vendido avulso, então nunca
+     * faz sentido oferecer desconto nele individualmente.
+     */
     public function loadProducts()
     {
         $this->products = Product::query()
             ->with('media')
+            ->where('type', ProductType::KIT->name)
             ->when($this->filterProductName, fn($query, $search) => $query->where('name', 'like', '%' . $search . '%'))
             ->get();
     }
@@ -179,7 +204,16 @@ class DiscountDetail extends Component
 
     public function save()
     {
+        if ($this->activationType === 'automatic') {
+            $this->discount->code = null;
+        }
+
         $this->validate();
+
+        if ($this->activationType === 'code' && empty($this->discount->code)) {
+            $this->addError('discount.code', 'Informe um código, ou mude a ativação para automática.');
+            return;
+        }
 
         $this->discount->starts_at = Carbon::parse($this->startDate)->setTimeFrom(Carbon::parse($this->startTime))->toDateTimeString();
 
@@ -191,21 +225,23 @@ class DiscountDetail extends Component
             $this->discount->products()->detach();
 
             $this->discount->collections()->sync($this->selectedCollections);
-        }
-
-        if ($this->discount->applies_to === 'products') {
+        } elseif ($this->discount->applies_to === 'products') {
             $this->discount->collections()->detach();
 
             $this->discount->products()->sync($this->selectedProducts);
+        } else {
+            $this->discount->collections()->detach();
+
+            $this->discount->products()->detach();
         }
 
         if ($this->discount->wasRecentlyCreated) {
-            session()->flash('success', 'Discount saved successfully!');
+            session()->flash('success', 'Desconto salvo com sucesso!');
 
             $this->redirect(route('employee.discounts.detail', $this->discount));
         }
 
-        $this->notify('Discount saved successfully!');
+        $this->notify('Desconto salvo com sucesso!');
     }
 
     public function render()

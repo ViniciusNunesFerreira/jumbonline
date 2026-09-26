@@ -1,121 +1,57 @@
 <div>
     <form wire:submit.prevent="save">
-        <div class="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-slate-900/10 pb-12 md:grid-cols-3">
-            <div>
-                <h2 class="text-base font-semibold leading-7 text-slate-900 dark:text-slate-200">
-                    {{ __('Profile') }}
-                </h2>
-                <p class="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
-                    {{ __('This information will be displayed publicly so be careful what you share.') }}
-                </p>
-            </div>
-            <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2">
-                <div class="col-span-full">
-                    <div class="flex items-center gap-x-8">
-                        @if($avatarFile)
-                            <img
-                                src="{{ $avatarFile->temporaryUrl() }}"
-                                alt=""
-                                class="h-24 w-24 flex-none rounded-lg bg-slate-100 object-cover dark:bg-slate-800"
-                            />
-                        @else
-                            <img
-                                src="{{ auth()->user()->getFirstMediaUrl('avatar') }}"
-                                alt=""
-                                class="h-24 w-24 flex-none rounded-lg bg-slate-100 object-cover dark:bg-slate-800"
-                            >
-                        @endif
-                        <div x-data>
-                            <x-input
-                                wire:model="avatarFile"
-                                x-ref="avatarInput"
-                                type="file"
-                                class="sr-only"
-                            />
-                            <button
-                                x-on:click="$refs.avatarInput.click()"
-                                type="button"
-                                class="btn btn-default"
-                            >
-                                {{ __('Change avatar') }}
-                            </button>
-                            <p class="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                                {{ __('JPG, GIF or PNG. 1MB max.') }}
-                            </p>
-                        </div>
+        <x-card>
+            <x-slot:header>
+                <h3 class="text-base font-semibold text-primary dark:text-slate-200">{{ __('Perfil') }}</h3>
+            </x-slot:header>
+            <x-slot:content>
+                <div class="flex items-center gap-x-6">
+                    @if($avatarFile)
+                        <img src="{{ $avatarFile->temporaryUrl() }}" alt="" class="h-20 w-20 flex-none rounded-full bg-slate-100 object-cover ring-2 ring-white dark:bg-slate-800 dark:ring-slate-900">
+                    @else
+                        <img src="{{ auth()->user()->getFirstMediaUrl('avatar') }}" alt="" class="h-20 w-20 flex-none rounded-full bg-slate-100 object-cover ring-2 ring-white dark:bg-slate-800 dark:ring-slate-900">
+                    @endif
+                    <div x-data>
+                        <x-input wire:model="avatarFile" x-ref="avatarInput" type="file" class="sr-only" />
+                        <button x-on:click="$refs.avatarInput.click()" type="button" class="btn btn-default !rounded-xl">
+                            {{ __('Alterar avatar') }}
+                        </button>
+                        <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                            {{ __('JPG, GIF ou PNG. Máximo 1MB.') }}
+                        </p>
                     </div>
-                    <x-input-error
-                        for="avatarFile"
-                        class="mt-2"
-                    />
                 </div>
-                <div class="sm:col-span-3">
-                    <x-input-label
-                        for="nameInput"
-                        :value="__('Your name')"
-                    />
-                    <x-input
-                        wire:model.defer="state.name"
-                        type="text"
-                        id="nameInput"
-                        class="mt-1 block w-full sm:text-sm"
-                    />
-                    <x-input-error
-                        for="state.name"
-                        class="mt-2"
-                    />
+                <x-input-error for="avatarFile" class="mt-2" />
+
+                <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <x-input-label for="nameInput" :value="__('Nome')" />
+                        <x-input wire:model.defer="state.name" type="text" id="nameInput" class="mt-1 block w-full rounded-xl sm:text-sm" />
+                        <x-input-error for="state.name" class="mt-2" />
+                    </div>
+                    <div>
+                        <x-input-label for="emailInput" :value="__('E-mail')" />
+                        <x-input wire:model.defer="state.email" type="email" id="emailInput" class="mt-1 block w-full rounded-xl sm:text-sm" />
+                        <x-input-error for="state.email" class="mt-2" />
+                    </div>
+                    <div class="sm:col-span-2">
+                        <x-input-label for="websiteInput" :value="__('Website')" />
+                        <x-input wire:model.defer="state.website" type="text" id="websiteInput" class="mt-1 block w-full rounded-xl sm:text-sm" placeholder="https://www.exemplo.com.br" />
+                        <x-input-error for="state.website" class="mt-2" />
+                    </div>
+                    <div class="sm:col-span-2">
+                        <x-input-label for="bioInput" :value="__('Bio')" />
+                        <x-textarea wire:model.defer="state.bio" id="bioInput" class="mt-1 block w-full rounded-xl sm:text-sm" :placeholder="__('Escreva algumas frases sobre você')" />
+                    </div>
                 </div>
-                <div class="sm:col-span-3">
-                    <x-input-label
-                        for="emailInput"
-                        :value="__('Email address')"
-                    />
-                    <x-input
-                        wire:model.defer="state.email"
-                        type="email"
-                        id="emailInput"
-                        class="mt-1 block w-full sm:text-sm"
-                    />
-                    <x-input-error
-                        for="state.email"
-                        class="mt-2"
-                    />
-                </div>
-                <div class="sm:col-span-4">
-                    <x-input-label
-                        for="websiteInput"
-                        :value="__('Website')"
-                    />
-                    <x-input
-                        wire:model.defer="state.website"
-                        type="text"
-                        id="websiteInput"
-                        class="mt-1 block w-full sm:text-sm"
-                        placeholder="https://www.example.org"
-                    />
-                    <x-input-error
-                        for="state.website"
-                        class="mt-2"
-                    />
-                </div>
-                <div class="col-span-full">
-                    <x-input-label
-                        for="bioInput"
-                        :value="__('Bio')"
-                    />
-                    <x-textarea
-                        wire:model.defer="state.bio"
-                        id="bioInput"
-                        class="mt-1 block w-full sm:text-sm"
-                        :placeholder="__('Write a few sentences about yourself')"
-                    />
-                </div>
-                <div class="col-span-full">
-                    <button class="btn btn-primary">
-                        {{ __('Save') }}
+            </x-slot:content>
+            <x-slot:footer>
+                <div class="flex justify-end">
+                    <button type="submit" class="btn btn-primary">
+                        {{ __('Salvar') }}
                     </button>
                 </div>
-            </div>
-        </div>
+            </x-slot:footer>
+        </x-card>
     </form>
 </div>
