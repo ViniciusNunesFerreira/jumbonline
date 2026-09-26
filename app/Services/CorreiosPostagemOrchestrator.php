@@ -4,17 +4,15 @@ namespace App\Services;
 
 use App\Enums\CorreiosPrepostagemStatus;
 use App\Enums\ShippingCarrier;
+use App\Events\ShipmentCreated;
 use App\Jobs\AguardarStatusPrepostagemJob;
 use App\Jobs\SolicitarRotuloCorreiosJob;
 use App\Models\Order;
 use App\Models\Shipment;
+use App\Models\ShipmentItem;
 use RuntimeException;
 
-/**
- * Único ponto de criação de pré-postagem — usado por /admin/correios E pelo
- * botão embutido no pedido. A checagem de idempotência (dupla, antes e
- * depois da chamada à API) fica centralizada aqui ;
- */
+
 class CorreiosPostagemOrchestrator
 {
     public function __construct(protected CorreiosPrepostagemService $service)
@@ -27,7 +25,14 @@ class CorreiosPostagemOrchestrator
             throw new RuntimeException('Este pedido já tem uma remessa registrada — nada foi criado de novo.');
         }
 
-        $order = Order::with(['orderItems.variant', 'visitante', 'detento', 'prison_unit'])->findOrFail($orderId);
+        $order = Order::with([
+            'orderItems.variant',
+            'orderItems.shipmentItems',
+            'orderItems.refundItems' => fn($query) => $query->where('is_shipped', false),
+            'visitante',
+            'detento',
+            'prison_unit',
+        ])->findOrFail($orderId);
 
         $data = $this->service->criar($order, $remetenteManual, $destinatarioManual);
 
@@ -46,6 +51,23 @@ class CorreiosPostagemOrchestrator
             'correios_remetente_manual' => $remetenteManual,
             'correios_destinatario_manual' => $destinatarioManual,
         ]);
+
+
+        foreach ($order->orderItems as $item) {
+            $restante = $item->quantity - ($item->shipmentItems->sum('quantity') + $item->refundItems->sum('quantity'));
+
+            if ($restante > 0) {
+                ShipmentItem::create([
+                    'shipment_id' => $shipment->id,
+                    'order_id' => $order->id,
+                    'order_item_id' => $item->id,
+                    'quantity' => $restante,
+                ]);
+            }
+        }
+
+
+        ShipmentCreated::dispatch($shipment);
 
         if ($shipment->correios_status === CorreiosPrepostagemStatus::PENDENTE->value) {
             AguardarStatusPrepostagemJob::dispatch($shipment->id)->delay(now()->addSeconds(5));

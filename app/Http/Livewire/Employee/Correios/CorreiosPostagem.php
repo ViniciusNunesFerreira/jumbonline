@@ -201,6 +201,10 @@ class CorreiosPostagem extends Component
             return;
         }
 
+        $shipment->shipmentItems()->delete();
+
+        \App\Events\ShipmentDeleted::dispatch($shipment);
+
         $shipment->delete();
 
         $this->notify(trans('Pré-postagem cancelada.'));
