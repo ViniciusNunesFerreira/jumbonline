@@ -57,8 +57,7 @@ class CorreiosPostagemOrchestrator
             $restante = $item->quantity - ($item->shipmentItems->sum('quantity') + $item->refundItems->sum('quantity'));
 
             if ($restante > 0) {
-                ShipmentItem::create([
-                    'shipment_id' => $shipment->id,
+                $shipment->shipmentItems()->create([
                     'order_id' => $order->id,
                     'order_item_id' => $item->id,
                     'quantity' => $restante,

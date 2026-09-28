@@ -54,8 +54,7 @@ class CorrigirStatusEnvioCorreios extends Command
                 $restante = $item->quantity - ($item->shipmentItems->sum('quantity') + $item->refundItems->where('is_shipped', false)->sum('quantity'));
 
                 if ($restante > 0) {
-                    ShipmentItem::create([
-                        'shipment_id' => $shipment->id,
+                    $shipment->shipmentItems()->create([
                         'order_id' => $shipment->order_id,
                         'order_item_id' => $item->id,
                         'quantity' => $restante,
