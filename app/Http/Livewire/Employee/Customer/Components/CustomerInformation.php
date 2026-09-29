@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Employee\Customer\Components;
 
 use App\Models\Country;
 use App\Models\Customer;
+use App\Services\WhatsAppLinkService;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -112,6 +113,11 @@ class CustomerInformation extends Component
         $this->isEditing = false;
 
         $this->emitUp('refresh');
+    }
+
+    public function getWhatsappUrlProperty(): ?string
+    {
+        return app(WhatsAppLinkService::class)->forCustomer($this->customer);
     }
 
     public function render()

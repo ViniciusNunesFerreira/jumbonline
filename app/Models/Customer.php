@@ -100,4 +100,35 @@ class Customer extends Authenticatable implements HasMedia, MustVerifyEmail
     {
         return $this->hasMany(Interaction::class);
     }
+
+    /**
+     * Selo de "Cliente frequente" — usado na lista e no cadastro. Não faz
+     * consulta nenhuma: paid_orders_count já é mantido por CustomerMetricsService
+     * (via OrderObserver/PaymentObserver/RefundObserver) a cada pedido/pagamento/
+     * reembolso. Mesmo padrão de Variant::getIsLowStockAttribute() (limite
+     * configurável em Settings, com app(...) resolvido sob demanda).
+     */
+    public function getIsFrequentAttribute(): bool
+    {
+        $minOrders = app(\App\Settings\CustomerSetting::class)->frequent_customer_min_orders;
+
+        return $this->paid_orders_count >= $minOrders;
+    }
+
+    /**
+     * Data do primeiro pedido PAGO do cliente ("cliente desde", no resumo de
+     * relacionamento) — não é denormalizado como last_order_at, então esta
+     * consulta roda sob demanda. Método explícito (não um accessor mágico)
+     * de propósito: evita uso acidental dentro de uma listagem, onde viraria
+     * uma consulta por linha.
+     */
+    public function firstPaidOrderAt(): ?\Illuminate\Support\Carbon
+    {
+        $date = $this->orders()
+            ->whereHas('payments', fn ($query) => $query->where('status', \App\Enums\PaymentStatus::PAID->name))
+            ->oldest('created_at')
+            ->value('created_at');
+
+        return $date ? \Illuminate\Support\Carbon::parse($date) : null;
+    }
 }

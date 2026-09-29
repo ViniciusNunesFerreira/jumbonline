@@ -32,8 +32,21 @@
                             <li @class(['text-slate-400' => !$order->customer->email])>
                                 {{ $order->customer->email ?? __('E-mail não informado') }}
                             </li>
-                            <li @class(['text-slate-400' => !$order->customer->phone])>
-                                {{ $order->customer->phone ?? __('Telefone não informado') }}
+                            <li class="flex items-center justify-between gap-2">
+                                <span @class(['text-slate-400' => !$order->customer->phone])>
+                                    {{ $order->customer->phone ?? __('Telefone não informado') }}
+                                </span>
+                                @if($this->whatsappUrl)
+                                    
+                                    <a href="{{ $this->whatsappUrl }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex flex-shrink-0 items-center gap-1 rounded-lg bg-green-50 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20"
+                                    >
+                                        <x-heroicon-o-chat-bubble-left-right class="h-3.5 w-3.5" />
+                                        {{ __('WhatsApp') }}
+                                    </a>
+                                @endif
                             </li>
                         </ul>
                     </div>

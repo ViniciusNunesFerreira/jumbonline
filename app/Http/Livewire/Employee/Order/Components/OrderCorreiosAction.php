@@ -97,6 +97,8 @@ class OrderCorreiosAction extends Component
         }
 
         $this->notify(trans('Pré-postagem solicitada aos Correios.'));
+
+        $this->emit('refresh')->to('employee.order.components.order-timeline');
     }
 
     public function baixarRotulo()

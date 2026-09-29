@@ -20,6 +20,11 @@ class CustomerStatistics extends Component
         return $this->customer->ltv_total / $this->customer->paid_orders_count;
     }
 
+    public function getCustomerSinceProperty()
+    {
+        return $this->customer->firstPaidOrderAt();
+    }
+
     public function render()
     {
         return view('livewire.employee.customer.components.customer-statistics');

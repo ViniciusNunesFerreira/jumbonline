@@ -61,8 +61,6 @@ Route::group([
         Route::get('/settings/branding', \App\Http\Livewire\Employee\Settings\BrandSettingManager::class)->name('settings.branding');
         Route::get('/settings/payments', \App\Http\Livewire\Employee\Settings\PaymentSettingManager::class)->name('settings.payments');
         Route::get('/settings/navigation', \App\Http\Livewire\Employee\Settings\NavigationSettingManager::class)->name('settings.navigation');
-        Route::get('/settings/carousels', \App\Http\Livewire\Employee\Carousel\CarouselList::class)->name('settings.carousels.list');
-        Route::get('/settings/carousels/{carousel:id}', \App\Http\Livewire\Employee\Carousel\CarouselDetail::class)->name('settings.carousels.detail');
         Route::get('/settings/layout', \App\Http\Livewire\Employee\Settings\LayoutSettingManager::class)->name('settings.layout');
         Route::get('/settings/template', \App\Http\Livewire\Employee\Settings\TemplateSettingManager::class)->name('settings.template');
         Route::get('/settings/checkout', \App\Http\Livewire\Employee\Settings\CheckoutSettingManager::class)->name('settings.checkout');
@@ -70,6 +68,8 @@ Route::group([
         Route::get('/abandoned-carts', \App\Http\Livewire\Employee\AbandonedCart\AbandonedCartList::class)->name('abandoned-carts.list');
         
         Route::get('/settings/inventory', \App\Http\Livewire\Employee\Settings\InventorySettingManager::class)->name('settings.inventory');
+        Route::get('/settings/orders', \App\Http\Livewire\Employee\Settings\OrderSettingManager::class)->name('settings.orders');
+        Route::get('/settings/customers', \App\Http\Livewire\Employee\Settings\CustomerSettingManager::class)->name('settings.customers');
     
         Route::get('/correios', \App\Http\Livewire\Employee\Correios\CorreiosPostagem::class)->name('correios.postagem');
         });

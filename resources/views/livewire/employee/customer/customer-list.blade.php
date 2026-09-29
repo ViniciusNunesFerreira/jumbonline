@@ -208,6 +208,9 @@
                                                                 @if($customer->banned_at)
                                                                     <x-badge type="danger" size="xs" class="ml-2">{{ __('Banido') }}</x-badge>
                                                                 @endif
+                                                                @if($customer->is_frequent)
+                                                                    <x-badge type="success" size="xs" class="ml-2">{{ __('Cliente frequente') }}</x-badge>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </td>

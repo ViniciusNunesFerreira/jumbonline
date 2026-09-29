@@ -76,6 +76,8 @@ class OrderShipments extends Component
 
         $this->emit('refresh')->to('employee.order.components.order-items');
 
+        $this->emit('refresh')->to('employee.order.components.order-timeline');
+
         $this->notify(trans('Shipment removed.'));
     }
 

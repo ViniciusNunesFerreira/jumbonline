@@ -46,18 +46,6 @@
 
             <li>
                 
-                    <a href="{{ route('employee.settings.carousels.list') }}"
-                    @class(['group flex gap-x-3 rounded-xl py-2 pl-2 pr-3 text-sm font-semibold transition-colors', 'bg-accent-50 text-accent-700 dark:bg-accent-500/10 dark:text-accent-400' => request()->routeIs('employee.settings.carousels.*'), 'text-slate-600 hover:text-primary hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white' => ! request()->routeIs('employee.settings.carousels.*')])
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" @class(['h-5 w-5 shrink-0 fill-current', 'text-accent-600 dark:text-accent-400' => request()->routeIs('employee.settings.carousels.*'), 'text-slate-400 group-hover:text-primary dark:group-hover:text-white' => ! request()->routeIs('employee.settings.carousels.*')])>
-                        <path d="M448 128C483.3 128 512 156.7 512 192V448C512 483.3 483.3 512 448 512H64C28.65 512 0 483.3 0 448V192C0 156.7 28.65 128 64 128H448zM448 160H64C46.33 160 32 174.3 32 192V448C32 465.7 46.33 480 64 480H448C465.7 480 480 465.7 480 448V192C480 174.3 465.7 160 448 160zM448 64C456.8 64 464 71.16 464 80C464 88.84 456.8 96 448 96H64C55.16 96 48 88.84 48 80C48 71.16 55.16 64 64 64H448zM400 0C408.8 0 416 7.164 416 16C416 24.84 408.8 32 400 32H112C103.2 32 96 24.84 96 16C96 7.164 103.2 0 112 0H400z" />
-                    </svg>
-                    {{ __('Carrosséis') }}
-                </a>
-            </li>
-
-            <li>
-                
                     <a href="{{ route('employee.settings.layout') }}"
                     @class(['group flex gap-x-3 rounded-xl py-2 pl-2 pr-3 text-sm font-semibold transition-colors', 'bg-accent-50 text-accent-700 dark:bg-accent-500/10 dark:text-accent-400' => request()->routeIs('employee.settings.layout'), 'text-slate-600 hover:text-primary hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white' => ! request()->routeIs('employee.settings.layout')])
                 >
@@ -76,7 +64,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" @class(['h-5 w-5 shrink-0 fill-current', 'text-accent-600 dark:text-accent-400' => request()->routeIs('employee.settings.template'), 'text-slate-400 group-hover:text-primary dark:group-hover:text-white' => ! request()->routeIs('employee.settings.template')])>
                         <path d="M176 32C202.5 32 224 53.49 224 80V176C224 202.5 202.5 224 176 224H80C53.49 224 32 202.5 32 176V80C32 53.49 53.49 32 80 32H176zM176 64H80C71.16 64 64 71.16 64 80V176C64 184.8 71.16 192 80 192H176C184.8 192 192 184.8 192 176V80C192 71.16 184.8 64 176 64zM176 288C202.5 288 224 309.5 224 336V432C224 458.5 202.5 480 176 480H80C53.49 480 32 458.5 32 432V336C32 309.5 53.49 288 80 288H176zM176 320H80C71.16 320 64 327.2 64 336V432C64 440.8 71.16 448 80 448H176C184.8 448 192 440.8 192 432V336C192 327.2 184.8 320 176 320zM288 80C288 53.49 309.5 32 336 32H432C458.5 32 480 53.49 480 80V176C480 202.5 458.5 224 432 224H336C309.5 224 288 202.5 288 176V80zM320 80V176C320 184.8 327.2 192 336 192H432C440.8 192 448 184.8 448 176V80C448 71.16 440.8 64 432 64H336C327.2 64 320 71.16 320 80zM384 272C392.8 272 400 279.2 400 288V368H480C488.8 368 496 375.2 496 384C496 392.8 488.8 400 480 400H400V480C400 488.8 392.8 496 384 496C375.2 496 368 488.8 368 480V400H288C279.2 400 272 392.8 272 384C272 375.2 279.2 368 288 368H368V288C368 279.2 375.2 272 384 272z" />
                     </svg>
-                    {{ __('Template') }}
+                    {{ __('Página inicial') }}
                 </a>
             </li>
 
@@ -107,6 +95,26 @@
                 >
                     <x-heroicon-o-archive-box @class(['h-5 w-5 shrink-0', 'text-accent-600 dark:text-accent-400' => request()->routeIs('employee.settings.inventory'), 'text-slate-400 group-hover:text-primary dark:group-hover:text-white' => ! request()->routeIs('employee.settings.inventory')]) />
                     {{ __('Estoque') }}
+                </a>
+            </li>
+
+            <li>
+                
+                <a href="{{ route('employee.settings.orders') }}"
+                    @class(['group flex gap-x-3 rounded-xl py-2 pl-2 pr-3 text-sm font-semibold transition-colors', 'bg-accent-50 text-accent-700 dark:bg-accent-500/10 dark:text-accent-400' => request()->routeIs('employee.settings.orders'), 'text-slate-600 hover:text-primary hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white' => ! request()->routeIs('employee.settings.orders')])
+                >
+                    <x-heroicon-o-truck @class(['h-5 w-5 shrink-0', 'text-accent-600 dark:text-accent-400' => request()->routeIs('employee.settings.orders'), 'text-slate-400 group-hover:text-primary dark:group-hover:text-white' => ! request()->routeIs('employee.settings.orders')]) />
+                    {{ __('Pedidos') }}
+                </a>
+            </li>
+
+            <li>
+                
+                <a href="{{ route('employee.settings.customers') }}"
+                    @class(['group flex gap-x-3 rounded-xl py-2 pl-2 pr-3 text-sm font-semibold transition-colors', 'bg-accent-50 text-accent-700 dark:bg-accent-500/10 dark:text-accent-400' => request()->routeIs('employee.settings.customers'), 'text-slate-600 hover:text-primary hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white' => ! request()->routeIs('employee.settings.customers')])
+                >
+                    <x-heroicon-o-user-group @class(['h-5 w-5 shrink-0', 'text-accent-600 dark:text-accent-400' => request()->routeIs('employee.settings.customers'), 'text-slate-400 group-hover:text-primary dark:group-hover:text-white' => ! request()->routeIs('employee.settings.customers')]) />
+                    {{ __('Clientes') }}
                 </a>
             </li>
 

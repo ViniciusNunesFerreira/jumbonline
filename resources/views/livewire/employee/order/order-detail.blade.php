@@ -48,6 +48,8 @@
 
                 <div class="col-span-3 xl:col-span-1 space-y-6">
                     <livewire:employee.order.components.order-customer-detail :order="$order" />
+
+                    <livewire:employee.order.components.order-timeline :order="$order" />
                 </div>
             </div>
         </div>

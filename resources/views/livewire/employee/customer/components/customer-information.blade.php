@@ -32,7 +32,20 @@
                     </button>
                 </li>
                 @if(optional($customer)->phone)
-                    <li class="text-slate-600 dark:text-slate-300">{{ $customer->phone->formatInternational() }}</li>
+                    <li class="flex items-center justify-between gap-2">
+                        <span class="text-slate-600 dark:text-slate-300">{{ $customer->phone->formatInternational() }}</span>
+                        @if($this->whatsappUrl)
+                            
+                            <a  href="{{ $this->whatsappUrl }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex flex-shrink-0 items-center gap-1 rounded-lg bg-green-50 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20"
+                            >
+                                <x-heroicon-o-chat-bubble-left-right class="h-3.5 w-3.5" />
+                                {{ __('WhatsApp') }}
+                            </a>
+                        @endif
+                    </li>
                 @endif
             </ul>
         </x-slot:content>

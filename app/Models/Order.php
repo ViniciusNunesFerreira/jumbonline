@@ -1,5 +1,7 @@
 <?php
 
+// app/Models/Order.php
+
 namespace App\Models;
 
 use App\Enums\OrderStatus;
@@ -104,6 +106,16 @@ class Order extends Model
     public function payments(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Subconjunto de payments() já confirmados como pagos. Existe para permitir
+     * ->withMin('paidPayments', 'created_at') na listagem de pedidos (alerta de
+     * "pedido parado") sem carregar a coleção inteira de pagamentos por pedido.
+     */
+    public function paidPayments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->payments()->where('status', PaymentStatus::PAID->name);
     }
 
     public function refunds(): \Illuminate\Database\Eloquent\Relations\HasMany

@@ -51,6 +51,8 @@ class OrderPaymentDetail extends Component
 
         $this->emit('refresh')->up();
 
+        $this->emit('refresh')->to('employee.order.components.order-timeline');
+
         $this->confirmingMarkingAsPaid = false;
 
         $this->notify(trans('Payment marked as paid.'));
@@ -102,6 +104,7 @@ class OrderPaymentDetail extends Component
 
         $this->emit('refresh')->self();
         $this->emit('refresh')->up();
+        $this->emit('refresh')->to('employee.order.components.order-timeline');
 
         $this->notify(trans('Pagamento confirmado com o Mercado Pago.'));
     }
