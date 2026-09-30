@@ -17,6 +17,7 @@
                         <x-input-label for="variantPriceInput" :value="__('Preço')" />
                         <x-input-money
                             x-on:change="$nextTick(() => $el.value !== '{{ $variant->getOriginal('price') }}' ? dirty.add('price') : dirty.delete('price'))"
+                            :value="$variant->price"
                             wire:model.defer="variant.price"
                             id="variantPriceInput"
                             class="mt-1 block w-full rounded-xl sm:text-sm"
@@ -28,6 +29,7 @@
                         <div class="mt-1 relative">
                             <x-input-money
                                 x-on:change="$nextTick(() => $el.value !== '{{ $variant->getOriginal('compare_price') }}' ? dirty.add('compare_price') : dirty.delete('compare_price'))"
+                                :value="$variant->compare_price"
                                 wire:model.defer="variant.compare_price"
                                 id="variantComparePriceInput"
                                 class="block w-full rounded-xl pr-10 sm:text-sm"
@@ -51,6 +53,7 @@
                         <x-input-label for="variantCostPriceInput" :value="__('Custo por item')" />
                         <x-input-money
                             x-on:change="$nextTick(() => $el.value !== '{{ $variant->getOriginal('cost_price') }}' ? dirty.add('cost_price') : dirty.delete('cost_price'))"
+                            :value="$variant->cost_price"
                             wire:model.debounce.300ms="variant.cost_price"
                             id="variantCostPriceInput"
                             class="mt-1 block w-full rounded-xl sm:text-sm"

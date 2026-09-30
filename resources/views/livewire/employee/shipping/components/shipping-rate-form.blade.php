@@ -35,6 +35,7 @@
                                 />
                                 <x-input-money
                                     wire:model.defer="shippingRate.price"
+                                    :value="$shippingRate->price"
                                     id="shippingRatePrice"
                                     class="mt-1 block w-full sm:text-sm"
                                 />
@@ -135,6 +136,7 @@
                                 @else
                                     <x-input-money
                                         wire:model.defer="shippingRate.min_value"
+                                        :value="$shippingRate->min_value"
                                         id="shippingRateConditionMinValue"
                                         class="mt-1 block w-full sm:text-sm"
                                     />
@@ -163,6 +165,7 @@
                                 @else
                                     <x-input-money
                                         wire:model.defer="shippingRate.max_value"
+                                        :value="$shippingRate->max_value"
                                         id="shippingRateConditionMaxValue"
                                         class="mt-1 block w-full sm:text-sm"
                                     />

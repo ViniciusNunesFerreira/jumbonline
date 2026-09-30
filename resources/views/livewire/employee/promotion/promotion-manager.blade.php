@@ -44,6 +44,7 @@
                         <x-input-label for="discount" :value="__('Valor mínimo da compra')" />
                         <x-input-money
                             wire:model.defer="state.os_value"
+                            :value="$state['os_value']"
                             id="discount"
                             class="block w-full rounded-xl sm:text-sm"
                             wrapper-classes="mt-1"

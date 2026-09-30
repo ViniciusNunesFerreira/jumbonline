@@ -19,6 +19,7 @@
                         <x-input-label for="price" :value="__('Preço')" />
                         <x-input-money
                             wire:model.defer="product.price"
+                            :value="$product->price"
                             type="text"
                             id="price"
                             placeholder="0.00"

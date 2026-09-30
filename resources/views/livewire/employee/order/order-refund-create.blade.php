@@ -236,6 +236,7 @@
                                 <x-input-label for="amount" :value="__('Valor do reembolso')" />
                                 <x-input-money
                                     wire:model.lazy="refund.amount"
+                                    :value="$refund->amount"
                                     id="amount"
                                     class="block w-full rounded-xl sm:text-sm"
                                     placeholder="0.00"
