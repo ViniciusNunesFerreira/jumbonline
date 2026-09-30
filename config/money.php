@@ -229,8 +229,8 @@ return [
         'subunit' => 1,
         'symbol' => 'R$',
         'symbol_first' => true,
-        'decimal_mark' => ',',
-        'thousands_separator' => '.',
+        'decimal_mark' => '.',
+        'thousands_separator' => ',',
     ],
 
     'BSD' => [
