@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('orders:confirm-pending-pix')->everyFiveMinutes()->withoutOverlapping();
         $schedule->command('correios:sincronizar-postagens')->everyTenMinutes()->withoutOverlapping();
         $schedule->command('correios:atualizar-rastreamento')->everyFifteenMinutes()->withoutOverlapping();
+        $schedule->command('expenses:generate-recurring')->daily();
     }
 
     /**

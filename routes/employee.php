@@ -78,6 +78,12 @@ Route::group([
         Route::get('/financial', \App\Http\Livewire\Employee\Financial\FinancialDashboard::class)->name('financial.dashboard');
         Route::get('/financial/abc-curve', \App\Http\Livewire\Employee\Financial\ProductAbcCurve::class)->name('financial.abc-curve');
         Route::get('/financial/cash-reconciliation', \App\Http\Livewire\Employee\Financial\CashReconciliation::class)->name('financial.cash-reconciliation');
+        
+        Route::get('/expenses/categories', \App\Http\Livewire\Employee\Expense\ExpenseCategoryList::class)->name('expenses.categories.list');
+        Route::get('/expenses/calendar', \App\Http\Livewire\Employee\Expense\ExpenseCalendar::class)->name('expenses.calendar');
+        Route::get('/expenses/create', \App\Http\Livewire\Employee\Expense\ExpenseDetail::class)->name('expenses.create');
+        Route::get('/expenses', \App\Http\Livewire\Employee\Expense\ExpenseList::class)->name('expenses.list');
+        Route::get('/expenses/{expense:id}', \App\Http\Livewire\Employee\Expense\ExpenseDetail::class)->name('expenses.detail');
     });
     
 });

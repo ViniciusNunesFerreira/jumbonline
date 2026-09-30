@@ -3,10 +3,14 @@
 namespace App\Http\Livewire\Employee;
 
 use App\Enums\PaymentStatus;
+use App\Models\Cart;
 use App\Models\Customer;
+use App\Models\Expense;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Variant;
+use App\Services\StalledOrderService;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use DatePeriod;
@@ -15,6 +19,80 @@ use Livewire\Component;
 class Dashboard extends Component
 {
     public $periods = 7;
+
+    /**
+     * Total de pedidos pagos há mais dias que o limite configurado sem
+     * nenhum envio criado — mesma regra de OrderList (Etapa 2), reaproveitada
+     * aqui sem alteração nenhuma no serviço.
+     */
+    public function getStalledOrdersCountProperty()
+    {
+        return app(StalledOrderService::class)->count();
+    }
+
+    /**
+     * Variantes com controle de estoque ativo e quantidade abaixo do
+     * limite (Variant::is_low_stock, o mesmo accessor já usado pelo card
+     * "Estoque baixo" mais abaixo nesta página). Só os campos necessários
+     * pro cálculo são selecionados, pra não carregar a variante inteira só
+     * pra contar.
+     */
+    public function getLowStockCountProperty()
+    {
+        return Variant::query()
+            ->where('stock_tracking', true)
+            ->get(['id', 'stock_tracking', 'stock_value', 'low_stock_threshold'])
+            ->filter(fn ($variant) => $variant->is_low_stock)
+            ->count();
+    }
+
+    /**
+     * Mesma definição de "carrinho abandonado" de AbandonedCartList (2h+
+     * sem atividade, com cliente e itens, ainda não contatado), restrita
+     * às últimas 24h — carrinhos abandonados há mais tempo que isso já
+     * aparecem na lista completa, mas não precisam de atenção "hoje".
+     */
+    public function getAbandonedCartsTodayCountProperty()
+    {
+        return Cart::query()
+            ->whereNotNull('customer_id')
+            ->whereNull('contacted_at')
+            ->whereHas('items')
+            ->whereBetween('updated_at', [now()->subHours(24), now()->subHours(2)])
+            ->count();
+    }
+
+    /**
+     * Contas a pagar (não pagas) vencendo entre hoje e os próximos 7 dias.
+     * Só consulta se o funcionário é admin — quem não tem acesso a Contas a
+     * Pagar não precisa que essa consulta nem rode.
+     */
+    public function getExpensesDueSoonProperty()
+    {
+        if (! auth('employee')->user()?->can('admin')) {
+            return null;
+        }
+
+        return Expense::query()
+            ->dueBetween(today(), today()->addDays(7))
+            ->selectRaw('count(*) as total_count, coalesce(sum(amount), 0) as total_amount')
+            ->first();
+    }
+
+    /**
+     * Contas a pagar (não pagas) com vencimento já passado.
+     */
+    public function getExpensesOverdueProperty()
+    {
+        if (! auth('employee')->user()?->can('admin')) {
+            return null;
+        }
+
+        return Expense::query()
+            ->overdue()
+            ->selectRaw('count(*) as total_count, coalesce(sum(amount), 0) as total_amount')
+            ->first();
+    }
 
     public function getOrdersCountProperty()
     {

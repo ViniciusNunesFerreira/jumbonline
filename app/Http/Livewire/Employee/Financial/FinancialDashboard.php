@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Employee\Financial;
 
 use App\Exports\FinancialReportExport;
+use App\Models\Expense;
 use App\Services\FinancialMetricsService;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -49,14 +50,37 @@ class FinancialDashboard extends Component
 
         $service = app(FinancialMetricsService::class);
 
+        $netRevenue = $service->netRevenue($from, $to);
+
+        // Regime de caixa, igual à receita: soma o que de fato foi pago no
+        // período, não o que só venceu nele.
+        $expensesPaid = (float) Expense::query()->paidBetween($from, $to)->sum('amount');
+
+        $dueSoon = Expense::query()
+            ->dueBetween(today(), today()->addDays(7))
+            ->selectRaw('count(*) as total_count, coalesce(sum(amount), 0) as total_amount')
+            ->first();
+
+        $overdue = Expense::query()
+            ->overdue()
+            ->selectRaw('count(*) as total_count, coalesce(sum(amount), 0) as total_amount')
+            ->first();
+
         return [
-            'net_revenue' => $service->netRevenue($from, $to),
+            'net_revenue' => $netRevenue,
             'paid_orders_count' => $service->paidOrdersCount($from, $to),
             'by_channel' => $service->revenueByChannel($from, $to),
             'by_payment_method' => $service->revenueByPaymentMethod($from, $to),
             'margin' => $service->grossMargin($from, $to),
             'abc_top' => array_slice($service->abcCurve($from, $to), 0, 5),
             'prison_ranking_top' => $service->prisonUnitRanking($from, $to, 5),
+            'cash_flow' => [
+                'revenue' => $netRevenue,
+                'expenses' => $expensesPaid,
+                'balance' => $netRevenue - $expensesPaid,
+                'due_soon' => $dueSoon,
+                'overdue' => $overdue,
+            ],
         ];
     }
 

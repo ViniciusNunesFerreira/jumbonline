@@ -97,6 +97,70 @@
                 </x-card>
             </div>
 
+            <x-card>
+                <x-slot:header>
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-sm text-primary dark:text-slate-200">{{ __('Fluxo de caixa') }}</h3>
+                        <a href="{{ route('employee.expenses.list') }}" class="btn btn-link btn-xs">{{ __('Ver contas a pagar') }}</a>
+                    </div>
+                </x-slot:header>
+                <x-slot:content>
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                        <div>
+                            <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ __('Receita paga no período') }}</dt>
+                            <dd class="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">
+                                <x-money :amount="$metrics['cash_flow']['revenue']" />
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ __('Despesas pagas no período') }}</dt>
+                            <dd class="mt-1 text-2xl font-bold text-red-600 dark:text-red-400">
+                                <x-money :amount="$metrics['cash_flow']['expenses']" />
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ __('Saldo do período') }}</dt>
+                            <dd @class(['mt-1 text-2xl font-bold', 'text-primary dark:text-white' => $metrics['cash_flow']['balance'] >= 0, 'text-red-600 dark:text-red-400' => $metrics['cash_flow']['balance'] < 0])>
+                                <x-money :amount="$metrics['cash_flow']['balance']" />
+                            </dd>
+                        </div>
+                    </div>
+
+                    <p class="mt-4 text-xs text-slate-400 dark:text-slate-500">
+                        {{ __('Receita e despesas somadas por regime de caixa (o que foi efetivamente pago no período selecionado acima). "Vencendo" e "Atrasadas" abaixo mostram a situação atual, independente do período.') }}
+                    </p>
+
+                    <div class="mt-4 grid grid-cols-1 gap-3 border-t border-slate-100 pt-5 dark:border-white/5 sm:grid-cols-2">
+                        <a
+                            href="{{ route('employee.expenses.list', ['filterStatus' => 'pending', 'filterDueFrom' => today()->toDateString(), 'filterDueTo' => today()->addDays(7)->toDateString()]) }}"
+                            class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 transition-colors hover:border-accent-300 dark:border-white/10 dark:hover:border-accent-500/40"
+                        >
+                            <span class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                                <x-heroicon-o-calendar-days class="h-4 w-4 text-blue-500" />
+                                {{ __('Vencendo em 7 dias') }}
+                            </span>
+                            <span class="text-sm font-semibold text-primary dark:text-white">
+                                {{ $metrics['cash_flow']['due_soon']->total_count }} ·
+                                <x-money :amount="$metrics['cash_flow']['due_soon']->total_amount" />
+                            </span>
+                        </a>
+                        <a
+                            href="{{ route('employee.expenses.list', ['filterStatus' => 'overdue']) }}"
+                            class="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 transition-colors hover:border-accent-300 dark:border-white/10 dark:hover:border-accent-500/40"
+                        >
+                            <span class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                                <x-heroicon-o-exclamation-triangle class="h-4 w-4 text-red-500" />
+                                {{ __('Atrasadas') }}
+                            </span>
+                            <span class="text-sm font-semibold text-primary dark:text-white">
+                                {{ $metrics['cash_flow']['overdue']->total_count }} ·
+                                <x-money :amount="$metrics['cash_flow']['overdue']->total_amount" />
+                            </span>
+                        </a>
+                    </div>
+                </x-slot:content>
+            </x-card>
+
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <x-card>
                     <x-slot:header>

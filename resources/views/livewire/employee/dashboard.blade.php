@@ -49,6 +49,88 @@
 
         
 
+        <!-- Painel operacional ("hoje") -->
+        <div class="px-0 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                <a
+                    href="{{ route('employee.orders.list', ['filterStalledOnly' => true]) }}"
+                    class="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-accent-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-accent-500/40"
+                >
+                    <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-yellow-50 dark:bg-yellow-400/10">
+                        <x-heroicon-o-clock class="h-5 w-5 text-yellow-500" />
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-2xl font-bold text-primary dark:text-white">{{ $this->stalledOrdersCount }}</p>
+                        <p class="truncate text-sm text-slate-500 dark:text-slate-400">{{ __('Pedidos parados') }}</p>
+                    </div>
+                </a>
+
+                <a
+                    href="#low-stock-alert"
+                    class="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-accent-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-accent-500/40"
+                >
+                    <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-50 dark:bg-orange-400/10">
+                        <x-heroicon-o-archive-box-x-mark class="h-5 w-5 text-orange-500" />
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-2xl font-bold text-primary dark:text-white">{{ $this->lowStockCount }}</p>
+                        <p class="truncate text-sm text-slate-500 dark:text-slate-400">{{ __('Estoque baixo') }}</p>
+                    </div>
+                </a>
+
+                <a
+                    href="{{ route('employee.abandoned-carts.list') }}"
+                    class="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-accent-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-accent-500/40"
+                >
+                    <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent-50 dark:bg-accent-500/10">
+                        <x-heroicon-o-shopping-cart class="h-5 w-5 text-accent-500" />
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-2xl font-bold text-primary dark:text-white">{{ $this->abandonedCartsTodayCount }}</p>
+                        <p class="truncate text-sm text-slate-500 dark:text-slate-400">{{ __('Carrinhos abandonados hoje') }}</p>
+                    </div>
+                </a>
+
+                @can('admin')
+                    <a
+                        href="{{ route('employee.expenses.list', ['filterStatus' => 'pending', 'filterDueFrom' => today()->toDateString(), 'filterDueTo' => today()->addDays(7)->toDateString()]) }}"
+                        class="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-accent-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-accent-500/40"
+                    >
+                        <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-400/10">
+                            <x-heroicon-o-calendar-days class="h-5 w-5 text-blue-500" />
+                        </span>
+                        <div class="min-w-0">
+                            <p class="text-2xl font-bold text-primary dark:text-white">{{ $this->expensesDueSoon->total_count }}</p>
+                            <p class="truncate text-sm text-slate-500 dark:text-slate-400">{{ __('Contas vencendo em 7 dias') }}</p>
+                            @if($this->expensesDueSoon->total_count > 0)
+                                <p class="truncate text-xs text-slate-400 tabular-nums dark:text-slate-500">
+                                    <x-money :amount="$this->expensesDueSoon->total_amount" />
+                                </p>
+                            @endif
+                        </div>
+                    </a>
+
+                    <a
+                        href="{{ route('employee.expenses.list', ['filterStatus' => 'overdue']) }}"
+                        class="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-accent-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-accent-500/40"
+                    >
+                        <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-50 dark:bg-red-400/10">
+                            <x-heroicon-o-exclamation-triangle class="h-5 w-5 text-red-500" />
+                        </span>
+                        <div class="min-w-0">
+                            <p class="text-2xl font-bold text-primary dark:text-white">{{ $this->expensesOverdue->total_count }}</p>
+                            <p class="truncate text-sm text-slate-500 dark:text-slate-400">{{ __('Contas atrasadas') }}</p>
+                            @if($this->expensesOverdue->total_count > 0)
+                                <p class="truncate text-xs text-slate-400 tabular-nums dark:text-slate-500">
+                                    <x-money :amount="$this->expensesOverdue->total_amount" />
+                                </p>
+                            @endif
+                        </div>
+                    </a>
+                @endcan
+            </div>
+        </div>
+
         <!-- Page content -->
         <div class="py-4 mx-auto">
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -461,7 +543,7 @@
                 </x-card>
             </div>
 
-            <div class="mt-5">
+            <div class="mt-5" id="low-stock-alert">
                 <livewire:employee.product.components.low-stock-alert />
             </div>
         </div>
