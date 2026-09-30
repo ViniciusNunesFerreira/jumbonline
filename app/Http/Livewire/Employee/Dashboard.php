@@ -5,11 +5,11 @@ namespace App\Http\Livewire\Employee;
 use App\Enums\PaymentStatus;
 use App\Models\Cart;
 use App\Models\Customer;
-use App\Models\Expense;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Variant;
+use App\Services\FinancialMetricsService;
 use App\Services\StalledOrderService;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
@@ -65,7 +65,10 @@ class Dashboard extends Component
     /**
      * Contas a pagar (não pagas) vencendo entre hoje e os próximos 7 dias.
      * Só consulta se o funcionário é admin — quem não tem acesso a Contas a
-     * Pagar não precisa que essa consulta nem rode.
+     * Pagar não precisa que essa consulta nem rode. Vem do mesmo serviço
+     * usado pelo Financeiro (FinancialMetricsService) — nunca duplicar este
+     * cálculo, para nunca haver dois números diferentes pra mesma coisa em
+     * telas diferentes.
      */
     public function getExpensesDueSoonProperty()
     {
@@ -73,10 +76,7 @@ class Dashboard extends Component
             return null;
         }
 
-        return Expense::query()
-            ->dueBetween(today(), today()->addDays(7))
-            ->selectRaw('count(*) as total_count, coalesce(sum(amount), 0) as total_amount')
-            ->first();
+        return app(FinancialMetricsService::class)->expensesDueSoon();
     }
 
     /**
@@ -88,10 +88,7 @@ class Dashboard extends Component
             return null;
         }
 
-        return Expense::query()
-            ->overdue()
-            ->selectRaw('count(*) as total_count, coalesce(sum(amount), 0) as total_amount')
-            ->first();
+        return app(FinancialMetricsService::class)->expensesOverdue();
     }
 
     public function getOrdersCountProperty()

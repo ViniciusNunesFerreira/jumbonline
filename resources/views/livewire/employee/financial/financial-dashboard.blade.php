@@ -140,8 +140,8 @@
                                 {{ __('Vencendo em 7 dias') }}
                             </span>
                             <span class="text-sm font-semibold text-primary dark:text-white">
-                                {{ $metrics['cash_flow']['due_soon']->total_count }} ·
-                                <x-money :amount="$metrics['cash_flow']['due_soon']->total_amount" />
+                                {{ $metrics['cash_flow']['due_soon']['count'] }} ·
+                                <x-money :amount="$metrics['cash_flow']['due_soon']['amount']" />
                             </span>
                         </a>
                         <a
@@ -153,8 +153,8 @@
                                 {{ __('Atrasadas') }}
                             </span>
                             <span class="text-sm font-semibold text-primary dark:text-white">
-                                {{ $metrics['cash_flow']['overdue']->total_count }} ·
-                                <x-money :amount="$metrics['cash_flow']['overdue']->total_amount" />
+                                {{ $metrics['cash_flow']['overdue']['count'] }} ·
+                                <x-money :amount="$metrics['cash_flow']['overdue']['amount']" />
                             </span>
                         </a>
                     </div>

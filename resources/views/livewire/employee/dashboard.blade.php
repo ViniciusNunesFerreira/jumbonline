@@ -100,11 +100,11 @@
                             <x-heroicon-o-calendar-days class="h-5 w-5 text-blue-500" />
                         </span>
                         <div class="min-w-0">
-                            <p class="text-2xl font-bold text-primary dark:text-white">{{ $this->expensesDueSoon->total_count }}</p>
+                           <p class="text-2xl font-bold text-primary dark:text-white">{{ $this->expensesDueSoon['count'] }}</p>
                             <p class="truncate text-sm text-slate-500 dark:text-slate-400">{{ __('Contas vencendo em 7 dias') }}</p>
-                            @if($this->expensesDueSoon->total_count > 0)
+                            @if($this->expensesDueSoon['count'] > 0)
                                 <p class="truncate text-xs text-slate-400 tabular-nums dark:text-slate-500">
-                                    <x-money :amount="$this->expensesDueSoon->total_amount" />
+                                    <x-money :amount="$this->expensesDueSoon['amount']" />
                                 </p>
                             @endif
                         </div>
@@ -118,11 +118,11 @@
                             <x-heroicon-o-exclamation-triangle class="h-5 w-5 text-red-500" />
                         </span>
                         <div class="min-w-0">
-                            <p class="text-2xl font-bold text-primary dark:text-white">{{ $this->expensesOverdue->total_count }}</p>
+                            <p class="text-2xl font-bold text-primary dark:text-white">{{ $this->expensesOverdue['count'] }}</p>
                             <p class="truncate text-sm text-slate-500 dark:text-slate-400">{{ __('Contas atrasadas') }}</p>
-                            @if($this->expensesOverdue->total_count > 0)
+                            @if($this->expensesOverdue['count'] > 0)
                                 <p class="truncate text-xs text-slate-400 tabular-nums dark:text-slate-500">
-                                    <x-money :amount="$this->expensesOverdue->total_amount" />
+                                    <x-money :amount="$this->expensesOverdue['amount']" />
                                 </p>
                             @endif
                         </div>

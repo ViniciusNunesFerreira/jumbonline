@@ -31,6 +31,14 @@ class FinancialSummarySheet implements FromArray, WithHeadings, WithTitle
             ['Custo (base margem)', $m['margin']['cost']],
             ['Lucro bruto', $m['margin']['profit']],
             ['Margem (%)', $m['margin']['margin_percent']],
+            ['', ''],
+            ['Fluxo de caixa (regime de caixa)', ''],
+            ['Despesas pagas no período', $m['cash_flow']['expenses']],
+            ['Saldo do período (receita - despesas)', $m['cash_flow']['balance']],
+            ['Contas a pagar vencendo em 7 dias (qtd.) — posição atual, não do período', $m['cash_flow']['due_soon']['count']],
+            ['Contas a pagar vencendo em 7 dias (valor) — posição atual, não do período', $m['cash_flow']['due_soon']['amount']],
+            ['Contas a pagar atrasadas (qtd.) — posição atual, não do período', $m['cash_flow']['overdue']['count']],
+            ['Contas a pagar atrasadas (valor) — posição atual, não do período', $m['cash_flow']['overdue']['amount']],
         ];
     }
 

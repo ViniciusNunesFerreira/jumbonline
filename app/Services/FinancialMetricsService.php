@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\PaymentStatus;
+use App\Models\Expense;
 use App\Models\Order;
 use App\Models\PrisonUnit;
 use Carbon\Carbon;
@@ -14,6 +15,13 @@ use Illuminate\Support\Facades\DB;
  * Toda "receita" aqui é sempre líquida (payments PAID - refunds), na mesma
  * base do LTV do Módulo 1 — nunca orders.total ou order_items.subtotal
  * brutos, que não refletem status de pagamento real nem estorno.
+ *
+ * IMPORTANTE: esta classe é a ÚNICA fonte dos números financeiros — usada
+ * tanto pelo Dashboard ao vivo (FinancialDashboard) quanto pelas exportações
+ * (PDF e XLS, ver FinancialReportExport). Nunca duplique um cálculo daqui
+ * em outro lugar: um relatório contábil divergir do que a tela mostra é
+ * exatamente o tipo de erro que este desenho evita. Qualquer métrica nova
+ * usada em mais de um lugar (tela e/ou exportação) deve nascer aqui.
  */
 class FinancialMetricsService
 {
@@ -197,5 +205,71 @@ class FinancialMetricsService
         ->take($limit)
         ->values()
         ->all();
+    }
+
+    /**
+     * Total de despesas efetivamente pagas no período (payment_date, não
+     * due_date) — regime de caixa, simétrico a netRevenue().
+     */
+    public function expensesPaidBetween(Carbon $from, Carbon $to): float
+    {
+        return round((float) Expense::query()->paidBetween($from, $to)->sum('amount'), 2);
+    }
+
+    /**
+     * Contas a pagar (não pagas) vencendo nos próximos N dias a partir de
+     * hoje. Não é limitado por período — é sempre "a partir de agora",
+     * mesmo dentro de um relatório de um período passado: o objetivo é
+     * avisar sobre compromissos futuros, não descrever o passado.
+     */
+    public function expensesDueSoon(int $days = 7): array
+    {
+        $row = Expense::query()
+            ->dueBetween(today(), today()->addDays($days))
+            ->selectRaw('count(*) as total_count, coalesce(sum(amount), 0) as total_amount')
+            ->first();
+
+        return [
+            'count' => (int) $row->total_count,
+            'amount' => round((float) $row->total_amount, 2),
+        ];
+    }
+
+    /**
+     * Contas a pagar (não pagas) com vencimento já passado, na data de hoje.
+     */
+    public function expensesOverdue(): array
+    {
+        $row = Expense::query()
+            ->overdue()
+            ->selectRaw('count(*) as total_count, coalesce(sum(amount), 0) as total_amount')
+            ->first();
+
+        return [
+            'count' => (int) $row->total_count,
+            'amount' => round((float) $row->total_amount, 2),
+        ];
+    }
+
+    /**
+     * Fluxo de caixa do período: receita e despesas por regime de caixa
+     * (o que de fato entrou/saiu), mais a situação atual de vencimentos
+     * (sempre "agora", independente do período pedido — ver expensesDueSoon
+     * e expensesOverdue acima). Usado pelo Dashboard Financeiro ao vivo E
+     * pelas exportações PDF/XLS — sempre os dois pela mesma chamada aqui,
+     * nunca recalculado separadamente em cada lugar.
+     */
+    public function cashFlow(Carbon $from, Carbon $to): array
+    {
+        $revenue = $this->netRevenue($from, $to);
+        $expenses = $this->expensesPaidBetween($from, $to);
+
+        return [
+            'revenue' => $revenue,
+            'expenses' => $expenses,
+            'balance' => round($revenue - $expenses, 2),
+            'due_soon' => $this->expensesDueSoon(),
+            'overdue' => $this->expensesOverdue(),
+        ];
     }
 }

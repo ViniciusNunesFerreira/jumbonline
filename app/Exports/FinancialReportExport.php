@@ -24,6 +24,7 @@ class FinancialReportExport implements WithMultipleSheets
             'margin' => $service->grossMargin($from, $to),
             'abc_curve' => $service->abcCurve($from, $to),
             'prison_ranking' => $service->prisonUnitRanking($from, $to, 50),
+            'cash_flow' => $service->cashFlow($from, $to),
         ];
     }
 

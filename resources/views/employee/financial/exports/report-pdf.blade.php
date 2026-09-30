@@ -27,6 +27,16 @@
         <tr><td>Lucro bruto</td><td class="text-right">R$ {{ number_format($metrics['margin']['profit'], 2, ',', '.') }}</td></tr>
     </table>
 
+    <h2>Fluxo de caixa</h2>
+    <p class="muted">Receita e despesas por regime de caixa (o que foi efetivamente pago no período acima). As linhas de vencimento/atraso mostram a posição atual, não a do período.</p>
+    <table>
+        <tr><td>Receita paga no período</td><td class="text-right">R$ {{ number_format($metrics['cash_flow']['revenue'], 2, ',', '.') }}</td></tr>
+        <tr><td>Despesas pagas no período</td><td class="text-right">R$ {{ number_format($metrics['cash_flow']['expenses'], 2, ',', '.') }}</td></tr>
+        <tr><td>Saldo do período</td><td class="text-right">R$ {{ number_format($metrics['cash_flow']['balance'], 2, ',', '.') }}</td></tr>
+        <tr><td>Contas a pagar vencendo em 7 dias (posição atual)</td><td class="text-right">{{ $metrics['cash_flow']['due_soon']['count'] }} — R$ {{ number_format($metrics['cash_flow']['due_soon']['amount'], 2, ',', '.') }}</td></tr>
+        <tr><td>Contas a pagar atrasadas (posição atual)</td><td class="text-right">{{ $metrics['cash_flow']['overdue']['count'] }} — R$ {{ number_format($metrics['cash_flow']['overdue']['amount'], 2, ',', '.') }}</td></tr>
+    </table>
+
     <h2>Receita por método de pagamento</h2>
     <table>
         <thead><tr><th>Método</th><th class="text-right">Total</th></tr></thead>
