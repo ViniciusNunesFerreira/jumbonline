@@ -33,6 +33,8 @@ use App\Events\OrderCreated;
 use App\Settings\CheckoutSetting;
 
 use App\Services\DiscountService;
+use App\Services\Shipping\CustomerFreightPricing;
+use App\Enums\ShippingServices;
 
 class Purchase extends Component
 {
@@ -274,34 +276,31 @@ class Purchase extends Component
         ]);
     }
 
+    /**
+     * Frete ao cliente pela política única de CustomerFreightPricing (tabela
+     * de balcão dos Correios; fallback contrato + margem com mínimo). O
+     * mesmo cálculo é usado pelo PDV. Substitui o antigo "contrato + 46%"
+     * arredondado em reais. A promoção de frete grátis continua igual.
+     */
     public function updateShippingPrice()
     {
 
-
         if( is_null($this->promotion) ||  $this->cart->subtotal < $this->promotion->os_value ){
 
-                $params = [
-                    'cepDestino' => trim( preg_replace("/[^0-9]/", "",  $this->prisonUnit->cep) ),
-                    'cepOrigem' => '02737050',
-                    'peso' =>  ($this->cart->weight * 1000),
-                ];
+                $cotacao = app(CustomerFreightPricing::class)->cotar(
+                    '02737050',
+                    trim( preg_replace("/[^0-9]/", "",  $this->prisonUnit->cep) ),
+                    ($this->cart->weight * 1000),
+                    ShippingServices::SEDEX_CONTRATO_AG
+                );
 
-                $response = $this->calcPrecoFrete($params);
-
-                            
-                if( optional($response)->pcFinal ){
-
-                    $price = str_replace('.', '', $response->pcFinal);
-                    $price = str_replace(',', '.', $price);
-
-                    $price_corretion = round(($price*46)/100);
-
+                if( $cotacao ){
                     $this->order->shipping_rate  = 'correios';
-                    $this->order->shipping_price = (double)$price+$price_corretion;
+                    $this->order->shipping_price = (double) $cotacao['preco'];
                 }
-            
+
         }else{
-            
+
             $this->order->shipping_rate  = 'correios';
             $this->order->shipping_price = 0;
         }

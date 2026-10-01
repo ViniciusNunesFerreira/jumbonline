@@ -156,6 +156,9 @@
 
             {{-- PARÂMETROS + SIMULADOR --}}
             <div class="space-y-6">
+                
+                @livewire('employee.shipping.shipping-pricing-settings', key('shipping-pricing-settings'))
+                
                 <form wire:submit.prevent="saveSettings">
                     <x-card>
                         <x-slot:header>

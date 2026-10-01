@@ -5,6 +5,7 @@ namespace App\Services;
 
 use App\Enums\ShippingServices;
 use App\Models\ShippingMethod;
+use App\Services\Shipping\CustomerFreightPricing;
 use App\Services\Shipping\PackageDimensions;
 use App\Services\Shipping\PackageEstimator;
 use Carbon\Carbon;
@@ -21,10 +22,10 @@ use Illuminate\Support\Facades\Cache;
  * Livewire ($this->correios) — este serviço é uma classe simples, podendo
  * ser usada tanto pelo site quanto pelo PDV (ou qualquer outro consumidor).
  *
- * NOTA: o trait Correios usado pelo site (Purchase.php) não foi alterado
- * nesta entrega, para não gerar risco de regressão no checkout já em
- * produção. Uma futura consolidação pode fazer o trait delegar para este
- * serviço.
+ * Preço ao cliente: calcPrecoFrete() delega para CustomerFreightPricing,
+ * a política única (tabela de balcão, ou contrato + margem) usada também
+ * pelo checkout do site (Purchase). consultarPrecoCorreios() continua
+ * devolvendo o preço de contrato bruto — o custo real da Jumbonline.
  *
  * Embalagem: a caixa fixa 54×36×27 (peso cúbico de 8,75 kg, que fazia todo
  * pedido pequeno ser cobrado como se pesasse ~9 kg) foi substituída pelo
@@ -35,14 +36,6 @@ use Illuminate\Support\Facades\Cache;
  */
 class CorreiosFreightService
 {
-    /**
-     * Mesma correção percentual aplicada pelo site em
-     * Purchase::updateShippingPrice() (margem sobre o preço tabelado dos
-     * Correios). Mantido idêntico para não introduzir divergência de
-     * precificação entre site e PDV.
-     */
-    private const PRICE_CORRECTION_PERCENT = 46;
-
     /**
      * Serviços oferecidos ao operador do PDV (PAC e SEDEX "de balcão"/contrato).
      */
@@ -117,26 +110,21 @@ class CorreiosFreightService
     }
 
     /**
-     * Consulta o preço de um serviço específico dos Correios, já com a
-     * correção de margem aplicada ao cliente.
+     * Preço do frete AO CLIENTE para um serviço, segundo a política de
+     * CustomerFreightPricing (tabela de balcão ou contrato + margem).
      *
      * @param  string  $cepOrigem  Somente dígitos
      * @param  string  $cepDestino  Somente dígitos
      * @param  float  $pesoGramas  Peso total dos itens (usado para estimar a embalagem quando $pacote não é informado)
+     * @param  ShippingServices  $service  Serviço de CONTRATO (03220/03298); o código de varejo é derivado dele
      * @param  PackageDimensions|null  $pacote  Embalagem conhecida; quando informada, seu peso e dimensões prevalecem
-     * @return float|null Preço final já com a correção de margem, ou null em caso de falha
+     * @return float|null Preço ao cliente, ou null em caso de falha
      */
     public function calcPrecoFrete(string $cepOrigem, string $cepDestino, float $pesoGramas, ShippingServices $service, ?PackageDimensions $pacote = null): ?float
     {
-        $price = $this->consultarPrecoCorreios($cepOrigem, $cepDestino, $pesoGramas, $service, $pacote);
+        $cotacao = app(CustomerFreightPricing::class)->cotar($cepOrigem, $cepDestino, $pesoGramas, $service, $pacote);
 
-        if ($price === null) {
-            return null;
-        }
-
-        $correction = round(($price * self::PRICE_CORRECTION_PERCENT) / 100, 2);
-
-        return round($price + $correction, 2);
+        return $cotacao['preco'] ?? null;
     }
 
     /**
@@ -149,28 +137,38 @@ class CorreiosFreightService
     {
         $pacote ??= app(PackageEstimator::class)->estimarPorPeso($pesoGramas);
 
-        $config = $this->ensureValidToken();
-
         $query = array_merge(
             ['cepDestino' => $cepDestino, 'cepOrigem' => $cepOrigem],
             $pacote->toPrecoQuery()
         );
 
-        $url = $config['host'] . 'preco/v1/nacional/' . $service->value . '?' . http_build_query($query);
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-            'Cache-Controle' => 'no-cache',
-            'Authorization' => 'Bearer ' . $config['token'],
-        ];
-
         try {
+            // Token dentro do try: falha de autenticação vira "sem preço" (e
+            // log), nunca uma exceção estourando no checkout ou no PDV.
+            $config = $this->ensureValidToken();
+
+            $url = $config['host'] . 'preco/v1/nacional/' . $service->value . '?' . http_build_query($query);
+
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Cache-Controle' => 'no-cache',
+                'Authorization' => 'Bearer ' . $config['token'],
+            ];
+
             $client = new Client();
             $response = $client->get($url, ['headers' => $headers]);
-            $data = json_decode($response->getBody());
+            $body = (string) $response->getBody();
+            $data = json_decode($body);
 
             if (empty($data->pcFinal)) {
+                Log::warning('[CorreiosFreightService] Cotação sem pcFinal', [
+                    'service' => $service->value,
+                    'cepDestino' => $cepDestino,
+                    'pacote' => $pacote->toArray(),
+                    'resposta' => mb_substr($body, 0, 1000),
+                ]);
+
                 return null;
             }
 
@@ -179,6 +177,9 @@ class CorreiosFreightService
             return (float) str_replace(',', '.', $price);
         } catch (\Throwable $exception) {
             Log::warning('[CorreiosFreightService] Falha ao cotar frete', [
+                'resposta' => $exception instanceof \GuzzleHttp\Exception\RequestException && $exception->hasResponse()
+                    ? mb_substr((string) $exception->getResponse()->getBody(), 0, 1000)
+                    : null,
                 'service' => $service->value,
                 'cepOrigem' => $cepOrigem,
                 'cepDestino' => $cepDestino,
