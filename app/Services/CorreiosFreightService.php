@@ -1,9 +1,12 @@
 <?php
+// app/Services/CorreiosFreightService.php
 
 namespace App\Services;
 
 use App\Enums\ShippingServices;
 use App\Models\ShippingMethod;
+use App\Services\Shipping\PackageDimensions;
+use App\Services\Shipping\PackageEstimator;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +25,13 @@ use Illuminate\Support\Facades\Cache;
  * nesta entrega, para não gerar risco de regressão no checkout já em
  * produção. Uma futura consolidação pode fazer o trait delegar para este
  * serviço.
+ *
+ * Embalagem: a caixa fixa 54×36×27 (peso cúbico de 8,75 kg, que fazia todo
+ * pedido pequeno ser cobrado como se pesasse ~9 kg) foi substituída pelo
+ * PackageEstimator, que encaixa o pedido na menor caixa cadastrada que
+ * comporte o volume estimado a partir do peso. Quem já conhece a embalagem
+ * real (ex.: atendente que mediu a caixa no balcão) pode informá-la em
+ * $pacote.
  */
 class CorreiosFreightService
 {
@@ -107,22 +117,46 @@ class CorreiosFreightService
     }
 
     /**
-     * Consulta o preço de um serviço específico dos Correios.
+     * Consulta o preço de um serviço específico dos Correios, já com a
+     * correção de margem aplicada ao cliente.
      *
      * @param  string  $cepOrigem  Somente dígitos
      * @param  string  $cepDestino  Somente dígitos
-     * @param  float  $pesoGramas
+     * @param  float  $pesoGramas  Peso total dos itens (usado para estimar a embalagem quando $pacote não é informado)
+     * @param  PackageDimensions|null  $pacote  Embalagem conhecida; quando informada, seu peso e dimensões prevalecem
      * @return float|null Preço final já com a correção de margem, ou null em caso de falha
      */
-    public function calcPrecoFrete(string $cepOrigem, string $cepDestino, float $pesoGramas, ShippingServices $service): ?float
+    public function calcPrecoFrete(string $cepOrigem, string $cepDestino, float $pesoGramas, ShippingServices $service, ?PackageDimensions $pacote = null): ?float
     {
+        $price = $this->consultarPrecoCorreios($cepOrigem, $cepDestino, $pesoGramas, $service, $pacote);
+
+        if ($price === null) {
+            return null;
+        }
+
+        $correction = round(($price * self::PRICE_CORRECTION_PERCENT) / 100, 2);
+
+        return round($price + $correction, 2);
+    }
+
+    /**
+     * Preço bruto cobrado pelos Correios (pcFinal), SEM a correção de margem
+     * do cliente — é o custo real do envio para a Jumbonline. Usado na
+     * conferência de embalagem da pré-postagem para mostrar ao atendente o
+     * impacto das medidas reais antes de registrar o envio.
+     */
+    public function consultarPrecoCorreios(string $cepOrigem, string $cepDestino, float $pesoGramas, ShippingServices $service, ?PackageDimensions $pacote = null): ?float
+    {
+        $pacote ??= app(PackageEstimator::class)->estimarPorPeso($pesoGramas);
+
         $config = $this->ensureValidToken();
 
-        $url = $config['host'] . 'preco/v1/nacional/' . $service->value
-            . '?cepDestino=' . $cepDestino
-            . '&cepOrigem=' . $cepOrigem
-            . '&psObjeto=' . $pesoGramas
-            . '&tpObjeto=2&comprimento=54&largura=36&altura=27';
+        $query = array_merge(
+            ['cepDestino' => $cepDestino, 'cepOrigem' => $cepOrigem],
+            $pacote->toPrecoQuery()
+        );
+
+        $url = $config['host'] . 'preco/v1/nacional/' . $service->value . '?' . http_build_query($query);
 
         $headers = [
             'Content-Type' => 'application/json',
@@ -141,16 +175,14 @@ class CorreiosFreightService
             }
 
             $price = str_replace('.', '', $data->pcFinal);
-            $price = (float) str_replace(',', '.', $price);
 
-            $correction = round(($price * self::PRICE_CORRECTION_PERCENT) / 100, 2);
-
-            return round($price + $correction, 2);
+            return (float) str_replace(',', '.', $price);
         } catch (\Throwable $exception) {
             Log::warning('[CorreiosFreightService] Falha ao cotar frete', [
                 'service' => $service->value,
                 'cepOrigem' => $cepOrigem,
                 'cepDestino' => $cepDestino,
+                'pacote' => $pacote->toArray(),
                 'error' => $exception->getMessage(),
             ]);
 
@@ -166,12 +198,15 @@ class CorreiosFreightService
      *
      * @return array<int, array{carrier:string, label:string, price:float, service_code:string}>
      */
-    public function quoteAll(string $cepOrigem, string $cepDestino, float $pesoGramas): array
+    public function quoteAll(string $cepOrigem, string $cepDestino, float $pesoGramas, ?PackageDimensions $pacote = null): array
     {
         $results = [];
 
+        // Estima uma única vez: PAC e SEDEX são cotados com a mesma embalagem.
+        $pacote ??= app(PackageEstimator::class)->estimarPorPeso($pesoGramas);
+
         foreach (self::AVAILABLE_SERVICES as $carrier => $meta) {
-            $price = $this->calcPrecoFrete($cepOrigem, $cepDestino, $pesoGramas, $meta['code']);
+            $price = $this->calcPrecoFrete($cepOrigem, $cepDestino, $pesoGramas, $meta['code'], $pacote);
 
             if ($price !== null) {
                 $results[] = [

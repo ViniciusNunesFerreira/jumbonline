@@ -72,7 +72,8 @@ Route::group([
         Route::get('/settings/customers', \App\Http\Livewire\Employee\Settings\CustomerSettingManager::class)->name('settings.customers');
     
         Route::get('/correios', \App\Http\Livewire\Employee\Correios\CorreiosPostagem::class)->name('correios.postagem');
-        });
+        Route::get('/correios/embalagens', \App\Http\Livewire\Employee\Shipping\ShippingBoxList::class)->name('shipping.boxes');    
+    });
 
     Route::group(['middleware' => ['auth:employee', 'can:admin']], function () {
         Route::get('/financial', \App\Http\Livewire\Employee\Financial\FinancialDashboard::class)->name('financial.dashboard');

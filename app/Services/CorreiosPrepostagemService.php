@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Concerns\AuthenticatesWithCorreios;
 use App\Models\Order;
+use App\Services\Shipping\PackageDimensions;
+use App\Services\Shipping\PackageEstimator;
 use GuzzleHttp\Client;
 use RuntimeException;
 
@@ -31,10 +33,14 @@ class CorreiosPrepostagemService
      * visitante vinculado (venda de balcão sem destino a unidade prisional),
      * o atendente preenche remetente e destinatário na hora — nenhum dos
      * dois vem do snapshot/relacionamento automático nesse caso.
+     *
+     * $pacote: embalagem conferida pelo atendente (medidas e peso reais).
+     * Quando omitido, usa a estimativa do sistema (estimarPacote()) — nunca
+     * mais a caixa fixa 54×36×27.
      */
-    public function criar(Order $order, ?array $remetenteManual = null, ?array $destinatarioManual = null): array
+    public function criar(Order $order, ?array $remetenteManual = null, ?array $destinatarioManual = null, ?PackageDimensions $pacote = null): array
     {
-        $payload = $this->montarPayload($order, $remetenteManual, $destinatarioManual);
+        $payload = $this->montarPayload($order, $remetenteManual, $destinatarioManual, $pacote ?? $this->estimarPacote($order));
 
         $response = $this->client()->post($this->baseUrl() . '/v1/prepostagens', ['json' => $payload]);
 
@@ -81,7 +87,19 @@ class CorreiosPrepostagemService
         $this->client()->delete($this->baseUrl() . "/v1/prepostagens/{$idPrePostagem}");
     }
 
-    protected function montarPayload(Order $order, ?array $remetenteManual, ?array $destinatarioManual): array
+    /**
+     * Embalagem estimada pelo sistema para o pedido (menor caixa cadastrada
+     * que comporte o volume estimado a partir do peso dos itens). É o valor
+     * pré-preenchido na conferência de embalagem do balcão.
+     */
+    public function estimarPacote(Order $order): PackageDimensions
+    {
+        $order->loadMissing('orderItems.variant');
+
+        return app(PackageEstimator::class)->estimarPorPeso($this->pesoGramas($order));
+    }
+
+    protected function montarPayload(Order $order, ?array $remetenteManual, ?array $destinatarioManual, PackageDimensions $pacote): array
     {
         $remetente = $remetenteManual ?? $this->remetenteDoVisitante($order);
         $destinatario = $destinatarioManual ?? $this->destinatarioDoDetento($order);
@@ -114,11 +132,11 @@ class CorreiosPrepostagemService
             ],
             'codigoServico' => $this->codigoServico($order),
             'emiteDCe' => 'S',
-            'pesoInformado' => (string) $this->pesoGramas($order),
+            'pesoInformado' => (string) $pacote->pesoGramas,
             'codigoFormatoObjetoInformado' => '2',
-            'alturaInformada' => '27',
-            'larguraInformada' => '36',
-            'comprimentoInformado' => '54',
+            'alturaInformada' => (string) $pacote->altura,
+            'larguraInformada' => (string) $pacote->largura,
+            'comprimentoInformado' => (string) $pacote->comprimento,
             'cienteObjetoNaoProibido' => '1',
             'itensDeclaracaoConteudo' => $order->orderItems->map(fn($item) => [
                 'conteudo' => \Illuminate\Support\Str::limit($item->name, 60, ''),

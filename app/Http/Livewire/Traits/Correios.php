@@ -1,4 +1,5 @@
 <?php
+// app/Http/Livewire/Traits/Correios.php
 
 namespace App\Http\Livewire\Traits;
 
@@ -6,6 +7,8 @@ use App\Models\ShippingMethod;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use App\Enums\ShippingServices;
+use App\Services\Shipping\PackageDimensions;
+use App\Services\Shipping\PackageEstimator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -52,7 +55,7 @@ trait Correios
     public function calcPrecoFrete(Array $params)
     {
 
-        //params['cepDestino', 'cepOrigem', 'peso']
+        //params['cepDestino', 'cepOrigem', 'peso'] + opcional 'pacote' (PackageDimensions)
 
         $config = config('correios');
         $service = ShippingServices::SEDEX_CONTRATO_AG;
@@ -70,8 +73,16 @@ trait Correios
        }
 
 
+        // Embalagem: antes era a caixa fixa 54×36×27 (8,75 kg de peso cúbico)
+        // para QUALQUER carrinho. Agora a menor caixa cadastrada que comporte
+        // o volume estimado pelo peso (ver PackageEstimator). O psObjeto
+        // continua sendo exatamente o peso do carrinho, como antes.
+        $pacote = ($params['pacote'] ?? null) instanceof PackageDimensions
+            ? $params['pacote']
+            : app(PackageEstimator::class)->estimarPorPeso((float) $params['peso']);
+
        //Chamada GET url
-        $url = $config['host'].'preco/v1/nacional/'.$service->value.'?cepDestino='.$params['cepDestino'].'&cepOrigem='.$params['cepOrigem'].'&psObjeto='.$params['peso'].'&tpObjeto=2&comprimento=54&largura=36&altura=27';
+        $url = $config['host'].'preco/v1/nacional/'.$service->value.'?cepDestino='.$params['cepDestino'].'&cepOrigem='.$params['cepOrigem'].'&psObjeto='.$params['peso'].'&tpObjeto=2&comprimento='.$pacote->comprimento.'&largura='.$pacote->largura.'&altura='.$pacote->altura;
 
         $headers = [
                 'Content-Type'=>'application/json',

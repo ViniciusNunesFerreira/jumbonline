@@ -93,6 +93,16 @@
                         {{ __('Correios') }}
                     </a>
                 </li>
+
+                <li>
+                    <a href="{{ route('employee.shipping.boxes') }}"
+                        @class(['group relative flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors', 'bg-accent-50 text-accent-700 dark:bg-accent-500/10 dark:text-accent-400' => request()->routeIs('employee.shipping.boxes'), 'text-slate-600 hover:bg-slate-50 hover:text-primary dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white' => !request()->routeIs('employee.shipping.boxes')])
+                    >
+                        <span @class(['absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full', 'bg-accent-500' => request()->routeIs('employee.shipping.boxes'), 'bg-transparent' => !request()->routeIs('employee.shipping.boxes')])></span>
+                        <x-heroicon-o-cube @class(['h-5 w-5 shrink-0', 'text-accent-600 dark:text-accent-400' => request()->routeIs('employee.shipping.boxes'), 'text-slate-400 group-hover:text-primary dark:group-hover:text-white' => !request()->routeIs('employee.shipping.boxes')]) />
+                        {{ __('Embalagens') }}
+                    </a>
+                </li>
             </ul>
         </li>
 

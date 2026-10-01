@@ -10,6 +10,7 @@ use App\Jobs\SolicitarRotuloCorreiosJob;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\ShipmentItem;
+use App\Services\Shipping\PackageDimensions;
 use RuntimeException;
 
 
@@ -19,7 +20,13 @@ class CorreiosPostagemOrchestrator
     {
     }
 
-    public function criar(int $orderId, ?array $remetenteManual = null, ?array $destinatarioManual = null): Shipment
+    /**
+     * $pacote: embalagem conferida no balcão (medidas/peso reais). Quando
+     * omitido, a estimativa do sistema é enviada aos Correios. Em ambos os
+     * casos a estimativa original fica gravada em shipments.package_estimate
+     * para comparação "estimado × real".
+     */
+    public function criar(int $orderId, ?array $remetenteManual = null, ?array $destinatarioManual = null, ?PackageDimensions $pacote = null): Shipment
     {
         if (Shipment::where('order_id', $orderId)->exists()) {
             throw new RuntimeException('Este pedido já tem uma remessa registrada — nada foi criado de novo.');
@@ -34,7 +41,10 @@ class CorreiosPostagemOrchestrator
             'prison_unit',
         ])->findOrFail($orderId);
 
-        $data = $this->service->criar($order, $remetenteManual, $destinatarioManual);
+        $estimativa = $this->service->estimarPacote($order);
+        $pacote ??= $estimativa;
+
+        $data = $this->service->criar($order, $remetenteManual, $destinatarioManual, $pacote);
 
         if (Shipment::where('order_id', $orderId)->exists()) {
             throw new RuntimeException("Atenção: uma pré-postagem foi criada nos Correios (id {$data['id']}, objeto {$data['codigoObjeto']}) mas o pedido #{$orderId} já tinha uma remessa registrada. Cancele manualmente essa pré-postagem duplicada na tela de processamento ou direto no CWS.");
@@ -50,6 +60,13 @@ class CorreiosPostagemOrchestrator
             'correios_status' => $data['statusAtual'] ?? null,
             'correios_remetente_manual' => $remetenteManual,
             'correios_destinatario_manual' => $destinatarioManual,
+            'shipping_box_id' => $pacote->caixaId,
+            'package_length_cm' => $pacote->comprimento,
+            'package_width_cm' => $pacote->largura,
+            'package_height_cm' => $pacote->altura,
+            'package_weight_g' => $pacote->pesoGramas,
+            'package_source' => $pacote->origem,
+            'package_estimate' => $estimativa->toArray(),
         ]);
 
 
