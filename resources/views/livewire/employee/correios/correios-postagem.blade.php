@@ -1,26 +1,36 @@
-<div>
+<div x-data x-on:correios-conferencia-aberta.window="if ($event.detail.id === '{{ $this->id }}') $wire.cotarFrete()">
     <x-slot:title>{{ __('Correios') }}</x-slot:title>
 
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="sm:flex sm:items-center sm:justify-between">
-            <h1 class="text-2xl font-bold tracking-tight text-primary dark:text-white">{{ __('Correios — Pré-postagem') }}</h1>
+            <div class="min-w-0 flex-1">
+                <h1 class="text-2xl font-bold tracking-tight text-primary dark:text-white">{{ __('Correios — Pré-postagem') }}</h1>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ __('Cada pré-postagem passa pela conferência de embalagem antes de ser registrada nos Correios.') }}</p>
+            </div>
+            <div class="mt-4 flex sm:mt-0 sm:ml-4">
+                <a href="{{ route('employee.shipping.boxes') }}" class="btn btn-default !rounded-xl">
+                    <x-heroicon-o-cube class="-ml-1 mr-1.5 h-4 w-4" />
+                    {{ __('Embalagens') }}
+                </a>
+            </div>
         </div>
 
         @error('postagem')
-            <div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-900/20 dark:text-red-300">
-                {{ $message }}
+            <div class="mt-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-900/20 dark:text-red-300">
+                <x-heroicon-o-exclamation-circle class="h-5 w-5 shrink-0" />
+                <span>{{ $message }}</span>
             </div>
         @enderror
 
         <div class="mt-6 space-y-6">
-            <div class="flex w-fit rounded-xl bg-slate-100 p-1 dark:bg-white/5">
-                <button wire:click="setTab('pendentes')" type="button" @class(['rounded-lg px-4 py-2 text-sm font-semibold transition-colors', 'bg-white text-primary shadow-sm dark:bg-slate-800 dark:text-white' => $tab === 'pendentes', 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-white' => $tab !== 'pendentes'])>
+            <div class="flex w-full overflow-x-auto rounded-xl bg-slate-100 p-1 sm:w-fit dark:bg-white/5">
+                <button wire:click="setTab('pendentes')" type="button" @class(['whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors', 'bg-white text-primary shadow-sm dark:bg-slate-800 dark:text-white' => $tab === 'pendentes', 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-white' => $tab !== 'pendentes'])>
                     {{ __('Pendentes de envio') }}
                 </button>
-                <button wire:click="setTab('processamento')" type="button" @class(['rounded-lg px-4 py-2 text-sm font-semibold transition-colors', 'bg-white text-primary shadow-sm dark:bg-slate-800 dark:text-white' => $tab === 'processamento', 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-white' => $tab !== 'processamento'])>
+                <button wire:click="setTab('processamento')" type="button" @class(['whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors', 'bg-white text-primary shadow-sm dark:bg-slate-800 dark:text-white' => $tab === 'processamento', 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-white' => $tab !== 'processamento'])>
                     {{ __('Em processamento') }}
                 </button>
-                <button wire:click="setTab('concluidos')" type="button" @class(['rounded-lg px-4 py-2 text-sm font-semibold transition-colors', 'bg-white text-primary shadow-sm dark:bg-slate-800 dark:text-white' => $tab === 'concluidos', 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-white' => $tab !== 'concluidos'])>
+                <button wire:click="setTab('concluidos')" type="button" @class(['whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors', 'bg-white text-primary shadow-sm dark:bg-slate-800 dark:text-white' => $tab === 'concluidos', 'text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-white' => $tab !== 'concluidos'])>
                     {{ __('Concluídos') }}
                 </button>
             </div>
@@ -38,34 +48,35 @@
                     <x-slot:content class="-mx-4 -my-5 sm:-mx-6">
                         <ul class="divide-y divide-slate-100 dark:divide-white/5">
                             @forelse($pedidosPendentes as $order)
-                                <li wire:key="pedido-pendente-{{ $order->id }}" class="flex items-center justify-between gap-3 px-4 py-4 sm:px-6">
+                                <li wire:key="pedido-pendente-{{ $order->id }}" class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                                     <div class="min-w-0">
                                         <p class="truncate text-sm font-semibold text-primary dark:text-slate-200">#{{ $order->id }} — {{ $order->customer?->name }}</p>
-                                        <p class="truncate text-xs text-slate-400 mt-0.5">
+                                        <p class="mt-0.5 truncate text-xs text-slate-400">
                                             {{ __('Para') }}: {{ $order->detento?->name }} — {{ $order->prison_unit?->name }}
                                         </p>
                                     </div>
                                     @if(! $order->visitante)
-                                        <button wire:click="abrirPostagemManual({{ $order->id }})" wire:loading.attr="disabled" wire:target="criarPostagem,criarPostagemManual" type="button" class="btn btn-default btn-xs !rounded-xl shrink-0">
+                                        <button wire:click="abrirPostagemManual({{ $order->id }})" wire:loading.attr="disabled" wire:target="abrirConferencia,confirmarPostagem" type="button" class="btn btn-default btn-xs !rounded-xl shrink-0">
                                             <x-heroicon-m-pencil-square class="w-4 h-4 mr-1 text-amber-500" />
                                             {{ __('Preencher dados') }}
                                         </button>
                                     @elseif(empty($order->visitante->cpf))
-                                        <button wire:click="abrirEdicaoCpf({{ $order->visitante->id }})" wire:loading.attr="disabled" wire:target="criarPostagem,criarPostagemManual" type="button" class="btn btn-default btn-xs !rounded-xl shrink-0">
+                                        <button wire:click="abrirEdicaoCpf({{ $order->visitante->id }})" wire:loading.attr="disabled" wire:target="abrirConferencia,confirmarPostagem" type="button" class="btn btn-default btn-xs !rounded-xl shrink-0">
                                             <x-heroicon-m-exclamation-triangle class="w-4 h-4 mr-1 text-amber-500" />
                                             {{ __('CPF pendente') }}
                                         </button>
                                     @else
                                         <button
-                                            wire:click="criarPostagem({{ $order->id }})"
+                                            wire:click="abrirConferencia({{ $order->id }})"
                                             wire:loading.attr="disabled"
-                                            wire:target="criarPostagem,criarPostagemManual"
-                                            wire:confirm="{{ __('Confirma criar a pré-postagem oficial pra este pedido? Isso registra um envio real nos Correios.') }}"
+                                            wire:target="abrirConferencia,confirmarPostagem"
                                             type="button"
                                             class="btn btn-primary btn-xs !rounded-xl shrink-0"
                                         >
-                                            <span wire:loading.remove wire:target="criarPostagem({{ $order->id }})">{{ __('Criar pré-postagem') }}</span>
-                                            <span wire:loading wire:target="criarPostagem({{ $order->id }})">{{ __('Criando...') }}</span>
+                                            <x-loading-spinner wire:loading wire:target="abrirConferencia({{ $order->id }})" class="mr-1.5 h-3.5 w-3.5" />
+                                            <x-heroicon-m-cube wire:loading.remove wire:target="abrirConferencia({{ $order->id }})" class="mr-1 h-4 w-4" />
+                                            <span wire:loading.remove wire:target="abrirConferencia({{ $order->id }})">{{ __('Conferir e criar pré-postagem') }}</span>
+                                            <span wire:loading wire:target="abrirConferencia({{ $order->id }})">{{ __('Abrindo...') }}</span>
                                         </button>
                                     @endif
                                 </li>
@@ -86,12 +97,13 @@
                     <x-slot:content class="-mx-4 -my-5 sm:-mx-6">
                         <ul class="divide-y divide-slate-100 dark:divide-white/5">
                             @forelse($emProcessamento as $shipment)
-                                <li class="flex items-center justify-between gap-3 px-4 py-4 sm:px-6">
+                                <li wire:key="shipment-processamento-{{ $shipment->id }}" class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                                     <div class="min-w-0">
                                         <p class="truncate text-sm font-semibold text-primary dark:text-slate-200">
                                             #{{ $shipment->order_id }} — {{ $shipment->order?->customer?->name }}
                                         </p>
-                                        <p class="text-xs text-slate-400 mt-0.5">{{ $shipment->tracking_number }}</p>
+                                        <p class="mt-0.5 text-xs text-slate-400">{{ $shipment->tracking_number }}</p>
+                                        @include('livewire.employee.correios.partials.resumo-embalagem', ['shipment' => $shipment])
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0">
                                         @if($shipment->correios_status)
@@ -99,7 +111,7 @@
                                                 {{ \App\Enums\CorreiosPrepostagemStatus::from($shipment->correios_status)->label() }}
                                             </x-badge>
                                         @endif
-                                        <button wire:click="cancelarPostagem({{ $shipment->id }})" wire:confirm="{{ __('Cancelar esta pré-postagem?') }}" type="button" class="btn btn-default btn-xs !rounded-xl">
+                                        <button wire:click="confirmarCancelamento({{ $shipment->id }})" type="button" class="btn btn-default btn-xs !rounded-xl">
                                             {{ __('Cancelar') }}
                                         </button>
                                     </div>
@@ -121,7 +133,7 @@
                     <x-slot:content class="-mx-4 -my-5 sm:-mx-6">
                         <ul class="divide-y divide-slate-100 dark:divide-white/5">
                             @forelse($concluidos as $shipment)
-                                <li class="flex items-center justify-between gap-3 px-4 py-4 sm:px-6">
+                                <li wire:key="shipment-concluido-{{ $shipment->id }}" class="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                                     <div class="flex items-center gap-3 min-w-0">
                                         <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-500/10">
                                             <x-heroicon-o-check class="h-5 w-5 text-emerald-500" />
@@ -130,12 +142,20 @@
                                             <p class="truncate text-sm font-semibold text-primary dark:text-slate-200">
                                                 #{{ $shipment->order_id }} — {{ $shipment->order?->customer?->name }}
                                             </p>
-                                            <p class="text-xs text-slate-400 mt-0.5">{{ $shipment->tracking_number }}</p>
+                                            <p class="mt-0.5 text-xs text-slate-400">{{ $shipment->tracking_number }}</p>
+                                            @include('livewire.employee.correios.partials.resumo-embalagem', ['shipment' => $shipment])
                                         </div>
                                     </div>
                                     <div class="flex gap-2 shrink-0">
-                                        <button wire:click="baixarRotulo({{ $shipment->id }})" type="button" class="btn btn-default btn-xs !rounded-xl">{{ __('Etiqueta') }}</button>
-                                        <button wire:click="baixarDeclaracao({{ $shipment->id }})" type="button" class="btn btn-default btn-xs !rounded-xl">{{ __('Declaração') }}</button>
+                                        <button wire:click="baixarRotulo({{ $shipment->id }})" wire:loading.attr="disabled" wire:target="baixarRotulo({{ $shipment->id }})" type="button" class="btn btn-default btn-xs !rounded-xl">
+                                            <x-heroicon-m-printer class="mr-1 h-3.5 w-3.5" />
+                                            {{ __('Etiqueta') }}
+                                        </button>
+                                        <button wire:click="baixarDeclaracao({{ $shipment->id }})" wire:loading.attr="disabled" wire:target="baixarDeclaracao({{ $shipment->id }})" type="button" class="btn btn-default btn-xs !rounded-xl">
+                                            <x-loading-spinner wire:loading wire:target="baixarDeclaracao({{ $shipment->id }})" class="mr-1 h-3.5 w-3.5" />
+                                            <x-heroicon-m-document-text wire:loading.remove wire:target="baixarDeclaracao({{ $shipment->id }})" class="mr-1 h-3.5 w-3.5" />
+                                            {{ __('Declaração') }}
+                                        </button>
                                     </div>
                                 </li>
                             @empty
@@ -163,7 +183,7 @@
             <x-input-error for="cpfEditando" class="mt-2" />
         </x-slot:content>
         <x-slot:footer>
-            <button wire:click="salvarCpf" type="button" class="btn btn-primary w-full sm:ml-3 sm:w-auto">{{ __('Salvar') }}</button>
+            <button wire:click="salvarCpf" wire:loading.attr="disabled" wire:target="salvarCpf" type="button" class="btn btn-primary w-full sm:ml-3 sm:w-auto">{{ __('Salvar') }}</button>
             <button x-on:click="show = false" type="button" class="btn btn-default mt-3 w-full sm:mt-0 sm:w-auto">{{ __('Cancelar') }}</button>
         </x-slot:footer>
     </x-modal-dialog>
@@ -172,7 +192,7 @@
         <x-slot:title>{{ __('Postagem manual — pedido de balcão') }}</x-slot:title>
         <x-slot:content>
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                {{ __('Este pedido não tem destino a uma unidade prisional. Preencha quem está enviando e para onde vai.') }}
+                {{ __('Este pedido não tem destino a uma unidade prisional. Preencha quem está enviando e para onde vai — na próxima etapa você confere a embalagem.') }}
             </p>
 
             <h4 class="text-sm font-semibold text-primary dark:text-slate-300 mb-3">{{ __('Remetente') }}</h4>
@@ -259,10 +279,29 @@
             </div>
         </x-slot:content>
         <x-slot:footer>
-            <button wire:click="criarPostagemManual" wire:loading.attr="disabled" type="button" class="btn btn-primary w-full sm:ml-3 sm:w-auto">
-                {{ __('Criar pré-postagem') }}
+            <button wire:click="criarPostagemManual" wire:loading.attr="disabled" wire:target="criarPostagemManual" type="button" class="btn btn-primary w-full sm:ml-3 sm:w-auto">
+                <x-loading-spinner wire:loading wire:target="criarPostagemManual" class="-ml-1 mr-2 h-4 w-4" />
+                {{ __('Continuar para conferência') }}
             </button>
             <button x-on:click="show = false" type="button" class="btn btn-default mt-3 w-full sm:mt-0 sm:w-auto">{{ __('Cancelar') }}</button>
         </x-slot:footer>
     </x-modal-dialog>
+
+    <x-modal-alert wire:model.defer="cancelandoShipmentId">
+        <x-slot:title>{{ __('Cancelar pré-postagem?') }}</x-slot:title>
+        <x-slot:content>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+                {{ __('A pré-postagem é cancelada nos Correios e o pedido volta para "Pendentes de envio". Use se a etiqueta saiu com dados ou medidas erradas.') }}
+            </p>
+        </x-slot:content>
+        <x-slot:footer>
+            <button wire:click="cancelarPostagem" wire:loading.attr="disabled" wire:target="cancelarPostagem" type="button" class="btn btn-danger w-full sm:ml-3 sm:w-auto">
+                <x-loading-spinner wire:loading wire:target="cancelarPostagem" class="-ml-1 mr-2 h-4 w-4" />
+                {{ __('Cancelar pré-postagem') }}
+            </button>
+            <button x-on:click="show = false" type="button" class="btn btn-invisible mt-3 w-full sm:mt-0 sm:w-auto">{{ __('Voltar') }}</button>
+        </x-slot:footer>
+    </x-modal-alert>
+
+    @include('livewire.employee.correios.partials.conferencia-embalagem')
 </div>

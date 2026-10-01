@@ -2,18 +2,18 @@
 
 namespace App\Http\Livewire\Employee\Order\Components;
 
-use App\Enums\CorreiosPrepostagemStatus;
+use App\Http\Livewire\Traits\ConfereEmbalagemCorreios;
 use App\Models\Order;
 use App\Models\Shipment;
-use App\Models\Visitante;
-use App\Services\CorreiosPostagemOrchestrator;
 use App\Services\CorreiosPrepostagemService;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class OrderCorreiosAction extends Component
 {
+    use ConfereEmbalagemCorreios;
+
     public Order $order;
 
     public bool $showManual = false;
@@ -51,7 +51,7 @@ class OrderCorreiosAction extends Component
 
     public function getShipmentProperty(): ?Shipment
     {
-        return $this->order->shipments()->where('shipping_carrier', 'correios')->first();
+        return $this->order->shipments()->where('shipping_carrier', 'correios')->with('shippingBox:id,code,name')->first();
     }
 
     public function abrirCpf()
@@ -78,26 +78,21 @@ class OrderCorreiosAction extends Component
         $this->showManual = true;
     }
 
-    public function criarManual(CorreiosPostagemOrchestrator $orchestrator)
+    /**
+     * Valida remetente/destinatário e segue para a conferência de embalagem —
+     * a pré-postagem só é criada no confirmarPostagem() do trait.
+     */
+    public function criarManual()
     {
         $this->validate($this->rulesManual());
 
-        $this->criar($orchestrator, $this->remetenteManual, $this->destinatarioManual);
-
         $this->showManual = false;
+
+        $this->abrirConferencia($this->order->id, true);
     }
 
-    public function criar(CorreiosPostagemOrchestrator $orchestrator, ?array $remetenteManual = null, ?array $destinatarioManual = null)
+    protected function aposConfirmarPostagem(Shipment $shipment): void
     {
-        try {
-            $orchestrator->criar($this->order->id, $remetenteManual, $destinatarioManual);
-        } catch (\Throwable $e) {
-            $this->addError('postagem', $e->getMessage());
-            return;
-        }
-
-        $this->notify(trans('Pré-postagem solicitada aos Correios.'));
-
         $this->emit('refresh')->to('employee.order.components.order-timeline');
     }
 
@@ -121,7 +116,7 @@ class OrderCorreiosAction extends Component
         try {
             $pdf = $service->gerarDeclaracaoPdf($shipment->correios_prepostagem_id);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error("Correios: falha ao gerar declaração de conteúdo do shipment #{$shipment->id}: " . $e->getMessage());
+            Log::error("Correios: falha ao gerar declaração de conteúdo do shipment #{$shipment->id}: " . $e->getMessage());
             $this->notify(trans('Não foi possível gerar a declaração agora — tente novamente em instantes.'));
             return;
         }
@@ -133,6 +128,8 @@ class OrderCorreiosAction extends Component
 
     public function render()
     {
-        return view('livewire.employee.order.components.order-correios-action');
+        return view('livewire.employee.order.components.order-correios-action', [
+            'caixasConferencia' => $this->mostrarConferencia ? $this->caixasConferencia : collect(),
+        ]);
     }
 }

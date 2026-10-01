@@ -5,12 +5,11 @@ namespace App\Http\Livewire\Employee\Correios;
 use App\Enums\CorreiosPrepostagemStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ShippingCarrier;
+use App\Http\Livewire\Traits\ConfereEmbalagemCorreios;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\Visitante;
-use App\Services\CorreiosPostagemOrchestrator;
 use App\Services\CorreiosPrepostagemService;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -19,6 +18,7 @@ use Livewire\WithPagination;
 class CorreiosPostagem extends Component
 {
     use WithPagination;
+    use ConfereEmbalagemCorreios;
 
     public string $tab = 'pendentes';
 
@@ -29,6 +29,12 @@ class CorreiosPostagem extends Component
     public string $cpfEditando = '';
 
     public ?int $pedidoManualId = null;
+
+    /**
+     * Sem tipo de propósito: o modal de confirmação usa @entangle e, ao
+     * fechar pelo Alpine, devolve false — um ?int quebraria a hidratação.
+     */
+    public $cancelandoShipmentId = null;
 
     public array $remetenteManual = ['nome' => '', 'cpf' => '', 'cep' => '', 'logradouro' => '', 'numero' => '', 'bairro' => '', 'cidade' => '', 'uf' => ''];
 
@@ -96,7 +102,7 @@ class CorreiosPostagem extends Component
             ->whereNotNull('correios_status')
             ->where('correios_status', '!=', CorreiosPrepostagemStatus::POSTADO->value)
             ->whereNull('correios_label_recibo')
-            ->with('order.customer:id,name')
+            ->with(['order.customer:id,name', 'shippingBox:id,code,name'])
             ->latest()
             ->paginate(15);
     }
@@ -106,7 +112,7 @@ class CorreiosPostagem extends Component
         return Shipment::query()
             ->where('shipping_carrier', ShippingCarrier::CORREIOS->value)
             ->whereNotNull('correios_label_recibo')
-            ->with('order.customer:id,name')
+            ->with(['order.customer:id,name', 'shippingBox:id,code,name'])
             ->latest()
             ->paginate(15);
     }
@@ -137,26 +143,22 @@ class CorreiosPostagem extends Component
         $this->resetErrorBag();
     }
 
-    public function criarPostagemManual(CorreiosPostagemOrchestrator $orchestrator)
+    /**
+     * Valida remetente/destinatário digitados e segue para a conferência de
+     * embalagem — a pré-postagem só é criada no confirmarPostagem() do trait.
+     */
+    public function criarPostagemManual()
     {
         $this->validate($this->rulesManual());
 
         $orderId = $this->pedidoManualId;
         $this->pedidoManualId = null;
 
-        $this->criarPostagem($orderId, $orchestrator, $this->remetenteManual, $this->destinatarioManual);
+        $this->abrirConferencia((int) $orderId, true);
     }
 
-    public function criarPostagem($orderId, CorreiosPostagemOrchestrator $orchestrator, ?array $remetenteManual = null, ?array $destinatarioManual = null)
+    protected function aposConfirmarPostagem(Shipment $shipment): void
     {
-        try {
-            $orchestrator->criar($orderId, $remetenteManual, $destinatarioManual);
-        } catch (\Throwable $e) {
-            $this->addError('postagem', $e->getMessage());
-            return;
-        }
-
-        $this->notify(trans('Pré-postagem criada. Acompanhe em "Em processamento".'));
         $this->setTab('processamento');
     }
 
@@ -190,9 +192,24 @@ class CorreiosPostagem extends Component
         }, "declaracao-conteudo-pedido-{$shipment->order_id}.pdf");
     }
 
-    public function cancelarPostagem($shipmentId, CorreiosPrepostagemService $service)
+    /**
+     * Abre a confirmação de cancelamento (substitui o wire:confirm, que é do
+     * Livewire 3 e era ignorado aqui — um clique cancelava direto).
+     */
+    public function confirmarCancelamento($shipmentId)
     {
-        $shipment = Shipment::findOrFail($shipmentId);
+        $this->cancelandoShipmentId = (int) $shipmentId;
+    }
+
+    public function cancelarPostagem(CorreiosPrepostagemService $service)
+    {
+        $shipment = $this->cancelandoShipmentId ? Shipment::find($this->cancelandoShipmentId) : null;
+
+        $this->cancelandoShipmentId = null;
+
+        if (! $shipment) {
+            return;
+        }
 
         try {
             $service->cancelar($shipment->correios_prepostagem_id);
@@ -216,6 +233,7 @@ class CorreiosPostagem extends Component
             'pedidosPendentes' => $this->tab === 'pendentes' ? $this->pedidosPendentes : null,
             'emProcessamento' => $this->tab === 'processamento' ? $this->emProcessamento : null,
             'concluidos' => $this->tab === 'concluidos' ? $this->concluidos : null,
+            'caixasConferencia' => $this->mostrarConferencia ? $this->caixasConferencia : collect(),
         ])->layout('layouts.admin');
     }
 }
