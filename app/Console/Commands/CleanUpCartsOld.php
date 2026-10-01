@@ -19,7 +19,6 @@ class CleanUpCartsOld extends Command
 
         // Usamos where() direto em vez de whereDate()
         $query = Cart::where('updated_at', '<=', now()->subDays($days))
-            ->whereHas('items')
             ->whereNull('customer_id');
 
         $count = $query->count();
