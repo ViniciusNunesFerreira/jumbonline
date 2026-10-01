@@ -28,8 +28,10 @@ class CleanUpCartsOld extends Command
             return self::SUCCESS;
         }
 
+        $this->info("Encontrados {$count} carrinhos. Iniciando remoção...");
+
         // Processa em lotes para economizar memória
-        $query->chunkById(500, function ($candidates) {
+        $query->chunkById(1000, function ($candidates) {
             DB::transaction(function () use ($candidates) {
                 foreach ($candidates as $cart) {
                     $cart->addresses()->delete();
