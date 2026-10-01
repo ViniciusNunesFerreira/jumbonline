@@ -17,25 +17,28 @@ class CleanUpCartsOld extends Command
     {
         $days = (int) $this->option('days');
 
-        $candidates = Cart::whereDate('updated_at', '<=', now()->subDays($days))
+        // Usamos where() direto em vez de whereDate()
+        $query = Cart::where('updated_at', '<=', now()->subDays($days))
             ->whereHas('items')
-            ->whereNull('customer_id')
-            ->get();
+            ->whereNull('customer_id');
 
-        if ($candidates->isEmpty()) {
+        $count = $query->count();
+
+        if ($count === 0) {
             $this->info('Nenhum carrinho parado pra limpar.');
             return self::SUCCESS;
         }
 
-        $count = $candidates->count();
-
-        DB::transaction(function () use ($candidates) {
-            foreach ($candidates as $cart) {
-                $cart->addresses()->delete();
-                $cart->discounts()->delete();
-                $cart->items()->delete();
-                $cart->delete();
-            }
+        // Processa em lotes para economizar memória
+        $query->chunkById(500, function ($candidates) {
+            DB::transaction(function () use ($candidates) {
+                foreach ($candidates as $cart) {
+                    $cart->addresses()->delete();
+                    $cart->discounts()->delete();
+                    $cart->items()->delete();
+                    $cart->delete();
+                }
+            });
         });
 
         Log::info("Limpeza automática de carrinhos parados: {$count} removidos.");
