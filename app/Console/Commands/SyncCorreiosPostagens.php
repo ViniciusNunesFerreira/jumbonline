@@ -16,27 +16,70 @@ class SyncCorreiosPostagens extends Command
 
     protected $description = 'Acompanha pré-postagens ainda em processamento e baixa o rótulo assim que a Correios liberar — substitui a necessidade de fila de jobs.';
 
+    /**
+     * Status em que o rótulo já pode ser solicitado — os mesmos do
+     * AguardarStatusPrepostagemJob. Antes este comando só aceitava
+     * PREPOSTADO (2): envio que ia de PENDENTE (7) para PREATENDIDO (1)
+     * ficava parado para sempre.
+     */
+    private const APTOS_PARA_ROTULO = [
+        CorreiosPrepostagemStatus::PREATENDIDO,
+        CorreiosPrepostagemStatus::PREPOSTADO,
+    ];
+
+    private const ENCERRADOS = [
+        CorreiosPrepostagemStatus::POSTADO,
+        CorreiosPrepostagemStatus::CANCELADO,
+        CorreiosPrepostagemStatus::EXPIRADO,
+        CorreiosPrepostagemStatus::ESTORNADO,
+    ];
+
     public function handle(CorreiosPrepostagemService $service): int
     {
+        // Antes: só status PENDENTE (7). Envio criado já como PREATENDIDO (1),
+        // cujo job de rótulo não rodou, nunca era encontrado aqui. Agora: toda
+        // pré-postagem sem recibo de rótulo e sem status final.
         $pendentes = Shipment::query()
             ->where('shipping_carrier', ShippingCarrier::CORREIOS->value)
             ->whereNotNull('correios_prepostagem_id')
-            ->where('correios_status', CorreiosPrepostagemStatus::PENDENTE->value)
+            ->whereNull('correios_label_recibo')
+            ->where(fn ($q) => $q->whereNull('correios_status')->orWhereNotIn('correios_status', array_map(fn ($s) => $s->value, self::ENCERRADOS)))
             ->get();
+
+        $aptos = array_map(fn ($s) => $s->value, self::APTOS_PARA_ROTULO);
 
         foreach ($pendentes as $shipment) {
             try {
-                $status = $service->consultarStatus($shipment->correios_prepostagem_id);
-                $novoStatus = $status['statusAtual'] ?? null;
+                $status = $service->consultarStatus($shipment->correios_prepostagem_id) ?? [];
+                $novoStatus = isset($status['statusAtual']) ? (int) $status['statusAtual'] : null;
 
-                if ($novoStatus && $novoStatus !== $shipment->correios_status) {
-                    $shipment->update(['correios_status' => $novoStatus]);
+                $alteracoes = [];
+
+                if ($novoStatus && $novoStatus !== (int) $shipment->correios_status) {
+                    $alteracoes['correios_status'] = $novoStatus;
                     Log::info("Correios: shipment #{$shipment->id} mudou pra status {$novoStatus}.");
                 }
 
-                if ($novoStatus === CorreiosPrepostagemStatus::PREPOSTADO->value && ! $shipment->correios_label_recibo) {
+                // Custo oficial do envio, só quando ainda não foi gravado.
+                $custo = $this->valorMonetario($status['precoPrePostagem'] ?? null);
+
+                if ($shipment->cost === null && $custo !== null) {
+                    $alteracoes['cost'] = $custo;
+                }
+
+                if ($alteracoes) {
+                    $shipment->update($alteracoes);
+                }
+
+                if (in_array($novoStatus, $aptos, true)) {
                     $rotulo = $service->solicitarRotulo($shipment->correios_prepostagem_id);
-                    $shipment->update(['correios_label_recibo' => $rotulo['idRecibo'] ?? null]);
+                    $recibo = $rotulo['idRecibo'] ?? null;
+
+                    if ($recibo) {
+                        $shipment->update(['correios_label_recibo' => $recibo]);
+                    } else {
+                        Log::warning("Correios sync: solicitação de rótulo do shipment #{$shipment->id} não retornou idRecibo.");
+                    }
                 }
             } catch (\Throwable $e) {
                 Log::error("Correios sync: falha ao consultar shipment #{$shipment->id}: " . $e->getMessage());
@@ -63,5 +106,24 @@ class SyncCorreiosPostagens extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * precoPrePostagem pode vir como número ou como texto no formato
+     * brasileiro ("19,00" / "1.234,56").
+     */
+    private function valorMonetario(mixed $valor): ?float
+    {
+        if ($valor === null || $valor === '') {
+            return null;
+        }
+
+        if (is_numeric($valor)) {
+            return round((float) $valor, 2);
+        }
+
+        $normalizado = str_replace(',', '.', str_replace('.', '', (string) $valor));
+
+        return is_numeric($normalizado) ? round((float) $normalizado, 2) : null;
     }
 }

@@ -5,11 +5,13 @@ namespace App\Http\Livewire\Employee\Correios;
 use App\Enums\CorreiosPrepostagemStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ShippingCarrier;
+use App\Events\ShipmentDeleted;
 use App\Http\Livewire\Traits\ConfereEmbalagemCorreios;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\Visitante;
 use App\Services\CorreiosPrepostagemService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -211,20 +213,56 @@ class CorreiosPostagem extends Component
             return;
         }
 
-        try {
-            $service->cancelar($shipment->correios_prepostagem_id);
-        } catch (\Throwable $e) {
+        if ($shipment->correios_prepostagem_id && ! $this->cancelarNosCorreios($service, $shipment)) {
             $this->notify(trans('Não foi possível cancelar junto aos Correios — verifique manualmente.'));
+
             return;
         }
 
-        $shipment->shipmentItems()->delete();
+        DB::transaction(function () use ($shipment) {
+            $shipment->shipmentItems()->delete();
+            $shipment->delete();
+        });
 
-        \App\Events\ShipmentDeleted::dispatch($shipment);
+        // Depois do delete: o listener recalcula o status de envio do pedido
+        // já sem esta remessa (antes do delete ele ainda a contava).
+        ShipmentDeleted::dispatch($shipment);
 
-        $shipment->delete();
+        Storage::disk('local')->delete("correios-labels/{$shipment->id}.pdf");
 
-        $this->notify(trans('Pré-postagem cancelada.'));
+        $this->notify(trans('Pré-postagem cancelada. O pedido voltou para "Pendentes de envio".'));
+    }
+
+    /**
+     * Cancela nos Correios. Se o DELETE falhar porque a pré-postagem JÁ está
+     * cancelada lá (caso das tentativas que quebraram no evento inexistente
+     * depois de cancelar), considera sucesso e segue com a limpeza local.
+     */
+    protected function cancelarNosCorreios(CorreiosPrepostagemService $service, Shipment $shipment): bool
+    {
+        try {
+            $service->cancelar($shipment->correios_prepostagem_id);
+
+            return true;
+        } catch (\Throwable $e) {
+            try {
+                $status = $service->consultarStatus($shipment->correios_prepostagem_id)['statusAtual'] ?? null;
+            } catch (\Throwable $consulta) {
+                $status = null;
+            }
+
+            if ((int) $status === CorreiosPrepostagemStatus::CANCELADO->value) {
+                return true;
+            }
+
+            Log::warning("Correios: falha ao cancelar a pré-postagem do shipment #{$shipment->id}", [
+                'prepostagem' => $shipment->correios_prepostagem_id,
+                'status_atual' => $status,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     public function render()
