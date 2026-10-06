@@ -34,6 +34,10 @@ class ProductList extends Component
 
     public function mount()
     {
+        if (! isset($this->prison)) {
+            return redirect()->route('guest.welcome');
+        }
+        
         $endereco = "{$this->prison->cidade}/{$this->prison->uf}";
 
         $this->seo()->setTitle(

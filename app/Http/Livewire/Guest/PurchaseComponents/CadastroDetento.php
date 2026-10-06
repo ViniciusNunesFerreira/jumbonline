@@ -94,6 +94,7 @@ class CadastroDetento extends Component
             'data.visitante.bairro.required' => ['bairro é obrigatório'],
             'data.visitante.cidade.required' => ['cidade é obrigatório'],
             'data.visitante.uf.required' => ['uf é obrigatório'],
+            'data.visitante.uf.size' => ['Informe a UF com 2 letras (ex.: SP)'],
             'data.visitante.cep.required' => ['cep é obrigatório']
         ];
     }
@@ -145,6 +146,22 @@ class CadastroDetento extends Component
     public function saveData()
     {
 
+        if (empty($this->prison?->id) && session()->has('prison')) {
+            $unidade = \App\Models\PrisonUnit::query()->where('slug', session('prison'))->first();
+
+            if ($unidade) {
+                $this->prison = $unidade;
+            }
+        }
+
+        if (empty($this->prison?->id)) {
+            $this->notify('Selecione a unidade prisional na etapa anterior antes de continuar.');
+            return;
+        }
+
+         $this->data['visitante']['uf'] = mb_strtoupper(trim((string) $this->data['visitante']['uf']));
+
+
         $this->validate([
             'data.detento.name' => ['required'],
             'data.detento.matricula' => ['required'],
@@ -155,7 +172,7 @@ class CadastroDetento extends Component
             'data.visitante.numero' => ['required'],
             'data.visitante.bairro' => ['required'],
             'data.visitante.cidade' => ['required'],
-            'data.visitante.uf' => ['required'],
+            'data.visitante.uf' => ['required', 'size:2'],
             'data.visitante.cep' => ['required']
         ]);
 

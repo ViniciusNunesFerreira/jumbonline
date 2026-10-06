@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Propaganistas\LaravelPhone\Rules\Phone;
+use Propaganistas\LaravelPhone\PhoneNumber;
+use Illuminate\Validation\ValidationException;
 
 class RegisteredUserController extends Controller
 {
@@ -46,6 +48,14 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'g-recaptcha-response' => ['required','captcha']
         ], $msg);
+
+        $phoneE164 = (new PhoneNumber($request->phone, $request->phone_country ?: 'BR'))->formatE164();
+
+        if (Customer::query()->where('phone', $phoneE164)->exists()) {
+            throw ValidationException::withMessages([
+                'phone' => 'Este telefone já está cadastrado. Faça login ou use "Esqueci minha senha".',
+            ]);
+        }
 
         $customer = Customer::create([
             'name' => $request->name,
