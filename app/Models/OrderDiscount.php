@@ -25,7 +25,7 @@ class OrderDiscount extends Model
     protected function discountedAmount(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $this->type === 'fixed' ? $this->amount : $this->amount * ($this->orderItem->subtotal / 100),
+             get: fn($value) => (float) $this->amount,
         );
     }
 }
