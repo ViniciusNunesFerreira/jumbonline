@@ -17,6 +17,12 @@ class CadastroDetento extends Component
 
     use WithFileUploads;
 
+    /**
+     * Siglas válidas: a UF do visitante vai crua para o snapshot do pedido e
+     * para o remetente da pré-postagem dos Correios.
+     */
+    private const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+
     public $image;
 
     public $selected = [];
@@ -67,19 +73,27 @@ class CadastroDetento extends Component
 
     }
 
-    protected $rules = [
-        'data.detento.name' => ['required'],
-        'data.detento.matricula' => ['required'],
-        'data.detento.raio' => ['required'],
-        'data.detento.cela' => ['required'],
-        'data.visitante.nome' => ['required'],
-        'data.visitante.logradouro' => ['required'],
-        'data.visitante.numero' => ['required'],
-        'data.visitante.bairro' => ['required'],
-        'data.visitante.cidade' => ['required'],
-        'data.visitante.uf' => ['required'],
-        'data.visitante.cep' => ['required']
-    ];
+    /**
+     * Fonte ÚNICA das regras: usada no blur (updated → validateOnly) e no
+     * saveData(). Limites espelham as colunas de detentos/visitantes
+     * (string = 255; numero/cep = 10; uf = 2 letras válidas).
+     */
+    protected function rules(): array
+    {
+        return [
+            'data.detento.name' => ['required', 'max:255'],
+            'data.detento.matricula' => ['required', 'max:255'],
+            'data.detento.raio' => ['required', 'max:255'],
+            'data.detento.cela' => ['required', 'max:255'],
+            'data.visitante.nome' => ['required', 'max:255'],
+            'data.visitante.logradouro' => ['required', 'max:255'],
+            'data.visitante.numero' => ['required', 'max:10'],
+            'data.visitante.bairro' => ['required', 'max:255'],
+            'data.visitante.cidade' => ['required', 'max:255'],
+            'data.visitante.uf' => ['bail', 'required', 'size:2', 'in:' . implode(',', self::UFS)],
+            'data.visitante.cep' => ['required', 'regex:/^\d{2}\.?\d{3}-?\d{3}$/'],
+        ];
+    }
 
     protected function messages(): array
     {
@@ -94,13 +108,26 @@ class CadastroDetento extends Component
             'data.visitante.bairro.required' => ['bairro é obrigatório'],
             'data.visitante.cidade.required' => ['cidade é obrigatório'],
             'data.visitante.uf.required' => ['uf é obrigatório'],
-            'data.visitante.uf.size' => ['Informe a UF com 2 letras (ex.: SP)'],
-            'data.visitante.cep.required' => ['cep é obrigatório']
+            'data.visitante.cep.required' => ['cep é obrigatório'],
+
+            // ATENÇÃO: mensagens de regras de tamanho (size, max, min, between...)
+            // precisam ser STRING. Em array, o Laravel procura a chave do tipo
+            // ('string', 'numeric'...) e lança "Undefined array key".
+            'data.visitante.uf.size' => 'Informe a UF com 2 letras (ex.: SP)',
+            'data.visitante.uf.in' => 'UF inválida. Use a sigla do estado (ex.: SP)',
+            'data.visitante.numero.max' => 'O número aceita no máximo 10 caracteres. Coloque o complemento junto ao logradouro.',
+            'data.visitante.cep.regex' => 'CEP inválido. Use o formato 00000-000.',
+            // Genérica: precisa vir DEPOIS das específicas (a primeira que casar vence).
+            'data.*.*.max' => 'Este campo aceita no máximo :max caracteres.',
         ];
     }
 
     public function updated($propertyName)
     {
+        if ($propertyName === 'data.visitante.uf') {
+            $this->data['visitante']['uf'] = mb_strtoupper(trim((string) $this->data['visitante']['uf']));
+        }
+
         $this->validateOnly($propertyName);
     }
 
@@ -159,24 +186,10 @@ class CadastroDetento extends Component
             return;
         }
 
-         $this->data['visitante']['uf'] = mb_strtoupper(trim((string) $this->data['visitante']['uf']));
+        $this->data['visitante']['uf'] = mb_strtoupper(trim((string) $this->data['visitante']['uf']));
 
+        $this->validate();
 
-        $this->validate([
-            'data.detento.name' => ['required'],
-            'data.detento.matricula' => ['required'],
-            'data.detento.raio' => ['required'],
-            'data.detento.cela' => ['required'],
-            'data.visitante.nome' => ['required'],
-            'data.visitante.logradouro' => ['required'],
-            'data.visitante.numero' => ['required'],
-            'data.visitante.bairro' => ['required'],
-            'data.visitante.cidade' => ['required'],
-            'data.visitante.uf' => ['required', 'size:2'],
-            'data.visitante.cep' => ['required']
-        ]);
-
-        
         $this->detento->name = $this->data['detento']['name'];
         $this->detento->matricula = $this->data['detento']['matricula'];
         $this->detento->raio = $this->data['detento']['raio'];
